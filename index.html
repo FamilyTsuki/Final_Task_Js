@@ -4,11 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Key-Survive | Typing Game</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   </head>
   <body>
-    <section id="game-screen" class="screen hidden">
+    <section id="game-screen" class="screen_hidden">
       <div id="hud">
         <span>Score: <span id="current-score">0</span></span>
         <span>Vie: <span id="player-health">3</span></span>
@@ -16,12 +14,12 @@
       <div class="key-map"></div>
     </section>
 
-    <section id="game-over-screen" class="screen hidden">
+    <section id="game-over-screen" class="screen_hidden">
       <h2>GAME OVER</h2>
       <p>Votre score final : <span id="final-score">0</span></p>
       <button id="restart-btn">Réessayer</button>
     </section>
 
-    <script type="module" src="main.js"></script>
+    <script type="module" src="./src/app.js"></script>
   </body>
 </html>
