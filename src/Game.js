@@ -8,17 +8,31 @@ export default class Game {
   }
 
   drawKeyboard() {
-    console.log("Dessin du clavier...");
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     KEYBOARD_LAYOUT.forEach((tile) => {
-      const posX = tile.x * this.tileSize;
-      const posY = tile.y * this.tileSize;
-      this.ctx.strokeStyle = "white";
+      const posX = tile.x * (this.tileSize + 10) + 50;
+      const posY = tile.y * (this.tileSize + 5) + 50;
+      const depth = 6;
+
+      this.ctx.fillStyle = "#555";
+      this.ctx.fillRect(posX, posY, this.tileSize, this.tileSize + depth);
+
+      this.ctx.fillStyle = "#eee";
+      this.ctx.fillRect(posX, posY, this.tileSize, this.tileSize);
+
+      this.ctx.strokeStyle = "#999";
+      this.ctx.lineWidth = 1;
       this.ctx.strokeRect(posX, posY, this.tileSize, this.tileSize);
-      this.ctx.fillStyle = "white";
-      this.ctx.font = "20px Arial";
-      this.ctx.fillText(tile.key, posX + 20, posY + 35);
+
+      this.ctx.fillStyle = "#333";
+      this.ctx.font = "bold 20px Arial";
+      this.ctx.textAlign = "center";
+      this.ctx.fillText(
+        tile.key,
+        posX + this.tileSize / 2,
+        posY + this.tileSize / 2 + 7,
+      );
     });
   }
 }
