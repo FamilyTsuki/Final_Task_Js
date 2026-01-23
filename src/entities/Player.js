@@ -31,12 +31,6 @@ export default class Player extends Actor {
     return false;
   }
 
-  get playerName() {
-    return this.playerName;
-  }
-  get hp() {
-    return this.hp;
-  }
   get wordSpells() {
     return this.#wordSpells.map((wordSpell) => wordSpell.word);
   }

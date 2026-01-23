@@ -1,24 +1,37 @@
-export default class Actor {
+import GameObject from "./GameObject";
+
+export default class Actor extends GameObject {
   name;
   hp;
   hpMax;
-  position; //? {x: ..., y: ...}
-  size; //? {width: ..., height: ...}
+  size; //? {width: Number, height: Number}
   img; //? Image
 
   constructor(name, hp, hpMax, position, size, img) {
+    super(position);
+
     this.name = name;
     this.hp = hp;
     this.hpMax = hpMax;
-    this.position = position;
     this.size = size;
     this.img = img;
+  }
+
+  get name() {
+    return this.name;
+  }
+  get hp() {
+    return this.hp;
+  }
+
+  isAlive() {
+    return this.hp > 0;
   }
 
   attack(actor) {
     console.log(`${this.name} attacking ${actor.name}`);
   }
-  render(ctx) {
+  draw(ctx) {
     ctx.drawImage(
       this.img,
       this.position.x,
