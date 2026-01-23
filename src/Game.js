@@ -28,23 +28,25 @@ export default class Game {
       const posY = tile.y * (this.tileSize + 5) + 50;
       const depth = 6;
 
-      this.ctx.fillStyle = "#555";
+      const offset = tile.isPressed ? 3 : 0;
+
+      this.ctx.fillStyle = tile.isPressed ? "#b56500" : "#555";
       this.ctx.fillRect(posX, posY, this.tileSize, this.tileSize + depth);
 
-      this.ctx.fillStyle = "#eee";
-      this.ctx.fillRect(posX, posY, this.tileSize, this.tileSize);
+      this.ctx.fillStyle = tile.isPressed ? "#FF9800" : "#eee";
+      this.ctx.fillRect(posX, posY + offset, this.tileSize, this.tileSize);
 
-      this.ctx.strokeStyle = "#999";
+      this.ctx.strokeStyle = tile.isPressed ? "#e68a00" : "#999";
       this.ctx.lineWidth = 1;
-      this.ctx.strokeRect(posX, posY, this.tileSize, this.tileSize);
+      this.ctx.strokeRect(posX, posY + offset, this.tileSize, this.tileSize);
 
-      this.ctx.fillStyle = "#333";
+      this.ctx.fillStyle = tile.isPressed ? "white" : "#333";
       this.ctx.font = "bold 20px Arial";
       this.ctx.textAlign = "center";
       this.ctx.fillText(
         tile.key,
         posX + this.tileSize / 2,
-        posY + this.tileSize / 2 + 7,
+        posY + this.tileSize / 2 + 7 + offset,
       );
     });
   }
