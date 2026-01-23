@@ -13,3 +13,8 @@ console.log(page_game);
 if (etat == "play") {
   page_game.classList.remove("hidden");
 }
+
+window.addEventListener("resize", () => {
+  myGame.updateSize();
+  myGame.drawKeyboard();
+});
