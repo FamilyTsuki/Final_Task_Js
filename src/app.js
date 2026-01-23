@@ -1,7 +1,7 @@
 import "./style.css";
 import Game from "./Game.js";
 import Player from "./entities/Player.js";
-import { KEYBOARD_LAYOUT } from "../Keyboard.js";
+import { KEYBOARD_LAYOUT } from "./Keyboard.js";
 
 const myGame = new Game();
 myGame.canvas.width = window.innerWidth;

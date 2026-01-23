@@ -1,4 +1,4 @@
-import { KEYBOARD_LAYOUT } from "../Keyboard.js";
+import { KEYBOARD_LAYOUT } from "./Keyboard.js";
 
 export default class Game {
   constructor() {
