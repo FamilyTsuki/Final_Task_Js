@@ -1,3 +1,9 @@
-.screen_hidden {
-  display: none;
+canvas {
+  background-color: #1a1a1a;
+  display: block;
+  border: 2px solid red;
+}
+
+.hidden {
+  display: none !important;
 }
