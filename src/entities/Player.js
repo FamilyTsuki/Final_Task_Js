@@ -34,4 +34,9 @@ export default class Player extends Actor {
   get wordSpells() {
     return this.#wordSpells.map((wordSpell) => wordSpell.word);
   }
+  moveTo(newPos) {
+    if (newPos && typeof newPos.x === "number") {
+      this.position = newPos;
+    }
+  }
 }
