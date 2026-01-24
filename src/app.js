@@ -17,22 +17,36 @@ window.addEventListener("resize", () => {
   myGame.keyboardDraw();
 });
 
-window.addEventListener("keydown", (event) => {
-  const keyPressed = event.key.toUpperCase();
-  const key = myGame.keyboard.find(keyPressed);
+  window.addEventListener("keydown", (e) => {
+    const keyName = e.key.toUpperCase();
 
-  if (key) {
-    key.isPressed = true;
-    myGame.keyboardDraw();
-  }
-});
+    const keyTile = myGame.keyboard.find(keyName);
+    if (keyTile) keyTile.isPressed = true;
 
-window.addEventListener("keyup", (event) => {
-  const keyPressed = event.key.toUpperCase();
-  const key = myGame.keyboard.find(keyPressed);
+    const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
 
-  if (key) {
-    key.isPressed = false;
-    myGame.keyboardDraw();
-  }
-});
+    if (target) {
+      const keyboard = myGame.keyboard;
+      const coords = keyboard.getTilePixels(target.x, target.y);
+      console.log("Target coords:", coords);
+      const currentTileSize = keyboard.tileSize || 60;
+      const playerWidth = player.size?.width || 40;
+      const playerHeight = player.size?.height || 40;
+
+      const newPos = {
+        x: coords.x + currentTileSize / 2 - playerWidth / 2,
+        y: coords.y + currentTileSize / 2 - playerHeight / 2,
+      };
+
+      console.log("Coords:", coords, "TileSize:", currentTileSize);
+      player.moveTo(newPos);
+    }
+  });
+
+  window.addEventListener("keyup", (e) => {
+    const keyTile = myGame.keyboard.find(e.key.toUpperCase());
+    if (keyTile) keyTile.isPressed = false;
+  });
+};
+
+window.addEventListener("DOMContentLoaded", init);
