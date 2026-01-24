@@ -12,6 +12,8 @@ export default class Player extends Actor {
     img,
   ) {
     super(playerName, hp, hpMax, position, size, img);
+    this.targetPosition = { x: position.x, y: position.y };
+    this.speed = 0.2;
   }
 
   //? closestEnemy = {target: Enemy, range: Number}
@@ -35,8 +37,17 @@ export default class Player extends Actor {
     return this.#wordSpells.map((wordSpell) => wordSpell.word);
   }
   moveTo(newPos) {
-    if (newPos && typeof newPos.x === "number") {
-      this.position = newPos;
-    }
+    this.targetPosition = newPos;
+  }
+
+  update() {
+    const dx = this.targetPosition.x - this.position.x;
+    const dy = this.targetPosition.y - this.position.y;
+
+    this.position.x += dx * this.speed;
+    this.position.y += dy * this.speed;
+
+    if (Math.abs(dx) < 0.1) this.position.x = this.targetPosition.x;
+    if (Math.abs(dy) < 0.1) this.position.y = this.targetPosition.y;
   }
 }

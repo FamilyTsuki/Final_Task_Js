@@ -6,7 +6,7 @@ import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 const CONFIG = {
   player: {
     name: "Héros",
-    color: "#00FF00",
+    imgSrc: "./assets/player.jpg",
     startPos: { x: 50, y: 50 },
     size: { width: 40, height: 40 },
   },
@@ -23,20 +23,22 @@ const init = () => {
 
   myGame = new Game(KEYBOARD_LAYOUT);
 
+  const playerImg = new Image();
+  playerImg.src = CONFIG.player.imgSrc;
+
   player = new Player(
     CONFIG.player.name,
     100,
     100,
     CONFIG.player.startPos,
     CONFIG.player.size,
-    CONFIG.player.color,
+    playerImg,
   );
 
   const page_game = document.getElementById("game-screen");
   page_game?.classList.remove("hidden");
 
   setupEventListeners();
-
   requestAnimationFrame(gameLoop);
 };
 
@@ -48,6 +50,7 @@ const gameLoop = () => {
   myGame.keyboardDraw();
 
   if (player) {
+    player.update();
     player.draw(ctx);
   }
 
