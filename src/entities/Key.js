@@ -9,7 +9,7 @@ export default class Key extends GameObject {
   constructor(key, x, y, isPressed, tileSize) {
     super({
       x: x * (tileSize + 10) + 50,
-      y: y * (tileSize + 5) + 50,
+      y: y * (tileSize + 8) + 50,
     });
 
     this.#key = key;

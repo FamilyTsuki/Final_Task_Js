@@ -60,4 +60,14 @@ export default class Keyboard {
       ),
     );
   }
+  getTilePixels(tileX, tileY) {
+    const size = this.tileSize || 60;
+    const spacing = 10;
+    const margin = 50;
+
+    return {
+      x: tileX * (size + spacing) + margin,
+      y: tileY * (size + 8) + margin,
+    };
+  }
 }
