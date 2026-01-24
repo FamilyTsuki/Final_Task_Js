@@ -17,36 +17,35 @@ window.addEventListener("resize", () => {
   myGame.keyboardDraw();
 });
 
-  window.addEventListener("keydown", (e) => {
-    const keyName = e.key.toUpperCase();
+window.addEventListener("keydown", (e) => {
+  const keyName = e.key.toUpperCase();
 
-    const keyTile = myGame.keyboard.find(keyName);
-    if (keyTile) keyTile.isPressed = true;
+  const keyTile = myGame.keyboard.find(keyName);
+  if (keyTile) keyTile.isPressed = true;
 
-    const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
+  const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
 
-    if (target) {
-      const keyboard = myGame.keyboard;
-      const coords = keyboard.getTilePixels(target.x, target.y);
-      console.log("Target coords:", coords);
-      const currentTileSize = keyboard.tileSize || 60;
-      const playerWidth = player.size?.width || 40;
-      const playerHeight = player.size?.height || 40;
+  if (target) {
+    const keyboard = myGame.keyboard;
+    const coords = keyboard.getTilePixels(target.x, target.y);
+    console.log("Target coords:", coords);
+    const currentTileSize = keyboard.tileSize || 60;
+    const playerWidth = player.size?.width || 40;
+    const playerHeight = player.size?.height || 40;
 
-      const newPos = {
-        x: coords.x + currentTileSize / 2 - playerWidth / 2,
-        y: coords.y + currentTileSize / 2 - playerHeight / 2,
-      };
+    const newPos = {
+      x: coords.x + currentTileSize / 2 - playerWidth / 2,
+      y: coords.y + currentTileSize / 2 - playerHeight / 2,
+    };
 
-      console.log("Coords:", coords, "TileSize:", currentTileSize);
-      player.moveTo(newPos);
-    }
-  });
+    console.log("Coords:", coords, "TileSize:", currentTileSize);
+    player.moveTo(newPos);
+  }
+});
 
-  window.addEventListener("keyup", (e) => {
-    const keyTile = myGame.keyboard.find(e.key.toUpperCase());
-    if (keyTile) keyTile.isPressed = false;
-  });
-};
+window.addEventListener("keyup", (e) => {
+  const keyTile = myGame.keyboard.find(e.key.toUpperCase());
+  if (keyTile) keyTile.isPressed = false;
+});
 
 window.addEventListener("DOMContentLoaded", init);
