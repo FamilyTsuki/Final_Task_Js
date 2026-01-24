@@ -1,42 +1,38 @@
 import "./style.css";
 import Game from "./Game.js";
 import Player from "./entities/Player.js";
-import { KEYBOARD_LAYOUT } from "./Keyboard.js";
+import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 
-const myGame = new Game();
-myGame.canvas.width = window.innerWidth;
-myGame.canvas.height = window.innerHeight;
-myGame.drawKeyboard();
+const myGame = new Game(KEYBOARD_LAYOUT);
+myGame.keyboardDraw();
 
 let etat = "play";
 const page_game = document.getElementById("game-screen");
-console.log(page_game);
 if (etat == "play") {
   page_game.classList.remove("hidden");
 }
 
 window.addEventListener("resize", () => {
-  myGame.updateSize();
-  myGame.drawKeyboard();
+  myGame.keyboardUpdateSize();
+  myGame.keyboardDraw();
 });
 
 window.addEventListener("keydown", (event) => {
   const keyPressed = event.key.toUpperCase();
+  const key = myGame.keyboard.find(keyPressed);
 
-  const tile = KEYBOARD_LAYOUT.find((t) => t.key === keyPressed);
-
-  if (tile) {
-    tile.isPressed = true;
-    myGame.drawKeyboard();
+  if (key) {
+    key.isPressed = true;
+    myGame.keyboardDraw();
   }
 });
 
 window.addEventListener("keyup", (event) => {
   const keyPressed = event.key.toUpperCase();
-  const tile = KEYBOARD_LAYOUT.find((t) => t.key === keyPressed);
+  const key = myGame.keyboard.find(keyPressed);
 
-  if (tile) {
-    tile.isPressed = false;
-    myGame.drawKeyboard();
+  if (key) {
+    key.isPressed = false;
+    myGame.keyboardDraw();
   }
 });
