@@ -1,7 +1,11 @@
 import Actor from "./Actor.js";
-
+import Projectile from "./Projectile.js";
 export default class Player extends Actor {
-  #wordSpells = [{ word: "undifined", damage: 100, range: 10 }];
+  #wordSpells = [
+    { word: "undifined", damage: 100, range: 10 },
+    { word: "nuke", damage: 999900, range: 99990 },
+  ];
+  #currentWord = "";
 
   constructor(
     playerName = "Unknow",
@@ -14,20 +18,27 @@ export default class Player extends Actor {
     super(playerName, hp, hpMax, position, size, img);
     this.targetPosition = { x: position.x, y: position.y };
     this.speed = 0.2;
+    this.imgIdle = img;
+    this.imgMove = new Image();
+    this.imgMove.src = "./assets/ron.png";
+
+    this.projectileImg = new Image();
+    this.projectileImg.src = "./assets/fireball.png";
   }
 
   //? closestEnemy = {target: Enemy, range: Number}
-  attack(closestEnemy, word) {
+  attack(word, closestEnemy = null) {
     const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
 
     if (!spell) {
       throw new Error("There is no spell related to that word.");
     }
+    if (closestEnemy) {
+      if (closestEnemy.range <= spell.range) {
+        closestEnemy.target.hp = closestEnemy.target.hp - spell.damage;
 
-    if (closestEnemy.range <= spell.range) {
-      closestEnemy.target.hp = closestEnemy.target.hp - spell.damage;
-
-      return true;
+        return true;
+      }
     }
 
     return false;
@@ -47,7 +58,95 @@ export default class Player extends Actor {
     this.position.x += dx * this.speed;
     this.position.y += dy * this.speed;
 
-    if (Math.abs(dx) < 0.1) this.position.x = this.targetPosition.x;
-    if (Math.abs(dy) < 0.1) this.position.y = this.targetPosition.y;
+    if (Math.abs(dx) < 4) this.position.x = this.targetPosition.x;
+    if (Math.abs(dy) < 4) this.position.y = this.targetPosition.y;
+
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      this.img = this.imgIdle;
+    } else {
+      this.img = this.imgMove;
+    }
+  }
+  handleKeyPress(key) {
+    if (key.length === 1 && key.match(/[a-z]/i)) {
+      this.#currentWord += key.toLowerCase();
+    } else if (key === "Backspace") {
+      this.#currentWord = this.#currentWord.slice(0, -1);
+      return;
+    } else {
+      return;
+    }
+
+    let ok = this.#wordSpells.some((s) => s.word.startsWith(this.#currentWord));
+
+    if (!ok) {
+      this.#currentWord = "";
+    } else {
+      const completeSpell = this.#wordSpells.find(
+        (s) => s.word === this.#currentWord,
+      );
+      if (completeSpell) {
+        const p = this.attack(completeSpell.word);
+        this.#currentWord = "";
+        return p;
+      }
+    }
+  }
+
+  getCurrentWord() {
+    return this.#currentWord;
+  }
+  getWordList() {
+    let list = [];
+    for (let i = 0; i < this.#wordSpells.length; i++) {
+      list.push(this.#wordSpells[i].word);
+    }
+    return list;
+  }
+  getHp() {
+    return this.hp;
+  }
+  findClosestEnemy() {
+    return { position: { x: 700, y: 300 }, size: { width: 50, height: 50 } };
+  }
+  shootProjectile(spellDamage) {
+    const target = this.findClosestEnemy();
+    if (!target) {
+      console.error("pas d'enemi trouver");
+      return null;
+    }
+
+    const projectileSpeed = 2;
+    const projectileSize = { width: 80, height: 80 };
+
+    const dx = target.position.x - this.position.x;
+    const dy = target.position.y - this.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const velocity = {
+      x: (dx / distance) * projectileSpeed,
+      y: (dy / distance) * projectileSpeed,
+    };
+
+    const startPosition = {
+      x: this.position.x + this.size.width / 2,
+      y: this.position.y + this.size.height / 2,
+    };
+    return new Projectile(
+      startPosition,
+      projectileSize,
+      spellDamage,
+      velocity,
+      this.projectileImg,
+    );
+  }
+  attack(word) {
+    const spell = this.#wordSpells.find((s) => s.word === word);
+    if (!spell) {
+      console.error("sa marche pas");
+      return null;
+    }
+
+    return this.shootProjectile(spell.damage);
   }
 }

@@ -8,15 +8,18 @@
   <body>
     <section id="game-screen" class="hidden">
       <div id="hud">
+        <span>Time: <span id="timer">00:00:00</span></span>
         <span>Score: <span id="current-score">0</span></span>
         <span>Vie: <span id="player-health">3</span></span>
+        <h1><span id="currentWord"></span><span class="clignotant">_</span></h1>
+        <ul id="spell-list"></ul>
       </div>
       <canvas id="game-canvas"></canvas>
-      <img src="./assets/player.jpg" alt="Player" />
     </section>
 
     <section id="game-over-screen" class="hidden">
       <h2>GAME OVER</h2>
+      <p>Votre temp final : <span id="final-time">0</span></p>
       <p>Votre score final : <span id="final-score">0</span></p>
       <button id="restart-btn">Réessayer</button>
     </section>

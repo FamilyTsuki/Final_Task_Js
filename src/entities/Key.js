@@ -10,7 +10,7 @@ export default class Key extends GameObject {
   constructor(key, x, y, isPressed, tileSize) {
     super({
       x: x * (tileSize + 10) + 50,
-      y: y * (tileSize + 5) + 50,
+      y: y * (tileSize + 8) + 50,
     });
 
     ((this.#tempPos = { x, y }), (this.#key = key));
@@ -35,15 +35,15 @@ export default class Key extends GameObject {
     this.#offset = this.#isPressed ? 3 : 0;
 
     //? low of key
-    ctx.fillStyle = this.#isPressed ? "#b56500" : "#555";
+    ctx.fillStyle = "#555";
     ctx.fillRect(this.x, this.y, this.#tileSize, this.#tileSize + this.#depth);
 
     //? body of key
-    ctx.fillStyle = this.#isPressed ? "#FF9800" : "#eee";
+    ctx.fillStyle = "#eee";
     ctx.fillRect(this.x, this.y + this.#offset, this.#tileSize, this.#tileSize);
 
     //? border of body key
-    ctx.strokeStyle = this.#isPressed ? "#e68a00" : "#999";
+    ctx.strokeStyle = "#999";
     ctx.lineWidth = 1;
     ctx.strokeRect(
       this.x,
