@@ -104,4 +104,11 @@ export default class Player extends Actor {
     if (this.#currentWord !== "") return this.#currentWord;
     else return "_";
   }
+  getWordList() {
+    let list = [];
+    for (let i = 0; i < this.#wordSpells.length; i++) {
+      list.push(this.#wordSpells[i].word);
+    }
+    return list;
+  }
 }

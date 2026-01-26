@@ -39,7 +39,16 @@ const init = () => {
   page_game?.classList.remove("hidden");
   let time = 0;
   const timer_html = document.getElementById("timer");
-  const currentWord = document.getElementById("currentWord");
+
+  const listElement = document.getElementById("spell-list");
+
+  const words = player.getWordList();
+
+  for (let i = 0; i < words.length; i++) {
+    const li = document.createElement("li");
+    li.textContent = words[i];
+    listElement.appendChild(li);
+  }
   setInterval(() => {
     time += 1;
     let ms = time % 100;
