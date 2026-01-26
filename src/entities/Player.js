@@ -1,7 +1,10 @@
 import Actor from "./Actor.js";
 
 export default class Player extends Actor {
-  #wordSpells = [{ word: "undifined", damage: 100, range: 10 }];
+  #wordSpells = [
+    { word: "undifined", damage: 100, range: 10 },
+    { word: "nuke", damage: 999900, range: 99990 },
+  ];
   #currentWord = "";
   constructor(
     playerName = "Unknow",
