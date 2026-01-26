@@ -34,15 +34,6 @@ let SLoop;
 let boss;
 const init = () => {
   canvas = document.getElementById("game-canvas");
-  if (!canvas) return;
-  ctx = canvas.getContext("2d");
-  boss = new Boss(
-    "Kraken",
-    1000,
-    { x: 400, y: 50 },
-    { width: 150, height: 150 },
-    bossImg,
-  );
   myStocage = new Stocage();
   myGame = new Game(KEYBOARD_LAYOUT);
   myStocage.init();
@@ -50,6 +41,8 @@ const init = () => {
   playerImg.src = CONFIG.player.imgSrc;
   let projectileImg = new Image();
   projectileImg.src = CONFIG.projectile.imgSrc;
+  const bossImg = new Image();
+  bossImg.src = "./assets/boss.jpg";
   player = new Player(
     CONFIG.player.name,
     100,
@@ -57,6 +50,15 @@ const init = () => {
     CONFIG.player.startPos,
     CONFIG.player.size,
     playerImg,
+  );
+  if (!canvas) return;
+  ctx = canvas.getContext("2d");
+  boss = new Boss(
+    "Kraken",
+    1000,
+    { x: 200, y: 0 },
+    { width: 150, height: 150 },
+    bossImg,
   );
   const current_score = document.getElementById("current-score");
 
@@ -115,29 +117,40 @@ const gameLoop = () => {
     player.update();
     player.draw(ctx);
   }
-  projectiles.forEach((p, index) => {
-    p.update();
-    p.draw(ctx);
-  });
+
   bonks.forEach((b, index) => {
     b.update(deltaTime, player);
     b.draw(ctx);
     if (b.isDead) bonks.splice(index, 1);
   });
 
-  projectiles = projectiles.filter((p) => !p.isDead);
-  myStocage.actu(scord, time, player);
   if (boss) {
     boss.update(deltaTime, player, projectiles, bonks);
     boss.draw(ctx);
-    projectiles.forEach((p) => {
-      if (!p.isDead && boss.checkCollision(p)) {
-        boss.hp -= p.damage;
-        p.isDead = true;
-        console.log("Boss HP:", boss.hp);
-      }
-    });
   }
+  projectiles.forEach((p) => {
+    p.update();
+    p.draw(ctx);
+
+    if (!p.isDead) {
+      if (p.team === "player" && boss && boss.hp > 0) {
+        if (boss.checkCollision(p)) {
+          boss.hp -= p.damage;
+          p.isDead = true;
+        }
+      } else if (p.team === "boss" && player) {
+        if (player.checkCollision(p)) {
+          player.hp -= p.damage;
+          p.isDead = true;
+        }
+      }
+    }
+  });
+  const player_hp = document.getElementById("player-health");
+  player_hp.textContent = player.hp;
+  projectiles = projectiles.filter((p) => !p.isDead);
+  myStocage.actu(scord, time, player);
+
   if (player.getHp() <= 0) {
     clearInterval(GLoop);
     clearInterval(TLoop);
@@ -154,17 +167,7 @@ const gameLoop = () => {
     myStocage.clear();
   }
 };
-setInterval(() => {
-  if (player) {
-    bonks.push(
-      new Bonk(
-        { x: 200, y: player.position.y - 20 },
-        { width: 180, height: 600 },
-        20,
-      ),
-    );
-  }
-}, 3000);
+
 const setupEventListeners = () => {
   window.addEventListener("resize", () => {
     myGame.keyboardUpdateSize();

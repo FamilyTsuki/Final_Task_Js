@@ -28,18 +28,23 @@ export default class Boss extends Actor {
   }
 
   attackTentacle(player, bonks) {
-    console.log("🐙 Le Kraken lève une tentacule !");
     bonks.push(
       new Bonk(
-        { x: player.position.x - 30, y: player.position.y - 30 },
-        { width: 100, height: 100 },
+        { x: player.position.x - 60, y: player.position.y - 150 },
+        { width: 120, height: 300 },
         25,
       ),
     );
   }
-
+  checkCollision(other) {
+    return (
+      this.position.x < other.position.x + other.size.width &&
+      this.position.x + this.size.width > other.position.x &&
+      this.position.y < other.position.y + other.size.height &&
+      this.position.y + this.size.height > other.position.y
+    );
+  }
   attackInkRain(projectiles) {
-    console.log("💦 Le Kraken crache de l'encre !");
     const nbProjectiles = 5;
     for (let i = 0; i < nbProjectiles; i++) {
       const velocity = {
@@ -57,6 +62,7 @@ export default class Boss extends Actor {
           10,
           velocity,
           this.projectileImg,
+          "boss",
         ),
       );
     }

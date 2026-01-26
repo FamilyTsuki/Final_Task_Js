@@ -1,10 +1,11 @@
 import DamageObject from "./DamageObject.js";
 
 export default class Projectile extends DamageObject {
-  constructor(position, size, damage, velocity, img) {
+  constructor(position, size, damage, velocity, img, team = "player") {
     super(position, size, damage);
     this.velocity = velocity;
     this.img = img;
+    this.team = team;
   }
 
   update() {
@@ -17,7 +18,7 @@ export default class Projectile extends DamageObject {
   }
 
   draw(ctx) {
-    if (this.img && this.img.complete) {
+    if (this.img && this.img.complete && this.img.naturalWidth !== 0) {
       ctx.drawImage(
         this.img,
         this.position.x,
@@ -26,7 +27,13 @@ export default class Projectile extends DamageObject {
         this.size.height,
       );
     } else {
-      super.draw(ctx);
+      ctx.fillStyle = "orange";
+      ctx.fillRect(
+        this.position.x,
+        this.position.y,
+        this.size.width,
+        this.size.height,
+      );
     }
   }
 }
