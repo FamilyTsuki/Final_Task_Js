@@ -1,31 +1,19 @@
 import Actor from "./Actor.js";
 
 export default class Player extends Actor {
-  #wordSpells = [{ word: "fire", damage: 100, range: 10 }];
-
-  constructor(playerName, hp, hpMax, position, size, img) {
+  #wordSpells = [{ word: "undifined", damage: 100, range: 10 }];
+  #currentWord = "";
+  constructor(
+    playerName = "Unknow",
+    hp = 100,
+    hpMax = 100,
+    position,
+    size,
+    img,
+  ) {
     super(playerName, hp, hpMax, position, size, img);
     this.targetPosition = { x: position.x, y: position.y };
     this.speed = 0.2;
-  }
-
-  moveTo(newPosition) {
-    try {
-      if (!newPosition || typeof newPosition.x !== "number") {
-        throw new Error("Position de déplacement invalide");
-      }
-      this.position = newPosition;
-    } catch (e) {
-      console.error("Erreur de mouvement :", e.message);
-    }
-  }
-
-  draw(ctx) {
-    super.draw(ctx);
-  }
-
-  get wordSpells() {
-    return this.#wordSpells.map((wordSpell) => wordSpell.word);
   }
 
   //? closestEnemy = {target: Enemy, range: Number}
