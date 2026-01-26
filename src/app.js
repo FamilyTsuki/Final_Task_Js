@@ -38,6 +38,7 @@ const init = () => {
   const page_game = document.getElementById("game-screen");
   page_game?.classList.remove("hidden");
   let time = 0;
+  const timer_html = document.getElementById("timer");
   setInterval(() => {
     time += 1;
     let ms = time % 100;
@@ -95,6 +96,9 @@ const setupEventListeners = () => {
       };
 
       player.moveTo(newPos);
+      if (player) {
+        player.handleKeyPress(e.key);
+      }
     }
   });
 

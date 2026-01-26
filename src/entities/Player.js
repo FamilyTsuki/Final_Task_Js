@@ -2,7 +2,7 @@ import Actor from "./Actor.js";
 
 export default class Player extends Actor {
   #wordSpells = [{ word: "undifined", damage: 100, range: 10 }];
-
+  #currentWord = "";
   constructor(
     playerName = "Unknow",
     hp = 100,
@@ -57,6 +57,17 @@ export default class Player extends Actor {
       const playerImg = new Image();
       playerImg.src = "./assets/ron.png";
       this.img = playerImg;
+    }
+  }
+  handleKeyPress(key) {
+    if (key.length === 1 && key.match(/[a-z]/i)) {
+      this.#currentWord += key.toLowerCase();
+      console.log("Mot en cours :", this.#currentWord);
+    } else if (key === "Enter") {
+      console.log("Lancement du sort :", this.#currentWord);
+      this.#currentWord = "";
+    } else if (key === "Backspace") {
+      this.#currentWord = this.#currentWord.slice(0, -1);
     }
   }
 }
