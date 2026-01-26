@@ -15,23 +15,20 @@ export default class Player extends Actor {
     img,
   ) {
     super(playerName, hp, hpMax, position, size, img);
-    this.targetPosition = { x: position.x, y: position.y };
-    this.speed = 0.2;
   }
 
   //? closestEnemy = {target: Enemy, range: Number}
-  attack(word, closestEnemy = null) {
+  attack(closestEnemy, word) {
     const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
 
     if (!spell) {
       throw new Error("There is no spell related to that word.");
     }
-    if (closestEnemy) {
-      if (closestEnemy.range <= spell.range) {
-        closestEnemy.target.hp = closestEnemy.target.hp - spell.damage;
 
-        return true;
-      }
+    if (closestEnemy.range <= spell.range) {
+      closestEnemy.target.hp = closestEnemy.target.hp - spell.damage;
+
+      return true;
     }
 
     return false;
