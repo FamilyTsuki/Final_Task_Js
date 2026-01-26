@@ -7,3 +7,8 @@ canvas {
 .hidden {
   display: none !important;
 }
+
+#currentWord {
+  text-align: center;
+  font-size: 300%;
+}
