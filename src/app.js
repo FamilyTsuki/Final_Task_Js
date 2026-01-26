@@ -11,6 +11,12 @@ const CONFIG = {
     startPos: { x: 50, y: 50 },
     size: { width: 40, height: 40 },
   },
+
+  projectile: {
+    imgSrc: "./assets/fireball.png",
+    size: { width: 20, height: 20 },
+    speed: 5,
+  },
 };
 
 let myGame;
@@ -19,6 +25,7 @@ let canvas, ctx;
 let myStocage;
 let scord = 0;
 let time = 0;
+let projectiles = [];
 const init = () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
@@ -28,7 +35,8 @@ const init = () => {
   myStocage.init();
   const playerImg = new Image();
   playerImg.src = CONFIG.player.imgSrc;
-
+  let projectileImg = new Image();
+  projectileImg.src = CONFIG.projectile.imgSrc;
   player = new Player(
     CONFIG.player.name,
     100,
@@ -93,6 +101,15 @@ const gameLoop = () => {
     player.update();
     player.draw(ctx);
   }
+  projectiles.forEach((p, index) => {
+    p.update();
+    p.draw(ctx);
+
+    // TODO: Gérer la collision avec les ennemis ici
+    // TODO: Supprimer le projectile s'il est mort (p.isDead = true)
+  });
+
+  projectiles = projectiles.filter((p) => !p.isDead);
   myStocage.actu(scord, time, player);
   if (player.getHp() <= 0) {
     clearInterval(gameLoop);
@@ -135,6 +152,16 @@ const setupEventListeners = () => {
       if (player) {
         player.handleKeyPress(e.key);
         currentWord.textContent = player.getcurrentWord();
+      }
+
+      const closestEnemy = player.findClosestEnemy();
+      const castedProjectile = player.attack(
+        closestEnemy,
+        player.getCurrentWord(),
+      );
+
+      if (castedProjectile) {
+        projectiles.push(castedProjectile);
       }
     }
   });

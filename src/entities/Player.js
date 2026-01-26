@@ -118,4 +118,64 @@ export default class Player extends Actor {
   getHp() {
     return this.hp;
   }
+  findClosestEnemy() {
+    return {
+      position: { x: 700, y: 300 },
+      size: { width: 50, height: 50 },
+      hp: 100,
+    };
+  }
+  shootProjectile(spellDamage, projectileSpeed, projectileSize, projectileImg) {
+    const target = this.findClosestEnemy();
+
+    if (!target) {
+      console.log("Pas d'ennemi à cibler !");
+      return null;
+    }
+
+    const dx = target.position.x - this.position.x;
+    const dy = target.position.y - this.position.y;
+
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const normalizedDx = dx / distance;
+    const normalizedDy = dy / distance;
+
+    const velocity = {
+      x: normalizedDx * projectileSpeed,
+      y: normalizedDy * projectileSpeed,
+    };
+
+    const startPosition = {
+      x: this.position.x + this.size.width / 2 - projectileSize.width / 2,
+      y: this.position.y + this.size.height / 2 - projectileSize.height / 2,
+    };
+
+    return new Projectile(
+      startPosition,
+      projectileSize,
+      spellDamage,
+      velocity,
+      projectileImg,
+    );
+  }
+  attack(closestEnemy, word) {
+    const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
+
+    if (!spell) {
+      throw new Error("There is no spell related to that word.");
+    }
+
+    const newProjectile = this.shootProjectile(
+      spell.damage,
+      CONFIG.projectile.speed,
+      CONFIG.projectile.size,
+      projectileImg,
+    );
+
+    if (newProjectile) {
+      return newProjectile;
+    }
+    return false;
+  }
 }
