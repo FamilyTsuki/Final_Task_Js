@@ -3,6 +3,8 @@ import Game from "./Game.js";
 import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 import Stocage from "./Storage.js";
+import Bonk from "./entities/Bonk.js";
+import Boss from "./entities/Boss.js";
 
 const CONFIG = {
   player: {
@@ -26,10 +28,21 @@ let myStocage;
 let scord = 0;
 let time = 0;
 let projectiles = [];
+let bonks = [];
+let TLoop;
+let SLoop;
+let boss;
 const init = () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
   ctx = canvas.getContext("2d");
+  boss = new Boss(
+    "Kraken",
+    1000,
+    { x: 400, y: 50 },
+    { width: 150, height: 150 },
+    bossImg,
+  );
   myStocage = new Stocage();
   myGame = new Game(KEYBOARD_LAYOUT);
   myStocage.init();
@@ -67,7 +80,7 @@ const init = () => {
     li.textContent = words[i];
     listElement.appendChild(li);
   }
-  setInterval(() => {
+  TLoop = setInterval(() => {
     time += 1;
     let ms = time % 100;
     let totalSeconds = Math.floor(time / 100);
@@ -83,7 +96,7 @@ const init = () => {
         String(ms).padStart(2, "0");
     }
   }, 10);
-  setInterval(() => {
+  let SLoop = setInterval(() => {
     actu_scord(10);
   }, 1000);
 
@@ -92,6 +105,7 @@ const init = () => {
 
 const gameLoop = () => {
   if (!ctx || !canvas) return;
+  const deltaTime = 10;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -104,25 +118,53 @@ const gameLoop = () => {
   projectiles.forEach((p, index) => {
     p.update();
     p.draw(ctx);
-
-    // TODO: Gérer la collision avec les ennemis ici
-    // TODO: Supprimer le projectile s'il est mort (p.isDead = true)
+  });
+  bonks.forEach((b, index) => {
+    b.update(deltaTime, player);
+    b.draw(ctx);
+    if (b.isDead) bonks.splice(index, 1);
   });
 
   projectiles = projectiles.filter((p) => !p.isDead);
   myStocage.actu(scord, time, player);
+  if (boss) {
+    boss.update(deltaTime, player, projectiles, bonks);
+    boss.draw(ctx);
+    projectiles.forEach((p) => {
+      if (!p.isDead && boss.checkCollision(p)) {
+        boss.hp -= p.damage;
+        p.isDead = true;
+        console.log("Boss HP:", boss.hp);
+      }
+    });
+  }
   if (player.getHp() <= 0) {
-    clearInterval(gameLoop);
+    clearInterval(GLoop);
+    clearInterval(TLoop);
+    clearInterval(SLoop);
+    const page_game = document.getElementById("game-screen");
     page_game?.classList.add("hidden");
+    const game_over_screen = document.getElementById("game-over-screen");
     game_over_screen?.classList.remove("hidden");
     const final_time = document.getElementById("final-time");
-    final_time.textContent = timer_html;
+
+    final_time.textContent = time;
     const final_score = document.getElementById("final-score");
     final_score.textContent = scord;
     myStocage.clear();
   }
 };
-
+setInterval(() => {
+  if (player) {
+    bonks.push(
+      new Bonk(
+        { x: 200, y: player.position.y - 20 },
+        { width: 180, height: 600 },
+        20,
+      ),
+    );
+  }
+}, 3000);
 const setupEventListeners = () => {
   window.addEventListener("resize", () => {
     myGame.keyboardUpdateSize();
@@ -167,5 +209,5 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = false;
   });
 };
-setInterval(gameLoop, 10);
+let GLoop = setInterval(gameLoop, 10);
 window.addEventListener("DOMContentLoaded", init);
