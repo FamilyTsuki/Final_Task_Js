@@ -60,12 +60,13 @@ export default class Keyboard {
     );
   }
   getTilePixels(tileX, tileY) {
+    const size = this.tileSize || 60;
     const spacing = 10;
     const margin = 50;
 
     return {
-      x: tileX * (this.tileSize + spacing) + margin,
-      y: tileY * (this.tileSize + 5) + margin,
+      x: tileX * (size + spacing) + margin,
+      y: tileY * (size + 8) + margin,
     };
   }
 }
