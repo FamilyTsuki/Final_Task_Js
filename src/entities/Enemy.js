@@ -1,14 +1,28 @@
-import Actor from "./Actor.js";
+import Actor from "./Actor";
 
-export default class Player extends Actor {
+const ENEMY_IMG = new Image();
+ENEMY_IMG.src = "../../assets/enemy.jpg";
+
+export default class Enemy extends Actor {
+  #damage;
   constructor(
-    playerName = "Unknow",
+    position,
+    img = ENEMY_IMG,
+    size = { width: 40, height: 40 },
     hp = 100,
     hpMax = 100,
-    position,
-    size,
-    img,
+    id = crypto.randomUUID(),
   ) {
-    super(playerName, hp, hpMax, position, size, img);
+    super(id, hp, hpMax, position, size, img);
+
+    this.#damage = 10;
+  }
+
+  attack(player) {
+    if (!player) {
+      throw new Error("No player !");
+    }
+
+    player.hp -= this.#damage;
   }
 }
