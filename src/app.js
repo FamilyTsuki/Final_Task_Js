@@ -151,7 +151,7 @@ const setupEventListeners = () => {
       player.moveTo(newPos);
       if (player) {
         player.handleKeyPress(e.key);
-        currentWord.textContent = player.getcurrentWord();
+        currentWord.textContent = player.getCurrentWord();
       }
 
       const closestEnemy = player.findClosestEnemy();

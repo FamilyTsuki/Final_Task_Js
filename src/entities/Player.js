@@ -104,7 +104,7 @@ export default class Player extends Actor {
     }
   }
 
-  getcurrentWord() {
+  getCurrentWord() {
     if (this.#currentWord !== "") return this.#currentWord;
     else return "";
   }
