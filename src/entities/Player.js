@@ -1,11 +1,12 @@
 import Actor from "./Actor.js";
-
+import Projectile from "./Projectile.js";
 export default class Player extends Actor {
   #wordSpells = [
     { word: "undifined", damage: 100, range: 10 },
     { word: "nuke", damage: 999900, range: 99990 },
   ];
   #currentWord = "";
+
   constructor(
     playerName = "Unknow",
     hp = 100,
@@ -17,6 +18,12 @@ export default class Player extends Actor {
     super(playerName, hp, hpMax, position, size, img);
     this.targetPosition = { x: position.x, y: position.y };
     this.speed = 0.2;
+    this.imgIdle = img;
+    this.imgMove = new Image();
+    this.imgMove.src = "./assets/ron.png";
+
+    this.projectileImg = new Image();
+    this.projectileImg.src = "./assets/fireball.png";
   }
 
   //? closestEnemy = {target: Enemy, range: Number}
@@ -53,60 +60,41 @@ export default class Player extends Actor {
 
     if (Math.abs(dx) < 4) this.position.x = this.targetPosition.x;
     if (Math.abs(dy) < 4) this.position.y = this.targetPosition.y;
+
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
-      const playerImg = new Image();
-      playerImg.src = "./assets/player.jpg";
-      this.img = playerImg;
+      this.img = this.imgIdle;
     } else {
-      const playerImg = new Image();
-      playerImg.src = "./assets/ron.png";
-      this.img = playerImg;
+      this.img = this.imgMove;
     }
   }
   handleKeyPress(key) {
     if (key.length === 1 && key.match(/[a-z]/i)) {
       this.#currentWord += key.toLowerCase();
+    } else if (key === "Backspace") {
+      this.#currentWord = this.#currentWord.slice(0, -1);
+      return;
     } else {
       return;
     }
 
-    let ok = false;
+    let ok = this.#wordSpells.some((s) => s.word.startsWith(this.#currentWord));
 
-    for (let i = 0; i < this.#wordSpells.length; i++) {
-      let spellWord = this.#wordSpells[i].word.toLowerCase();
-
-      let match = true;
-      for (let j = 0; j < this.#currentWord.length; j++) {
-        if (this.#currentWord[j] !== spellWord[j]) {
-          match = false;
-          break;
-        }
-      }
-
-      if (match === true) {
-        ok = true;
-        break;
-      }
-    }
-
-    if (ok === false) {
+    if (!ok) {
       this.#currentWord = "";
-      console.log("Mot reset");
     } else {
-      console.log("Mot en cours :", this.#currentWord);
-      for (let i = 0; i < this.#wordSpells.length; i++) {
-        if (this.#currentWord == this.#wordSpells[i].word) {
-          this.attack(this.#wordSpells[i].word);
-          console.log("ATTAK");
-          this.#currentWord = "";
-        }
+      const completeSpell = this.#wordSpells.find(
+        (s) => s.word === this.#currentWord,
+      );
+      if (completeSpell) {
+        const p = this.attack(completeSpell.word);
+        this.#currentWord = "";
+        return p;
       }
     }
   }
 
   getCurrentWord() {
-    if (this.#currentWord !== "") return this.#currentWord;
-    else return "";
+    return this.#currentWord;
   }
   getWordList() {
     let list = [];
@@ -119,63 +107,46 @@ export default class Player extends Actor {
     return this.hp;
   }
   findClosestEnemy() {
-    return {
-      position: { x: 700, y: 300 },
-      size: { width: 50, height: 50 },
-      hp: 100,
-    };
+    return { position: { x: 700, y: 300 }, size: { width: 50, height: 50 } };
   }
-  shootProjectile(spellDamage, projectileSpeed, projectileSize, projectileImg) {
+  shootProjectile(spellDamage) {
     const target = this.findClosestEnemy();
-
     if (!target) {
-      console.log("Pas d'ennemi à cibler !");
+      console.error("pas d'enemi trouver");
       return null;
     }
 
+    const projectileSpeed = 2;
+    const projectileSize = { width: 80, height: 80 };
+
     const dx = target.position.x - this.position.x;
     const dy = target.position.y - this.position.y;
-
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    const normalizedDx = dx / distance;
-    const normalizedDy = dy / distance;
-
     const velocity = {
-      x: normalizedDx * projectileSpeed,
-      y: normalizedDy * projectileSpeed,
+      x: (dx / distance) * projectileSpeed,
+      y: (dy / distance) * projectileSpeed,
     };
 
     const startPosition = {
-      x: this.position.x + this.size.width / 2 - projectileSize.width / 2,
-      y: this.position.y + this.size.height / 2 - projectileSize.height / 2,
+      x: this.position.x + this.size.width / 2,
+      y: this.position.y + this.size.height / 2,
     };
-
     return new Projectile(
       startPosition,
       projectileSize,
       spellDamage,
       velocity,
-      projectileImg,
+      this.projectileImg,
     );
   }
-  attack(closestEnemy, word) {
-    const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
-
+  attack(word) {
+    const spell = this.#wordSpells.find((s) => s.word === word);
     if (!spell) {
-      throw new Error("There is no spell related to that word.");
+      console.error("sa marche pas");
+      return null;
     }
 
-    const newProjectile = this.shootProjectile(
-      spell.damage,
-      CONFIG.projectile.speed,
-      CONFIG.projectile.size,
-      projectileImg,
-    );
-
-    if (newProjectile) {
-      return newProjectile;
-    }
-    return false;
+    return this.shootProjectile(spell.damage);
   }
 }

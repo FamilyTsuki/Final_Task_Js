@@ -137,31 +137,27 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = true;
 
     const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
-    if (target && player) {
-      const keyboard = myGame.keyboard;
-      const coords = keyboard.getTilePixels(target.x, target.y);
 
-      const currentTileSize = keyboard.tileSize || 60;
-
-      const newPos = {
-        x: coords.x + currentTileSize / 2 - player.size.width / 2,
-        y: coords.y + currentTileSize / 2 - player.size.height / 2,
-      };
-
-      player.moveTo(newPos);
-      if (player) {
-        player.handleKeyPress(e.key);
-        currentWord.textContent = player.getCurrentWord();
+    if (player) {
+      if (target) {
+        const coords = myGame.keyboard.getTilePixels(target.x, target.y);
+        const currentTileSize = myGame.keyboard.tileSize || 60;
+        const newPos = {
+          x: coords.x + currentTileSize / 2 - player.size.width / 2,
+          y: coords.y + currentTileSize / 2 - player.size.height / 2,
+        };
+        player.moveTo(newPos);
       }
 
-      const closestEnemy = player.findClosestEnemy();
-      const castedProjectile = player.attack(
-        closestEnemy,
-        player.getCurrentWord(),
-      );
+      const potentialProjectile = player.handleKeyPress(e.key);
 
-      if (castedProjectile) {
-        projectiles.push(castedProjectile);
+      if (potentialProjectile) {
+        projectiles.push(potentialProjectile);
+      }
+
+      const currentWordDisplay = document.getElementById("currentWord");
+      if (currentWordDisplay) {
+        currentWordDisplay.textContent = player.getCurrentWord();
       }
     }
   });
