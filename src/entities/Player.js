@@ -47,7 +47,16 @@ export default class Player extends Actor {
     this.position.x += dx * this.speed;
     this.position.y += dy * this.speed;
 
-    if (Math.abs(dx) < 0.1) this.position.x = this.targetPosition.x;
-    if (Math.abs(dy) < 0.1) this.position.y = this.targetPosition.y;
+    if (Math.abs(dx) < 4) this.position.x = this.targetPosition.x;
+    if (Math.abs(dy) < 4) this.position.y = this.targetPosition.y;
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      const playerImg = new Image();
+      playerImg.src = "./assets/player.jpg";
+      this.img = playerImg;
+    } else {
+      const playerImg = new Image();
+      playerImg.src = "./assets/ron.png";
+      this.img = playerImg;
+    }
   }
 }
