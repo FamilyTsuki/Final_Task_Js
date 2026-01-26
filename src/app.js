@@ -2,6 +2,7 @@ import "./style.css";
 import Game from "./Game.js";
 import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
+import Stocage from "./Storage.js";
 
 const CONFIG = {
   player: {
@@ -15,14 +16,16 @@ const CONFIG = {
 let myGame;
 let player;
 let canvas, ctx;
-
+let myStocage;
+let scord = 0;
+let time = 0;
 const init = () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
   ctx = canvas.getContext("2d");
-
+  myStocage = new Stocage();
   myGame = new Game(KEYBOARD_LAYOUT);
-
+  myStocage.init();
   const playerImg = new Image();
   playerImg.src = CONFIG.player.imgSrc;
 
@@ -35,7 +38,7 @@ const init = () => {
     playerImg,
   );
   const current_score = document.getElementById("current-score");
-  let scord = 0;
+
   let actu_scord = (nombre) => {
     scord += nombre;
     current_score.textContent = scord;
@@ -44,7 +47,7 @@ const init = () => {
   page_game?.classList.remove("hidden");
   const game_over_screen = document.getElementById("game-over-screen");
   //game_over_screen?.classList.remove("hidden");
-  let time = 0;
+
   const timer_html = document.getElementById("timer");
 
   const listElement = document.getElementById("spell-list");
@@ -90,6 +93,7 @@ const gameLoop = () => {
     player.update();
     player.draw(ctx);
   }
+  myStocage.actu(scord, time, player);
   if (player.getHp() <= 0) {
     clearInterval(gameLoop);
     page_game?.classList.add("hidden");
@@ -98,6 +102,7 @@ const gameLoop = () => {
     final_time.textContent = timer_html;
     const final_score = document.getElementById("final-score");
     final_score.textContent = scord;
+    myStocage.clear();
   }
 };
 
