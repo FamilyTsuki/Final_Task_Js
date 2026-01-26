@@ -34,7 +34,12 @@ const init = () => {
     CONFIG.player.size,
     playerImg,
   );
-
+  const current_score = document.getElementById("current-score");
+  let scord = 0;
+  let actu_scord = (nombre) => {
+    scord += nombre;
+    current_score.textContent = scord;
+  };
   const page_game = document.getElementById("game-screen");
   page_game?.classList.remove("hidden");
   let time = 0;
@@ -65,6 +70,9 @@ const init = () => {
         String(ms).padStart(2, "0");
     }
   }, 10);
+  setInterval(() => {
+    actu_scord(10);
+  }, 1000);
 
   setupEventListeners();
 };
