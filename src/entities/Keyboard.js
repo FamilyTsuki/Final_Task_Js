@@ -2,11 +2,9 @@ import Key from "./Key";
 
 export default class Keyboard {
   #keyboardLayout;
-  tileSize;
 
-  constructor(keyboardLayout, tileSize) {
+  constructor(keyboardLayout) {
     this.#keyboardLayout = keyboardLayout;
-    this.tileSize = tileSize;
   }
 
   get keyboardLayout() {
@@ -22,14 +20,16 @@ export default class Keyboard {
   }
 
   updateSize(canvas) {
-    let newTileSize = canvas.width / 15;
-    if (newTileSize > 80) newTileSize = 80;
-    if (newTileSize < 30) newTileSize = 30;
+    let tileSize = canvas.width / 15;
 
-    this.tileSize = newTileSize; // On met à jour la valeur de la classe
+    if (tileSize > 80) {
+      tileSize = 80;
+    } else if (tileSize < 30) {
+      tileSize = 30;
+    }
 
     this.#keyboardLayout.forEach((key) => {
-      key.tileSize = newTileSize;
+      key.tileSize = tileSize;
     });
   }
 
@@ -45,18 +45,19 @@ export default class Keyboard {
 
   //? canvas: HTMLCanvasElement
   //? keyboardLayout: "raw KEYBOARD_LAYOUT"
-
   static init(canvas, keyboardLayout) {
-    let initialSize = Math.round(canvas.width / 15);
-    if (initialSize > 80) initialSize = 80;
-    if (initialSize < 30) initialSize = 30;
+    let tileSize = Math.round(canvas.width / 15);
+
+    if (tileSize > 80) {
+      tileSize = 80;
+    } else if (tileSize < 30) {
+      tileSize = 30;
+    }
 
     return new Keyboard(
       keyboardLayout.map(
-        (tile) =>
-          new Key(tile.key, tile.x, tile.y, tile.isPressed, initialSize),
+        (tile) => new Key(tile.key, tile.x, tile.y, tile.isPressed, tileSize),
       ),
-      initialSize,
     );
   }
   getTilePixels(tileX, tileY) {
