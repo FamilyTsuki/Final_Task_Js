@@ -92,8 +92,3 @@ canvas {
 #restart-btn:active {
   transform: scale(0.95);
 }
-
-#currentWord {
-  text-align: center;
-  font-size: 300%;
-}
