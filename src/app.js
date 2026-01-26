@@ -13,7 +13,6 @@ const CONFIG = {
     startPos: { x: 50, y: 50 },
     size: { width: 40, height: 40 },
   },
-
   projectile: {
     imgSrc: "./assets/fireball.png",
     size: { width: 20, height: 20 },
@@ -21,28 +20,46 @@ const CONFIG = {
   },
 };
 
-let myGame;
-let player;
+let myGame, player, boss, myStocage;
 let canvas, ctx;
-let myStocage;
-let scord = 0;
-let time = 0;
-let projectiles = [];
-let bonks = [];
-let TLoop;
-let SLoop;
-let boss;
+let score = 0,
+  time = 0;
+let projectiles = [],
+  bonks = [];
+let GLoop, TLoop, SLoop;
+
+let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
+
+const formatTime = (t) => {
+  const ms = t % 100;
+  const totalSeconds = Math.floor(t / 100);
+  const seconds = totalSeconds % 60;
+  const minutes = Math.floor(totalSeconds / 60);
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(ms).padStart(2, "0")}`;
+};
+
 const init = () => {
   canvas = document.getElementById("game-canvas");
+  if (!canvas) return;
+  ctx = canvas.getContext("2d");
+
+  elScore = document.getElementById("current-score");
+  elTimer = document.getElementById("timer");
+  elCurrentWord = document.getElementById("currentWord");
+  elPlayerHp = document.getElementById("player-health");
+  elGameScreen = document.getElementById("game-screen");
+  elGameOverScreen = document.getElementById("game-over-screen");
+
   myStocage = new Stocage();
-  myGame = new Game(KEYBOARD_LAYOUT);
   myStocage.init();
+  myGame = new Game(KEYBOARD_LAYOUT);
+
   const playerImg = new Image();
   playerImg.src = CONFIG.player.imgSrc;
-  let projectileImg = new Image();
-  projectileImg.src = CONFIG.projectile.imgSrc;
+
   const bossImg = new Image();
   bossImg.src = "./assets/boss.jpg";
+
   player = new Player(
     CONFIG.player.name,
     100,
@@ -51,8 +68,7 @@ const init = () => {
     CONFIG.player.size,
     playerImg,
   );
-  if (!canvas) return;
-  ctx = canvas.getContext("2d");
+
   boss = new Boss(
     "Kraken",
     1000,
@@ -60,62 +76,46 @@ const init = () => {
     { width: 150, height: 150 },
     bossImg,
   );
-  const current_score = document.getElementById("current-score");
-
-  let actu_scord = (nombre) => {
-    scord += nombre;
-    current_score.textContent = scord;
-  };
-  const page_game = document.getElementById("game-screen");
-  page_game?.classList.remove("hidden");
-  const game_over_screen = document.getElementById("game-over-screen");
-  //game_over_screen?.classList.remove("hidden");
-
-  const timer_html = document.getElementById("timer");
 
   const listElement = document.getElementById("spell-list");
-
-  const words = player.getWordList();
-
-  for (let i = 0; i < words.length; i++) {
-    const li = document.createElement("li");
-    li.textContent = words[i];
-    listElement.appendChild(li);
+  if (listElement) {
+    listElement.innerHTML = "";
+    player.getWordList().forEach((word) => {
+      const li = document.createElement("li");
+      li.textContent = word;
+      listElement.appendChild(li);
+    });
   }
+
   TLoop = setInterval(() => {
     time += 1;
-    let ms = time % 100;
-    let totalSeconds = Math.floor(time / 100);
-    let seconds = totalSeconds % 60;
-    let minutes = Math.floor(totalSeconds / 60);
-
-    if (timer_html) {
-      timer_html.textContent =
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(seconds).padStart(2, "0") +
-        ":" +
-        String(ms).padStart(2, "0");
-    }
+    if (elTimer) elTimer.textContent = formatTime(time);
   }, 10);
-  let SLoop = setInterval(() => {
-    actu_scord(10);
+
+  SLoop = setInterval(() => {
+    score += 10;
+    if (elScore) elScore.textContent = score;
   }, 1000);
 
   setupEventListeners();
+
+  GLoop = setInterval(gameLoop, 10);
+  elGameScreen?.classList.remove("hidden");
 };
 
 const gameLoop = () => {
-  if (!ctx || !canvas) return;
+  if (!ctx || !canvas || !player) return;
   const deltaTime = 10;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   myGame.keyboardDraw();
+  player.update();
+  player.draw(ctx);
 
-  if (player) {
-    player.update();
-    player.draw(ctx);
+  if (boss && boss.hp > 0) {
+    boss.update(deltaTime, player, projectiles, bonks);
+    boss.draw(ctx);
   }
 
   bonks.forEach((b, index) => {
@@ -124,10 +124,6 @@ const gameLoop = () => {
     if (b.isDead) bonks.splice(index, 1);
   });
 
-  if (boss) {
-    boss.update(deltaTime, player, projectiles, bonks);
-    boss.draw(ctx);
-  }
   projectiles.forEach((p) => {
     p.update();
     p.draw(ctx);
@@ -138,7 +134,7 @@ const gameLoop = () => {
           boss.hp -= p.damage;
           p.isDead = true;
         }
-      } else if (p.team === "boss" && player) {
+      } else if (p.team === "boss") {
         if (player.checkCollision(p)) {
           player.hp -= p.damage;
           p.isDead = true;
@@ -146,64 +142,52 @@ const gameLoop = () => {
       }
     }
   });
-  const player_hp = document.getElementById("player-health");
-  player_hp.textContent = player.hp;
+
+  if (elPlayerHp) elPlayerHp.textContent = Math.max(0, player.hp);
   projectiles = projectiles.filter((p) => !p.isDead);
-  myStocage.actu(scord, time, player);
+  myStocage.actu(score, time, player);
 
   if (player.getHp() <= 0) {
     clearInterval(GLoop);
     clearInterval(TLoop);
     clearInterval(SLoop);
-    const page_game = document.getElementById("game-screen");
-    page_game?.classList.add("hidden");
-    const game_over_screen = document.getElementById("game-over-screen");
-    game_over_screen?.classList.remove("hidden");
-    const final_time = document.getElementById("final-time");
 
-    final_time.textContent = time;
-    const final_score = document.getElementById("final-score");
-    final_score.textContent = scord;
+    elGameScreen?.classList.add("hidden");
+    elGameOverScreen?.classList.remove("hidden");
+
+    document.getElementById("final-time").textContent = formatTime(time);
+    document.getElementById("final-score").textContent = score;
     myStocage.clear();
   }
 };
 
 const setupEventListeners = () => {
-  window.addEventListener("resize", () => {
-    myGame.keyboardUpdateSize();
-  });
-  document.getElementById("restart-btn").addEventListener("click", function () {
-    location.reload();
-  });
+  window.addEventListener("resize", () => myGame.keyboardUpdateSize());
+
+  document
+    .getElementById("restart-btn")
+    ?.addEventListener("click", () => location.reload());
+
   window.addEventListener("keydown", (e) => {
     const keyName = e.key.toUpperCase();
-
     const keyTile = myGame.keyboard.find(keyName);
     if (keyTile) keyTile.isPressed = true;
 
-    const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
-
     if (player) {
+      const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
       if (target) {
         const coords = myGame.keyboard.getTilePixels(target.x, target.y);
         const currentTileSize = myGame.keyboard.tileSize || 60;
-        const newPos = {
+        player.moveTo({
           x: coords.x + currentTileSize / 2 - player.size.width / 2,
           y: coords.y + currentTileSize / 2 - player.size.height / 2,
-        };
-        player.moveTo(newPos);
+        });
       }
 
-      const potentialProjectile = player.handleKeyPress(e.key);
+      const newProj = player.handleKeyPress(e.key);
+      if (newProj) projectiles.push(newProj);
 
-      if (potentialProjectile) {
-        projectiles.push(potentialProjectile);
-      }
-
-      const currentWordDisplay = document.getElementById("currentWord");
-      if (currentWordDisplay) {
-        currentWordDisplay.textContent = player.getCurrentWord();
-      }
+      if (elCurrentWord) elCurrentWord.textContent = player.getCurrentWord();
     }
   });
 
@@ -212,5 +196,5 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = false;
   });
 };
-let GLoop = setInterval(gameLoop, 10);
+
 window.addEventListener("DOMContentLoaded", init);
