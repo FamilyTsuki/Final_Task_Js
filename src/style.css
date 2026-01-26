@@ -7,3 +7,22 @@ canvas {
 .hidden {
   display: none !important;
 }
+@keyframes clignote {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  50.01% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.clignotant {
+  animation: clignote 1s infinite linear;
+  color: black;
+}

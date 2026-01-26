@@ -95,6 +95,7 @@ export default class Player extends Actor {
         if (this.#currentWord == this.#wordSpells[i].word) {
           this.attack(this.#wordSpells[i].word);
           console.log("ATTAK");
+          this.#currentWord = "";
         }
       }
     }
@@ -102,7 +103,7 @@ export default class Player extends Actor {
 
   getcurrentWord() {
     if (this.#currentWord !== "") return this.#currentWord;
-    else return "_";
+    else return "";
   }
   getWordList() {
     let list = [];
