@@ -115,4 +115,7 @@ export default class Player extends Actor {
     }
     return list;
   }
+  getHp() {
+    return this.hp;
+  }
 }

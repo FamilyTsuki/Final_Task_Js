@@ -42,6 +42,8 @@ const init = () => {
   };
   const page_game = document.getElementById("game-screen");
   page_game?.classList.remove("hidden");
+  const game_over_screen = document.getElementById("game-over-screen");
+  //game_over_screen?.classList.remove("hidden");
   let time = 0;
   const timer_html = document.getElementById("timer");
 
@@ -88,13 +90,24 @@ const gameLoop = () => {
     player.update();
     player.draw(ctx);
   }
+  if (player.getHp() <= 0) {
+    clearInterval(gameLoop);
+    page_game?.classList.add("hidden");
+    game_over_screen?.classList.remove("hidden");
+    const final_time = document.getElementById("final-time");
+    final_time.textContent = timer_html;
+    const final_score = document.getElementById("final-score");
+    final_score.textContent = scord;
+  }
 };
 
 const setupEventListeners = () => {
   window.addEventListener("resize", () => {
     myGame.keyboardUpdateSize();
   });
-
+  document.getElementById("restart-btn").addEventListener("click", function () {
+    location.reload();
+  });
   window.addEventListener("keydown", (e) => {
     const keyName = e.key.toUpperCase();
 
