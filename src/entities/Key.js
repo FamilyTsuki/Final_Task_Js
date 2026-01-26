@@ -6,13 +6,14 @@ export default class Key extends GameObject {
   #tileSize;
   #depth;
   #offset;
+  #tempPos;
   constructor(key, x, y, isPressed, tileSize) {
     super({
       x: x * (tileSize + 10) + 50,
       y: y * (tileSize + 5) + 50,
     });
 
-    this.#key = key;
+    ((this.#tempPos = { x, y }), (this.#key = key));
     this.#isPressed = isPressed;
     this.#tileSize = tileSize;
 
@@ -58,7 +59,17 @@ export default class Key extends GameObject {
     ctx.fillText(
       this.#key,
       this.x + this.#tileSize / 2,
+      this.y + this.#tileSize / 2 + 7 + this.#offset - 20,
+    );
+    ctx.fillText(
+      `x: ${this.#tempPos.x}`,
+      this.x + this.#tileSize / 2,
       this.y + this.#tileSize / 2 + 7 + this.#offset,
+    );
+    ctx.fillText(
+      `y: ${this.#tempPos.y}`,
+      this.x + this.#tileSize / 2,
+      this.y + this.#tileSize / 2 + 7 + this.#offset + 20,
     );
   }
 }
