@@ -37,9 +37,25 @@ const init = () => {
 
   const page_game = document.getElementById("game-screen");
   page_game?.classList.remove("hidden");
+  let time = 0;
+  setInterval(() => {
+    time += 1;
+    let ms = time % 100;
+    let totalSeconds = Math.floor(time / 100);
+    let seconds = totalSeconds % 60;
+    let minutes = Math.floor(totalSeconds / 60);
+
+    if (timer_html) {
+      timer_html.textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0") +
+        ":" +
+        String(ms).padStart(2, "0");
+    }
+  }, 10);
 
   setupEventListeners();
-  requestAnimationFrame(gameLoop);
 };
 
 const gameLoop = () => {
@@ -53,8 +69,6 @@ const gameLoop = () => {
     player.update();
     player.draw(ctx);
   }
-
-  requestAnimationFrame(gameLoop);
 };
 
 const setupEventListeners = () => {
@@ -89,5 +103,5 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = false;
   });
 };
-
+setInterval(gameLoop, 10);
 window.addEventListener("DOMContentLoaded", init);
