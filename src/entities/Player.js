@@ -17,17 +17,18 @@ export default class Player extends Actor {
   }
 
   //? closestEnemy = {target: Enemy, range: Number}
-  attack(closestEnemy, word) {
+  attack(word, closestEnemy = null) {
     const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
 
     if (!spell) {
       throw new Error("There is no spell related to that word.");
     }
+    if (closestEnemy) {
+      if (closestEnemy.range <= spell.range) {
+        closestEnemy.target.hp = closestEnemy.target.hp - spell.damage;
 
-    if (closestEnemy.range <= spell.range) {
-      closestEnemy.target.hp = closestEnemy.target.hp - spell.damage;
-
-      return true;
+        return true;
+      }
     }
 
     return false;
@@ -62,12 +63,45 @@ export default class Player extends Actor {
   handleKeyPress(key) {
     if (key.length === 1 && key.match(/[a-z]/i)) {
       this.#currentWord += key.toLowerCase();
-      console.log("Mot en cours :", this.#currentWord);
-    } else if (key === "Enter") {
-      console.log("Lancement du sort :", this.#currentWord);
-      this.#currentWord = "";
-    } else if (key === "Backspace") {
-      this.#currentWord = this.#currentWord.slice(0, -1);
+    } else {
+      return;
     }
+
+    let ok = false;
+
+    for (let i = 0; i < this.#wordSpells.length; i++) {
+      let spellWord = this.#wordSpells[i].word.toLowerCase();
+
+      let match = true;
+      for (let j = 0; j < this.#currentWord.length; j++) {
+        if (this.#currentWord[j] !== spellWord[j]) {
+          match = false;
+          break;
+        }
+      }
+
+      if (match === true) {
+        ok = true;
+        break;
+      }
+    }
+
+    if (ok === false) {
+      this.#currentWord = "";
+      console.log("Mot reset");
+    } else {
+      console.log("Mot en cours :", this.#currentWord);
+      for (let i = 0; i < this.#wordSpells.length; i++) {
+        if (this.#currentWord == this.#wordSpells[i].word) {
+          this.attack(this.#wordSpells[i].word);
+          console.log("ATTAK");
+        }
+      }
+    }
+  }
+
+  getcurrentWord() {
+    if (this.#currentWord !== "") return this.#currentWord;
+    else return "_";
   }
 }

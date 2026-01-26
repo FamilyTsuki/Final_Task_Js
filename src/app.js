@@ -39,6 +39,7 @@ const init = () => {
   page_game?.classList.remove("hidden");
   let time = 0;
   const timer_html = document.getElementById("timer");
+  const currentWord = document.getElementById("currentWord");
   setInterval(() => {
     time += 1;
     let ms = time % 100;
@@ -98,6 +99,7 @@ const setupEventListeners = () => {
       player.moveTo(newPos);
       if (player) {
         player.handleKeyPress(e.key);
+        currentWord.textContent = player.getcurrentWord();
       }
     }
   });
