@@ -22,7 +22,6 @@ export default class Game {
 
     this.#keyboard = Keyboard.init(this.#canvas, keyboardLayout);
     this.#enemies = new Enemies(this.#keyboard.keyboardLayout);
-    this.#enemies.testAStar();
   }
 
   keyboardDraw() {

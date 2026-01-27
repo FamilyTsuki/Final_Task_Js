@@ -39,10 +39,6 @@ export default class Enemies {
   //! TODO add/remove enemy
   add() {}
   remove() {}
-
-  testAStar() {
-    console.log(findBestPath("C", "U", this.#aStarGrid));
-  }
 }
 
 function findNeighbours(keyTargetedName, position, keyboardLayout) {
