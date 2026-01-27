@@ -1,9 +1,11 @@
+import Enemies from "./entities/Enemies";
 import Keyboard from "./entities/Keyboard";
 
 export default class Game {
   #canvas;
   #ctx;
   #keyboard;
+  #enemies;
 
   constructor(keyboardLayout) {
     this.#canvas = document.getElementById("game-canvas");
@@ -19,6 +21,8 @@ export default class Game {
     }
 
     this.#keyboard = Keyboard.init(this.#canvas, keyboardLayout);
+    this.#enemies = new Enemies(this.#keyboard.keyboardLayout);
+    this.#enemies.testAStar();
   }
 
   keyboardDraw() {
@@ -31,5 +35,8 @@ export default class Game {
 
   get keyboard() {
     return this.#keyboard;
+  }
+  get enemies() {
+    return this.#enemies;
   }
 }
