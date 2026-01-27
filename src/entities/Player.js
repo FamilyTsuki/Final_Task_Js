@@ -1,6 +1,8 @@
 import Actor from "./Actor.js";
 import Projectile from "./Projectile.js";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 export default class Player extends Actor {
   #wordSpells = [
     { word: "undifined", damage: 100, range: 10 },
@@ -14,23 +16,24 @@ export default class Player extends Actor {
     hpMax = 100,
     position,
     size,
-    img,
+
     scene,
   ) {
-    super(playerName, hp, hpMax, position, size, img);
-    this.targetPosition = { x: position.x, y: position.y };
+    super(playerName, hp, hpMax, position, size);
+    this.targetPosition = { x: position.x, y: position.y, z: position.z };
     this.speed = 0.1;
-    this.imgIdle = img;
-    this.imgMove = new Image();
-    this.imgMove.src = "./assets/ron.png";
-
-    this.projectileImg = new Image();
-    this.projectileImg.src = "./assets/fireball.png";
-
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh = new THREE.Group();
     scene.add(this.mesh);
+
+    const loader = new GLTFLoader();
+    loader.load("./assets/player.glb", (gltf) => {
+      const model = gltf.scene;
+
+      model.scale.set(1.3, 1.3, 1.3);
+      model.position.y = 0.6;
+
+      this.mesh.add(model);
+    });
   }
 
   //? closestEnemy = {target: Enemy, range: Number}

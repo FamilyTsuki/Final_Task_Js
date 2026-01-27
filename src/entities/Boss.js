@@ -1,14 +1,15 @@
 import Actor from "./Actor.js";
-import Projectile from ".//Projectile.js";
+import Projectile from "./Projectile.js";
 import Bonk from "./Bonk.js";
 
 export default class Boss extends Actor {
-  constructor(name, hp, position, size, img) {
-    super(name, hp, hp, position, size, img);
+  constructor(name, hp, position, size, scene, fireballModel) {
+    super(name, hp, hp, position, size);
     this.stateTimer = 0;
     this.attackInterval = 3000;
     this.projectileImg = new Image();
-    this.projectileImg.src = "./assets/ink_ball.png";
+    this.scene = scene;
+    this.fireballModel = fireballModel;
   }
 
   update(deltaTime, player, projectiles, bonks) {
@@ -27,18 +28,6 @@ export default class Boss extends Actor {
     }
   }
 
-  attackTentacle(player, bonks) {
-    bonks.push(
-      new Bonk(
-        {
-          x: player.position.x - 60 + player.size.width / 2,
-          y: player.position.y - 150 + player.size.height / 2,
-        },
-        { width: 120, height: 300 },
-        25,
-      ),
-    );
-  }
   checkCollision(other) {
     return (
       this.position.x < other.position.x + other.size.width &&
@@ -51,26 +40,37 @@ export default class Boss extends Actor {
     const nbProjectiles = 5;
     for (let i = 0; i < nbProjectiles; i++) {
       const velocity = {
-        x: (Math.random() - 0.5) * 10,
-        y: (Math.random() - 0.5) * 10,
+        x: (Math.random() - 0.5) * 0.2,
+        y: (Math.random() - 0.5) * 0.2,
       };
-
       projectiles.push(
         new Projectile(
-          {
-            x: this.position.x + this.size.width / 2,
-            y: this.position.y + this.size.height / 2,
-          },
-          { width: 30, height: 30 },
+          { x: this.position.x, y: this.position.y },
+          { width: 0.5, height: 0.5 },
           10,
           velocity,
-          this.projectileImg,
+          this.scene,
           "boss",
+          3.2,
+          this.fireballModel,
         ),
       );
     }
   }
-
+  attackTentacle(player, bonks) {
+    bonks.push(
+      new Bonk(
+        {
+          x: player.position.x,
+          y: player.position.y,
+        },
+        { width: 1, height: 4 },
+        25,
+        this.scene,
+        3.2,
+      ),
+    );
+  }
   draw(ctx) {
     if (this.hp <= 0) return;
     super.draw(ctx);

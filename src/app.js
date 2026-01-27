@@ -6,16 +6,17 @@ import Stocage from "./Storage.js";
 import Boss from "./entities/Boss.js";
 import * as THREE from "three";
 
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   player: {
     name: "Héros",
     imgSrc: "./assets/player.jpg",
-    startPos: { x: 0, y: 0 },
-    size: { width: 40, height: 40 },
+    startPos: { x: 0, y: 0, z: 5 },
+    size: { width: 0.8, height: 0.8 },
   },
   projectile: {
     imgSrc: "./assets/fireball.png",
-    size: { width: 20, height: 20 },
+    size: { width: 0.4, height: 0.4 },
     speed: 5,
   },
 };
@@ -29,6 +30,10 @@ let projectiles = [],
 let TLoop, SLoop;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 
+let fireballModel = null;
+
+const loader = new GLTFLoader();
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -36,6 +41,12 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000,
 );
+let shakeIntensity = 0;
+const shakeDecay = 0.9;
+
+window.startShake = function (intensity) {
+  shakeIntensity = intensity;
+};
 
 const formatTime = (t) => {
   const ms = t % 100;
@@ -74,27 +85,28 @@ const init = () => {
 
   myGame = new Game(scene, KEYBOARD_LAYOUT);
 
-  const playerImg = new Image();
-  playerImg.src = CONFIG.player.imgSrc;
-  const bossImg = new Image();
-  bossImg.src = "./assets/boss.jpg";
-
   player = new Player(
     CONFIG.player.name,
     100,
     100,
     CONFIG.player.startPos,
     CONFIG.player.size,
-    playerImg,
+
     scene,
   );
-  boss = new Boss(
-    "Kraken",
-    1000,
-    { x: 200, y: 0 },
-    { width: 150, height: 150 },
-    bossImg,
-  );
+  loader.load("./assets/fireball.glb", (gltf) => {
+    fireballModel = gltf.scene;
+    fireballModel.visible = false;
+
+    boss = new Boss(
+      "Octopus",
+      500,
+      { x: 5, y: -2 },
+      { width: 2, height: 2 },
+      scene,
+      fireballModel,
+    );
+  });
 
   TLoop = setInterval(() => {
     time += 1;
@@ -162,7 +174,11 @@ const gameLoop = () => {
       }
     }
   });
-
+  if (shakeIntensity > 0.05) {
+    camera.position.x += (Math.random() - 0.5) * shakeIntensity;
+    camera.position.y += (Math.random() - 0.5) * shakeIntensity;
+    shakeIntensity *= shakeDecay;
+  }
   if (myGame && myGame.keyboard) {
     myGame.keyboard.update();
   }

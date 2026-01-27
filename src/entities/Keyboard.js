@@ -66,8 +66,6 @@ export default class Keyboard {
           keyObj.mesh = keyMesh;
           this.group.add(keyMesh);
         });
-
-        console.log("Clavier 3D chargé avec succès !");
       },
       undefined,
       (error) => {
