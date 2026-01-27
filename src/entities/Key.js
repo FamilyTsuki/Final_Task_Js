@@ -24,6 +24,9 @@ export default class Key extends GameObject {
   get key() {
     return this.#key;
   }
+  get rawPos() {
+    return this.#rawPos;
+  }
   set isPressed(isPressed) {
     this.#isPressed = isPressed;
   }
