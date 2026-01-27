@@ -30,7 +30,10 @@ export default class Boss extends Actor {
   attackTentacle(player, bonks) {
     bonks.push(
       new Bonk(
-        { x: player.position.x - 60, y: player.position.y - 150 },
+        {
+          x: player.position.x - 60 + player.size.width / 2,
+          y: player.position.y - 150 + player.size.height / 2,
+        },
         { width: 120, height: 300 },
         25,
       ),
