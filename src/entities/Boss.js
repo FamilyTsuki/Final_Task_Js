@@ -1,5 +1,5 @@
 import Actor from "./Actor.js";
-import Projectile from ".//Projectile.js";
+import Projectile from "./Projectile.js";
 import Bonk from "./Bonk.js";
 
 export default class Boss extends Actor {

@@ -3,7 +3,6 @@ import Game from "./Game.js";
 import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 import Stocage from "./Storage.js";
-import Boss from "./entities/Boss.js";
 
 const CONFIG = {
   player: {
@@ -19,7 +18,7 @@ const CONFIG = {
   },
 };
 
-let myGame, player, boss, myStocage;
+let myGame, player, myStorage;
 let canvas, ctx;
 let score = 0,
   time = 0;
@@ -49,15 +48,12 @@ const init = () => {
   elGameScreen = document.getElementById("game-screen");
   elGameOverScreen = document.getElementById("game-over-screen");
 
-  myStocage = new Stocage();
-  myStocage.init();
+  myStorage = new Stocage();
+  myStorage.init();
   myGame = new Game(KEYBOARD_LAYOUT);
 
   const playerImg = new Image();
   playerImg.src = CONFIG.player.imgSrc;
-
-  const bossImg = new Image();
-  bossImg.src = "./assets/boss.jpg";
 
   player = new Player(
     CONFIG.player.name,
@@ -68,18 +64,10 @@ const init = () => {
     playerImg,
   );
 
-  boss = new Boss(
-    "Kraken",
-    1000,
-    { x: 200, y: 0 },
-    { width: 150, height: 150 },
-    bossImg,
-  );
-
   const listElement = document.getElementById("spell-list");
   if (listElement) {
     listElement.innerHTML = "";
-    player.getWordList().forEach((word) => {
+    player.wordSpells.forEach((word) => {
       const li = document.createElement("li");
       li.textContent = word;
       listElement.appendChild(li);
@@ -112,9 +100,9 @@ const gameLoop = () => {
   player.update();
   player.draw(ctx);
 
-  if (boss && boss.hp > 0) {
-    boss.update(deltaTime, player, projectiles, bonks);
-    boss.draw(ctx);
+  if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
+    myGame.enemies.boss.update(deltaTime, player, projectiles, bonks);
+    myGame.enemies.boss.draw(ctx);
   }
 
   bonks.forEach((b, index) => {
@@ -124,16 +112,20 @@ const gameLoop = () => {
   });
 
   projectiles.forEach((p) => {
-    p.update();
-    p.draw(ctx);
-
     if (!p.isDead) {
-      if (p.team === "player" && boss && boss.hp > 0) {
-        if (boss.checkCollision(p)) {
-          boss.hp -= p.damage;
+      p.update();
+      p.draw(ctx);
+
+      if (
+        p.team === "player" &&
+        myGame.enemies.boss &&
+        myGame.enemies.boss.hp > 0
+      ) {
+        if (myGame.enemies.boss.checkCollision(p)) {
+          myGame.enemies.boss.hp -= p.damage;
           p.isDead = true;
         }
-      } else if (p.team === "boss") {
+      } else if (p.team === "myGame.enemies.boss") {
         if (player.checkCollision(p)) {
           player.hp -= p.damage;
           p.isDead = true;
@@ -144,9 +136,9 @@ const gameLoop = () => {
 
   if (elPlayerHp) elPlayerHp.textContent = Math.max(0, player.hp);
   projectiles = projectiles.filter((p) => !p.isDead);
-  myStocage.actu(score, time, player);
+  myStorage.actu(score, time, player);
 
-  if (player.getHp() <= 0) {
+  if (player.hp <= 0) {
     clearInterval(GLoop);
     clearInterval(TLoop);
     clearInterval(SLoop);
@@ -156,7 +148,7 @@ const gameLoop = () => {
 
     document.getElementById("final-time").textContent = formatTime(time);
     document.getElementById("final-score").textContent = score;
-    myStocage.clear();
+    myStorage.clear();
   }
 };
 
@@ -168,6 +160,9 @@ const setupEventListeners = () => {
     ?.addEventListener("click", () => location.reload());
 
   window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+      console.info(projectiles);
+    }
     const keyName = e.key.toUpperCase();
     const keyTile = myGame.keyboard.find(keyName);
     if (keyTile) keyTile.isPressed = true;
@@ -183,10 +178,19 @@ const setupEventListeners = () => {
         });
       }
 
-      const newProj = player.handleKeyPress(e.key);
-      if (newProj) projectiles.push(newProj);
+      const word = player.handleKeyPress(e.key);
+      if (word) {
+        const closestEnemy = myGame.enemies.findClosestEnemy(player.position);
+        if (closestEnemy) {
+          const newProj = player.attack(word, closestEnemy);
+          if (newProj) {
+            projectiles.push(newProj);
+            console.info(projectiles);
+          }
+        }
+      }
 
-      if (elCurrentWord) elCurrentWord.textContent = player.getCurrentWord();
+      if (elCurrentWord) elCurrentWord.textContent = player.currentWord;
     }
   });
 
