@@ -5,6 +5,9 @@ export default class GameObject {
     this.position = position;
   }
 
+  get position() {
+    return this.position;
+  }
   get x() {
     return this.position.x;
   }
