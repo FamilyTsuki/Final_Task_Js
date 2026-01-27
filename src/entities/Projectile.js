@@ -8,32 +8,50 @@ export default class Projectile extends DamageObject {
     this.team = team;
   }
 
-  update() {
+  update(canvasSize) {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    if (this.position.x < -100 || this.position.x > 2000) {
+    if (
+      this.position.x < 0 - this.size.width ||
+      this.position.x > canvasSize.width + this.size.width
+    ) {
+      this.isDead = true;
+    }
+
+    if (
+      this.position.y < 0 - this.size.height ||
+      this.position.y > canvasSize.height + this.size.height
+    ) {
       this.isDead = true;
     }
   }
 
   draw(ctx) {
     if (this.img && this.img.complete && this.img.naturalWidth !== 0) {
+      ctx.save();
+      ctx.translate(this.position.x, this.position.y);
+      ctx.rotate((Math.round(this.position.x) * Math.PI) / 5);
       ctx.drawImage(
         this.img,
-        this.position.x,
-        this.position.y,
+        -this.size.width / 2,
+        -this.size.height / 2,
         this.size.width,
         this.size.height,
       );
+      ctx.restore();
     } else {
+      ctx.save();
       ctx.fillStyle = "orange";
+      ctx.translate(this.position.x, this.position.y);
+      ctx.rotate((Math.round(this.position.x) * Math.PI) / 5);
       ctx.fillRect(
-        this.position.x,
-        this.position.y,
+        -this.size.width / 2,
+        -this.size.height / 2,
         this.size.width,
         this.size.height,
       );
+      ctx.restore();
     }
   }
 }

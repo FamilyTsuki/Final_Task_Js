@@ -113,7 +113,7 @@ const gameLoop = () => {
 
   projectiles.forEach((p) => {
     if (!p.isDead) {
-      p.update();
+      p.update({ width: canvas.widht, height: canvas.height });
       p.draw(ctx);
 
       if (
@@ -160,9 +160,6 @@ const setupEventListeners = () => {
     ?.addEventListener("click", () => location.reload());
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp") {
-      console.info(projectiles);
-    }
     const keyName = e.key.toUpperCase();
     const keyTile = myGame.keyboard.find(keyName);
     if (keyTile) keyTile.isPressed = true;
@@ -178,7 +175,10 @@ const setupEventListeners = () => {
         });
       }
 
-      const word = player.handleKeyPress(e.key);
+      let word = player.handleKeyPress(e.key);
+      if (e.key === "ArrowUp") {
+        word = "sum";
+      }
       if (word) {
         const closestEnemy = myGame.enemies.findClosestEnemy(player.position);
         if (closestEnemy) {
