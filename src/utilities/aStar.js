@@ -27,8 +27,8 @@ export default function findBestPath(startKey, goalKey, grid) {
     if (current.key === goalKey) {
       find = true;
     } else {
-      for (neighbour of current.neighbours) {
-        neighbour = grid.get(neighbour);
+      for (let neighbour of current.neighbours) {
+        neighbour = grid.get(neighbour.key);
         if (!close.find((closedNode) => closedNode === neighbour)) {
           if (!open.find((openedNode) => openedNode === neighbour)) {
             neighbour.parent = current;
