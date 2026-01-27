@@ -3,7 +3,6 @@ import Game from "./Game.js";
 import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 import Stocage from "./Storage.js";
-import Bonk from "./entities/Bonk.js";
 import Boss from "./entities/Boss.js";
 
 const CONFIG = {
