@@ -2,31 +2,26 @@ import Keyboard from "./entities/Keyboard";
 
 export default class Game {
   #canvas;
-  #ctx;
   #keyboard;
 
-  constructor(keyboardLayout) {
+  constructor(scene, keyboardLayout) {
     this.#canvas = document.getElementById("game-canvas");
+
     if (!this.#canvas) {
-      throw new Error("No canvas find !");
-    }
-    this.#canvas.width = window.innerWidth;
-    this.#canvas.height = window.innerHeight;
-
-    this.#ctx = this.#canvas.getContext("2d");
-    if (!this.#ctx) {
-      throw new Error("No ctx find !");
+      throw new Error("No canvas found !");
     }
 
-    this.#keyboard = Keyboard.init(this.#canvas, keyboardLayout);
+    this.#keyboard = Keyboard.init(scene, keyboardLayout);
   }
 
-  keyboardDraw() {
-    this.#keyboard.draw(this.#canvas, this.#ctx);
+  keyboardUpdate() {
+    this.#keyboard.update();
   }
 
   keyboardUpdateSize() {
-    this.#keyboard.updateSize(this.#canvas);
+    if (this.#keyboard.updateSize) {
+      this.#keyboard.updateSize(this.#canvas);
+    }
   }
 
   get keyboard() {

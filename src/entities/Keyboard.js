@@ -1,72 +1,119 @@
+import * as THREE from "three";
 import Key from "./Key";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export default class Keyboard {
   #keyboardLayout;
   tileSize;
+  group;
 
-  constructor(keyboardLayout, tileSize) {
+  constructor(keyboardLayout, tileSize, scene) {
     this.#keyboardLayout = keyboardLayout;
     this.tileSize = tileSize;
+    this.group = new THREE.Group();
+    scene.add(this.group);
+
+    this.loadAndCreateKeys(scene);
   }
 
-  get keyboardLayout() {
-    return this.#keyboardLayout;
+  static init(scene, keyboardLayout) {
+    const initialSize = 1;
+    const keys = keyboardLayout.map(
+      (tile) => new Key(tile.key, tile.x, tile.y, tile.isPressed, initialSize),
+    );
+    return new Keyboard(keys, initialSize, scene);
   }
 
-  draw(canvas, ctx) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  loadAndCreateKeys(scene) {
+    const loader = new GLTFLoader();
 
-    this.#keyboardLayout.forEach((key) => {
-      key.draw(ctx);
-    });
+    loader.load(
+      "../../assets/key.glb",
+      (gltf) => {
+        const keyModel = gltf.scene;
+
+        this.#keyboardLayout.forEach((keyObj) => {
+          const keyMesh = keyModel.clone();
+
+          const spacing = 3.2;
+          keyMesh.position.set(keyObj.x * spacing, 0, keyObj.y * spacing);
+
+          keyMesh.traverse((child) => {
+            if (child.isMesh) {
+              child.material = new THREE.MeshStandardMaterial({
+                color: 0xaaaaaa,
+                roughness: 0.5,
+                metalness: 0.2,
+              });
+            }
+          });
+
+          const letterTexture = createTextTexture(keyObj.key.toUpperCase());
+
+          const planeGeometry = new THREE.PlaneGeometry(1.2, 1.2);
+          const planeMaterial = new THREE.MeshBasicMaterial({
+            map: letterTexture,
+            transparent: true,
+            side: THREE.DoubleSide,
+          });
+          const letterPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+          letterPlane.position.set(0, 1, 0);
+          letterPlane.rotation.x = -Math.PI / 2;
+
+          keyMesh.add(letterPlane);
+
+          keyObj.mesh = keyMesh;
+          this.group.add(keyMesh);
+        });
+
+        console.log("Clavier 3D chargé avec succès !");
+      },
+      undefined,
+      (error) => {
+        console.error("Erreur lors du chargement du modèle GLB:", error);
+      },
+    );
   }
 
-  updateSize(canvas) {
-    let newTileSize = canvas.width / 15;
-    if (newTileSize > 80) newTileSize = 80;
-    if (newTileSize < 30) newTileSize = 30;
-
-    this.tileSize = newTileSize; // On met à jour la valeur de la classe
-
-    this.#keyboardLayout.forEach((key) => {
-      key.tileSize = newTileSize;
+  update() {
+    this.#keyboardLayout.forEach((keyObj) => {
+      if (keyObj.mesh) {
+        if (keyObj.isPressed) {
+          keyObj.mesh.position.y = -0.2;
+        } else {
+          keyObj.mesh.position.y = 0;
+        }
+      }
     });
   }
 
   find(keyToFind) {
-    const keyFind = this.#keyboardLayout.find((key) => key.key === keyToFind);
-
-    if (!keyFind) {
-      return false;
-    }
-
-    return keyFind;
+    return this.#keyboardLayout.find((key) => key.key === keyToFind) || false;
   }
+}
 
-  //? canvas: HTMLCanvasElement
-  //? keyboardLayout: "raw KEYBOARD_LAYOUT"
+function createTextTexture(
+  text,
+  color = "black",
+  bgColor = "rgba(0,0,0,0)",
+  fontSize = 90,
+) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = 256;
+  canvas.height = 256;
 
-  static init(canvas, keyboardLayout) {
-    let initialSize = Math.round(canvas.width / 15);
-    if (initialSize > 80) initialSize = 80;
-    if (initialSize < 30) initialSize = 30;
+  context.fillStyle = bgColor;
+  context.fillRect(0, 0, canvas.width, canvas.height);
 
-    return new Keyboard(
-      keyboardLayout.map(
-        (tile) =>
-          new Key(tile.key, tile.x, tile.y, tile.isPressed, initialSize),
-      ),
-      initialSize,
-    );
-  }
-  getTilePixels(tileX, tileY) {
-    const size = this.tileSize || 60;
-    const spacing = 10;
-    const margin = 50;
+  context.font = `bold ${fontSize}px Arial`;
+  context.fillStyle = color;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
 
-    return {
-      x: tileX * (size + spacing) + margin,
-      y: tileY * (size + 8) + margin,
-    };
-  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
 }
