@@ -224,6 +224,19 @@ const gameLoop = () => {
       }
     }
   });
+
+  if (myGame && myGame.keyboard) {
+    myGame.keyboard.keyboardLayout.forEach((tile) => {
+      const isPlayerOnTile =
+        Math.abs(player.position.x - tile.x) < 0.4 &&
+        Math.abs(player.position.y - tile.y) < 0.4;
+
+      tile.isPressed = isPlayerOnTile;
+    });
+
+    myGame.keyboard.update();
+  }
+
   if (shakeIntensity > 0.05) {
     camera.position.x += (Math.random() - 0.5) * shakeIntensity;
     camera.position.y += (Math.random() - 0.5) * shakeIntensity;
@@ -318,10 +331,10 @@ const setupEventListeners = () => {
     }
   });
 
-  window.addEventListener("keyup", (e) => {
+  /*window.addEventListener("keyup", (e) => {
     const keyTile = myGame.keyboard.find(e.key.toUpperCase());
     if (keyTile) keyTile.isPressed = false;
-  });
+  });*/
 };
 
 window.addEventListener("DOMContentLoaded", init);

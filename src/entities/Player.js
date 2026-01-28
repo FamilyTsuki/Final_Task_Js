@@ -10,36 +10,39 @@ export default class Player extends Actor {
     { word: "sum", damage: 10, range: 1000 },
   ];
   #currentWord = "";
-
   constructor(
     playerName = "Unknow",
     hp = 100,
     hpMax = 100,
     position,
     size,
-
     scene,
     fireballModel,
   ) {
     super(playerName, hp, hpMax, position, size);
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
     this.speed = 0.1;
+
     this.mesh = new THREE.Group();
     this.scene = scene;
     scene.add(this.mesh);
+
     this.fireballModel = fireballModel;
+    this.playerModel = null;
+    this.jumpTimer = 0;
+    this.startJumpPos = { x: position.x, y: position.y };
+    this.totalJumpDist = 0;
 
     const loader = new GLTFLoader();
     loader.load("./assets/player.glb", (gltf) => {
-      const model = gltf.scene;
+      this.playerModel = gltf.scene;
+      this.playerModel.scale.set(1.3, 1.3, 1.3);
 
-      model.scale.set(1.3, 1.3, 1.3);
-      model.position.y = 0.6;
+      this.playerModel.position.y = 0.6;
 
-      this.mesh.add(model);
+      this.mesh.add(this.playerModel);
     });
   }
-
   //? closestEnemy = {pos: {x: Number, y: Number}, dist: Number}
   attack(word, closestEnemy = null) {
     const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
@@ -61,23 +64,49 @@ export default class Player extends Actor {
     return this.#wordSpells.map((wordSpell) => wordSpell.word);
   }
   moveTo(newPos) {
+    this.startJumpPos = { x: this.position.x, y: this.position.y };
     this.targetPosition = newPos;
-  }
 
-  update() {
+    const dx = this.targetPosition.x - this.startJumpPos.x;
+    const dy = this.targetPosition.y - this.startJumpPos.y;
+    this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
+  }
+  update(deltaTime) {
     const dx = this.targetPosition.x - this.position.x;
     const dy = this.targetPosition.y - this.position.y;
+    const currentDist = Math.sqrt(dx * dx + dy * dy);
 
     this.position.x += dx * this.speed;
     this.position.y += dy * this.speed;
 
-    if (Math.abs(dx) < 0.01) this.position.x = this.targetPosition.x;
-    if (Math.abs(dy) < 0.01) this.position.y = this.targetPosition.y;
+    if (this.mesh && this.playerModel) {
+      const spacing = 3.2;
 
-    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
-      this.img = this.imgIdle;
-    } else {
-      this.img = this.imgMove;
+      this.mesh.position.set(
+        this.position.x * spacing,
+        0,
+        this.position.y * spacing,
+      );
+
+      if (currentDist > 0.01) {
+        this.mesh.lookAt(
+          this.targetPosition.x * spacing,
+          0,
+          this.targetPosition.y * spacing,
+        );
+
+        const progression =
+          this.totalJumpDist > 0 ? 1 - currentDist / this.totalJumpDist : 1;
+
+        const jumpAmplitude = 2.0;
+        this.playerModel.position.y =
+          0.6 + Math.sin(progression * Math.PI) * jumpAmplitude;
+      } else {
+        this.playerModel.position.y = 0.6;
+        this.playerModel.rotation.x = 0;
+        this.position.x = this.targetPosition.x;
+        this.position.y = this.targetPosition.y;
+      }
     }
   }
   handleKeyPress(key, findClosestEnemy) {
