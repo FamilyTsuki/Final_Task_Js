@@ -105,11 +105,12 @@ export default class Player extends Actor {
       this.mesh.position.set(this.x, 0, this.y);
 
       if (currentDist > 0.01) {
-        this.mesh.lookAt(
-          this.targetPosition.x * spacing,
-          0,
-          this.targetPosition.y * spacing,
-        );
+        const worldTargetX = this.targetPosition.x * spacing;
+        const worldTargetZ = this.targetPosition.y * spacing;
+
+        this.mesh.position.set(this.x * spacing, 0, this.y * spacing);
+
+        this.mesh.lookAt(worldTargetX, 0, worldTargetZ);
 
         const progression =
           this.totalJumpDist > 0 ? 1 - currentDist / this.totalJumpDist : 1;
