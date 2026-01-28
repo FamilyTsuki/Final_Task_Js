@@ -60,7 +60,30 @@ const formatTime = (t) => {
   const minutes = Math.floor(totalSeconds / 60);
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(ms).padStart(2, "0")}`;
 };
+const updateCamera = () => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
+  camera.aspect = width / height;
+  renderer.setSize(width, height);
+
+  const targetWidth = 35;
+  const distance = camera.position.distanceTo(new THREE.Vector3(16, 2, 2));
+
+  const fov =
+    2 *
+    Math.atan(targetWidth / camera.aspect / (2 * distance)) *
+    (180 / Math.PI);
+
+  if (camera.aspect < 1.7) {
+    camera.fov = Math.max(75, fov);
+  } else {
+    camera.fov = 75;
+  }
+
+  camera.updateProjectionMatrix();
+  camera.lookAt(16, 2, 2);
+};
 const init = () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
@@ -75,8 +98,8 @@ const init = () => {
   const light = new THREE.AmbientLight(0xffffff, 1);
   scene.add(light);
 
-  camera.position.set(16, 15, 15);
-  camera.lookAt(16, 0, 2);
+  camera.position.set(16, 15, 10);
+  camera.lookAt(16, 2, 2);
 
   elScore = document.getElementById("current-score");
   elTimer = document.getElementById("timer");
@@ -108,7 +131,7 @@ const init = () => {
       listElement.appendChild(li);
     });
   }
-  loader.load("./assets/yameter.glb", (bossGltf) => {
+  /*loader.load("./assets/yameter.glb", (bossGltf) => {
     const bossModel = bossGltf;
 
     loader.load("./assets/fireball.glb", (fireballGltf) => {
@@ -124,8 +147,10 @@ const init = () => {
         fireballModel,
         bossModel,
       );
+      camera.position.set(16, 15, 12);
+      camera.lookAt(16, 2, 0);
     });
-  });
+  });*/
   TLoop = setInterval(() => {
     time += 1;
     if (elTimer) elTimer.textContent = formatTime(time);
@@ -146,7 +171,7 @@ const init = () => {
   fillLight.position.set(-10, 10, -10);
   scene.add(fillLight);
   setupEventListeners();
-
+  updateCamera();
   gameLoop();
   elGameScreen?.classList.remove("hidden");
 };
@@ -203,6 +228,8 @@ const gameLoop = () => {
     camera.position.x += (Math.random() - 0.5) * shakeIntensity;
     camera.position.y += (Math.random() - 0.5) * shakeIntensity;
     shakeIntensity *= shakeDecay;
+  } else {
+    updateCamera();
   }
   if (myGame && myGame.keyboard) {
     myGame.keyboard.update();
@@ -227,10 +254,30 @@ const gameLoop = () => {
 
 const setupEventListeners = () => {
   window.addEventListener("resize", () => {
-    myGame.keyboardUpdateSize();
-    camera.aspect = window.innerWidth / window.innerHeight;
+    // 1. Mise à jour classique du moteur
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(width, height);
+
+    // 2. LOGIQUE D'ADAPTATION (Zoom auto)
+    // On définit une largeur de référence (ex: 1200px)
+    const referenceWidth = 1200;
+    const ratio = width / referenceWidth;
+
+    if (ratio < 1) {
+      // Si l'écran est plus petit que la référence, on recule la caméra
+      // Plus le ratio est petit, plus on augmente le Z et le Y
+      const zoomOut = 1 / ratio;
+      camera.position.set(16, 15 * zoomOut, 10 * zoomOut);
+    } else {
+      // Position par défaut sur PC large
+      camera.position.set(16, 15, 10);
+    }
+
+    camera.lookAt(16, 2, 2);
   });
 
   document
