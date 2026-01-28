@@ -21,7 +21,7 @@ const CONFIG = {
   },
 };
 
-let myGame, player, boss, myStocage;
+let myGame, player, boss; //myStorage;
 let canvas, ctx, renderer;
 let score = 0,
   time = 0;
@@ -30,11 +30,20 @@ let projectiles = [],
 let TLoop, SLoop;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 
-let fireballModel = null;
 let boss3d = null;
 
-const loader = new GLTFLoader();
+let fireballModel = null;
+let isLoaded = false; // L'interrupteur
 
+const loader = new GLTFLoader();
+loader.load("./assets/fireball.glb", (gltf) => {
+  fireballModel = gltf;
+  isLoaded = true; // Le modèle est arrivé !
+
+  // On ne crée le joueur et on ne lance le jeu
+  // QUE maintenant, quand on est sûr d'avoir le modèle.
+  init();
+});
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -81,10 +90,20 @@ const init = () => {
   elGameScreen = document.getElementById("game-screen");
   elGameOverScreen = document.getElementById("game-over-screen");
 
-  myStorage = new Stocage();
-  myStorage.init();
+  //myStorage = new Storage();
+  //myStorage.init();
 
   myGame = new Game(scene, KEYBOARD_LAYOUT);
+
+  player = new Player(
+    CONFIG.player.name,
+    100,
+    100,
+    CONFIG.player.startPos,
+    CONFIG.player.size,
+    scene,
+    fireballModel,
+  );
   const listElement = document.getElementById("spell-list");
   if (listElement) {
     listElement.innerHTML = "";
@@ -94,15 +113,6 @@ const init = () => {
       listElement.appendChild(li);
     });
   }
-  player = new Player(
-    CONFIG.player.name,
-    100,
-    100,
-    CONFIG.player.startPos,
-    CONFIG.player.size,
-
-    scene,
-  );
   loader.load("./assets/yameter.glb", (bossGltf) => {
     const bossModel = bossGltf;
 
@@ -119,8 +129,6 @@ const init = () => {
         fireballModel,
         bossModel,
       );
-
-      console.log("Boss et Fireball chargés !");
     });
   });
   TLoop = setInterval(() => {
@@ -166,7 +174,6 @@ const gameLoop = () => {
   }
   if (boss && boss.hp > 0) {
     boss.update(deltaTime, player, projectiles, bonks);
-    console.log(boss);
   }
 
   bonks.forEach((b, index) => {
@@ -209,9 +216,9 @@ const gameLoop = () => {
 
   if (elPlayerHp) elPlayerHp.textContent = Math.max(0, player.hp);
   projectiles = projectiles.filter((p) => !p.isDead);
-  myStorage.actu(score, time, player);
+  //myStorage.actu(score, time, player);
 
-  if (player.hp() <= 0) {
+  if (player.hp <= 0) {
     clearInterval(TLoop);
     clearInterval(SLoop);
     elGameScreen?.classList.add("hidden");
@@ -219,7 +226,7 @@ const gameLoop = () => {
 
     document.getElementById("final-time").textContent = formatTime(time);
     document.getElementById("final-score").textContent = score;
-    myStorage.clear();
+    //myStorage.clear();
   }
 };
 
@@ -259,7 +266,6 @@ const setupEventListeners = () => {
           const newProj = player.attack(word, closestEnemy);
           if (newProj) {
             projectiles.push(newProj);
-            console.info(projectiles);
           }
         }
       }
@@ -273,5 +279,3 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = false;
   });
 };
-
-window.addEventListener("DOMContentLoaded", init);

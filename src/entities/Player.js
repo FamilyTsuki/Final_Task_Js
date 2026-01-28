@@ -19,12 +19,15 @@ export default class Player extends Actor {
     size,
 
     scene,
+    fireballModel,
   ) {
     super(playerName, hp, hpMax, position, size);
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
     this.speed = 0.1;
     this.mesh = new THREE.Group();
+    this.scene = scene;
     scene.add(this.mesh);
+    this.fireballModel = fireballModel;
 
     const loader = new GLTFLoader();
     loader.load("./assets/player.glb", (gltf) => {
@@ -127,12 +130,16 @@ export default class Player extends Actor {
       x: this.position.x + this.size.width / 2,
       y: this.position.y + this.size.height / 2,
     };
+    console.log(this.fireballModel);
     return new Projectile(
       startPosition,
       projectileSize,
       spellDamage,
       velocity,
-      this.projectileImg,
+      this.scene,
+      "player",
+      1.0,
+      this.fireballModel,
     );
   }
 }

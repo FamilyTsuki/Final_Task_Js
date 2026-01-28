@@ -23,7 +23,9 @@ export default class Keyboard {
     );
     return new Keyboard(keys, initialSize, scene);
   }
-
+  get keyboardLayout() {
+    return this.#keyboardLayout;
+  }
   loadAndCreateKeys(scene) {
     const loader = new GLTFLoader();
 

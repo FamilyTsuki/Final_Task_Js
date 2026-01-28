@@ -8,12 +8,12 @@ export default class Game {
 
   constructor(scene, keyboardLayout) {
     this.#canvas = document.getElementById("game-canvas");
-
+    this.scene = scene;
     if (!this.#canvas) {
       throw new Error("No canvas found !");
     }
 
-    this.#keyboard = Keyboard.init(this.#canvas, keyboardLayout);
+    this.#keyboard = Keyboard.init(this.scene, keyboardLayout);
     this.#enemies = new Enemies(this.#keyboard.keyboardLayout);
   }
 
