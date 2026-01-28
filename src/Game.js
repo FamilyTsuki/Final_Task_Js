@@ -14,7 +14,7 @@ export default class Game {
     }
 
     this.#keyboard = Keyboard.init(this.scene, keyboardLayout);
-    this.#enemies = new Enemies(this.#keyboard.keyboardLayout);
+    this.#enemies = Enemies.init(this.#keyboard.keyboardLayout, scene);
   }
 
   keyboardUpdate() {

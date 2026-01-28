@@ -159,7 +159,6 @@ export default class Player extends Actor {
       x: this.position.x + this.size.width / 2,
       y: this.position.y + this.size.height / 2,
     };
-    console.log(this.fireballModel);
     return new Projectile(
       startPosition,
       projectileSize,

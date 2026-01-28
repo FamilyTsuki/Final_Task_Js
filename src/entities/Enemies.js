@@ -1,24 +1,19 @@
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import NodeAStar from "../utilities/NodeAStar";
 import Boss from "./Boss";
 
-const bossImg = new Image();
-bossImg.src = "../../assets/boss.jpg";
+const loader = new GLTFLoader();
 
 export default class Enemies {
   #aStarGrid;
   #container;
   #boss;
 
-  constructor(keyboardLayout) {
+  constructor(keyboardLayout, boss) {
     this.#aStarGrid = new Map();
     this.#container = [];
-    this.#boss = new Boss(
-      "Kraken",
-      1000,
-      { x: 200, y: 0 },
-      { width: 150, height: 150 },
-      bossImg,
-    );
+
+    this.#boss = boss;
     this.#container.push(this.#boss);
 
     for (const key of keyboardLayout) {
@@ -63,22 +58,22 @@ export default class Enemies {
 
   findClosestEnemy(playerPos) {
     if (this.#container.length > 0) {
-      const posFirst = this.#container[0].position;
+      const first = this.#container[0];
       let closestEnemy = {
-        pos: posFirst,
+        instance: first,
         dist: Math.sqrt(
-          (playerPos.x - posFirst.x) ** 2 + (playerPos.y - posFirst.y) ** 2,
+          (playerPos.x - first.x) ** 2 + (playerPos.y - first.y) ** 2,
         ),
       };
 
       for (let i = 1; i < this.#container.length; i++) {
-        const posTemp = this.#container[i].position;
+        const enemy = this.#container[i];
         const dist = Math.sqrt(
-          (playerPos.x - posTemp.x) ** 2 + (playerPos.y - posTemp.y) ** 2,
+          (playerPos.x - enemy.x) ** 2 + (playerPos.y - enemy.y) ** 2,
         );
 
         if (dist < closestEnemy.dist) {
-          closestEnemy = { pos: posTemp, dist };
+          closestEnemy = { instance: enemy, dist };
         }
       }
 
@@ -86,6 +81,43 @@ export default class Enemies {
     }
 
     return false;
+  }
+
+  static async init(keyboardLayout, scene) {
+    //* boss start
+    const bossPosition = { x: 5, y: -2 };
+
+    const bossModel = await loader.loadAsync(
+      "../public/assets/yameter.glb",
+      (bossGltf) => bossGltf,
+    );
+
+    const fireballGltf = await loader.loadAsync(
+      "../public/assets/fireball.glb",
+      (fireballGltf) => fireballGltf,
+    );
+
+    const boss = new Boss(
+      "Octopus",
+      500,
+      bossPosition,
+      { width: 2, height: 2 },
+      scene,
+      fireballGltf.scene,
+      bossModel,
+    );
+
+    //? set the mesh position
+    const offsetY = 0;
+    let spacing = 3.2;
+    boss.mesh.position.set(
+      bossPosition.x * spacing,
+      offsetY,
+      bossPosition.y * spacing,
+    );
+    //* boss end
+
+    return new Enemies(keyboardLayout, boss);
   }
 }
 
