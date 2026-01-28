@@ -6,14 +6,17 @@
     <title>Key-Survive | Typing Game</title>
   </head>
   <body>
-    <section id="game-screen" class="hidden">
+    <section id="game-screen" class="hidden" class="gs">
       <div id="hud">
         <div id="stats">
           <span>Time: <span id="timer">00:00:00</span></span>
           <span>Score: <span id="current-score">0</span></span>
-          <span>Vie: <span id="player-health">100</span></span>
         </div>
-        <h1><span id="currentWord"></span><span class="clignotant">_</span></h1>
+        <span id="hp">Vie: <span id="player-health">100</span></span>
+
+        <div class="word-container">
+          <span id="currentWord"></span><span class="clignotant">_</span>
+        </div>
         <ul id="spell-list"></ul>
       </div>
       <canvas id="game-canvas"></canvas>
