@@ -121,28 +121,6 @@ const init = () => {
     });
   }
 
-  //! may be something to do here
-
-  loader.load("../public/assets/yameter.glb", (bossGltf) => {
-    const bossModel = bossGltf;
-
-    loader.load("../public/assets/fireball.glb", (fireballGltf) => {
-      const fireballModel = fireballGltf.scene;
-      fireballModel.visible = false;
-
-      boss = new Boss(
-        "Octopus",
-        500,
-        { x: 5, y: -2 },
-        { width: 2, height: 2 },
-        scene,
-        fireballModel,
-        bossModel,
-      );
-      camera.position.set(16, 15, 12);
-      camera.lookAt(16, 2, 0);
-    });
-  });
   TLoop = setInterval(() => {
     time += 1;
     if (elTimer) elTimer.textContent = formatTime(time);
