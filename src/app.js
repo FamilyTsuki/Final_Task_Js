@@ -221,7 +221,6 @@ const gameLoop = () => {
 
   if (elPlayerHp) elPlayerHp.textContent = Math.max(0, player.hp);
   projectiles = projectiles.filter((p) => !p.isDead);
-  //myStorage.actu(score, time, player);
 
   if (player.hp <= 0) {
     clearInterval(TLoop);
@@ -231,13 +230,11 @@ const gameLoop = () => {
 
     document.getElementById("final-time").textContent = formatTime(time);
     document.getElementById("final-score").textContent = score;
-    //myStorage.clear();
   }
 };
 
 const setupEventListeners = () => {
   window.addEventListener("resize", () => {
-    // 1. Mise à jour classique du moteur
     const width = window.innerWidth;
     const height = window.innerHeight;
 
@@ -245,18 +242,13 @@ const setupEventListeners = () => {
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
 
-    // 2. LOGIQUE D'ADAPTATION (Zoom auto)
-    // On définit une largeur de référence (ex: 1200px)
     const referenceWidth = 1200;
     const ratio = width / referenceWidth;
 
     if (ratio < 1) {
-      // Si l'écran est plus petit que la référence, on recule la caméra
-      // Plus le ratio est petit, plus on augmente le Z et le Y
       const zoomOut = 1 / ratio;
       camera.position.set(16, 15 * zoomOut, 10 * zoomOut);
     } else {
-      // Position par défaut sur PC large
       camera.position.set(16, 15, 10);
     }
 
