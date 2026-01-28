@@ -3,30 +3,51 @@ import Game from "./Game.js";
 import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 import Stocage from "./Storage.js";
+import Boss from "./entities/Boss.js";
+import * as THREE from "three";
 
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   player: {
     name: "Héros",
     imgSrc: "./assets/player.jpg",
-    startPos: { x: 50, y: 50 },
-    size: { width: 40, height: 40 },
+    startPos: { x: 0, y: 0, z: 5 },
+    size: { width: 0.8, height: 0.8 },
   },
   projectile: {
     imgSrc: "./assets/fireball.png",
-    size: { width: 20, height: 20 },
+    size: { width: 0.4, height: 0.4 },
     speed: 5,
   },
 };
 
-let myGame, player, myStorage;
-let canvas, ctx;
+let myGame, player, boss, myStocage;
+let canvas, ctx, renderer;
 let score = 0,
   time = 0;
 let projectiles = [],
   bonks = [];
-let GLoop, TLoop, SLoop;
-
+let TLoop, SLoop;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
+
+let fireballModel = null;
+let boss3d = null;
+
+const loader = new GLTFLoader();
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000,
+);
+let shakeIntensity = 0;
+const shakeDecay = 0.9;
+
+window.startShake = function (intensity) {
+  shakeIntensity = intensity;
+};
 
 const formatTime = (t) => {
   const ms = t % 100;
@@ -39,7 +60,19 @@ const formatTime = (t) => {
 const init = () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
-  ctx = canvas.getContext("2d");
+
+  renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: true,
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const light = new THREE.AmbientLight(0xffffff, 1);
+  scene.add(light);
+
+  camera.position.set(16, 15, 15);
+  camera.lookAt(16, 0, 2);
 
   elScore = document.getElementById("current-score");
   elTimer = document.getElementById("timer");
@@ -50,20 +83,8 @@ const init = () => {
 
   myStorage = new Stocage();
   myStorage.init();
-  myGame = new Game(KEYBOARD_LAYOUT);
 
-  const playerImg = new Image();
-  playerImg.src = CONFIG.player.imgSrc;
-
-  player = new Player(
-    CONFIG.player.name,
-    100,
-    100,
-    CONFIG.player.startPos,
-    CONFIG.player.size,
-    playerImg,
-  );
-
+  myGame = new Game(scene, KEYBOARD_LAYOUT);
   const listElement = document.getElementById("spell-list");
   if (listElement) {
     listElement.innerHTML = "";
@@ -73,7 +94,35 @@ const init = () => {
       listElement.appendChild(li);
     });
   }
+  player = new Player(
+    CONFIG.player.name,
+    100,
+    100,
+    CONFIG.player.startPos,
+    CONFIG.player.size,
 
+    scene,
+  );
+  loader.load("./assets/yameter.glb", (bossGltf) => {
+    const bossModel = bossGltf;
+
+    loader.load("./assets/fireball.glb", (fireballGltf) => {
+      const fireballModel = fireballGltf.scene;
+      fireballModel.visible = false;
+
+      boss = new Boss(
+        "Octopus",
+        500,
+        { x: 5, y: -2 },
+        { width: 2, height: 2 },
+        scene,
+        fireballModel,
+        bossModel,
+      );
+
+      console.log("Boss et Fireball chargés !");
+    });
+  });
   TLoop = setInterval(() => {
     time += 1;
     if (elTimer) elTimer.textContent = formatTime(time);
@@ -83,35 +132,50 @@ const init = () => {
     score += 10;
     if (elScore) elScore.textContent = score;
   }, 1000);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambientLight);
 
+  const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  sunLight.position.set(10, 20, 10);
+  scene.add(sunLight);
+
+  const fillLight = new THREE.PointLight(0x0088ff, 0.5);
+  fillLight.position.set(-10, 10, -10);
+  scene.add(fillLight);
   setupEventListeners();
 
-  GLoop = setInterval(gameLoop, 10);
+  gameLoop();
   elGameScreen?.classList.remove("hidden");
 };
 
 const gameLoop = () => {
-  if (!ctx || !canvas || !player) return;
+  requestAnimationFrame(gameLoop);
+  if (!renderer || !player) return;
+
   const deltaTime = 10;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  myGame.keyboardDraw();
   player.update();
-  player.draw(ctx);
 
-  if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
-    myGame.enemies.boss.update(deltaTime, player, projectiles, bonks);
-    myGame.enemies.boss.draw(ctx);
+  if (player.mesh) {
+    const spacing = 3.2;
+
+    const targetX = player.position.x;
+    const targetY = player.position.y;
+
+    player.mesh.position.set(targetX * spacing, 1.5, targetY * spacing);
+  }
+  if (boss && boss.hp > 0) {
+    boss.update(deltaTime, player, projectiles, bonks);
+    console.log(boss);
   }
 
   bonks.forEach((b, index) => {
     b.update(deltaTime, player);
-    b.draw(ctx);
     if (b.isDead) bonks.splice(index, 1);
   });
 
   projectiles.forEach((p) => {
+    p.update();
     if (!p.isDead) {
       p.update({ width: canvas.widht, height: canvas.height });
       p.draw(ctx);
@@ -133,16 +197,23 @@ const gameLoop = () => {
       }
     }
   });
+  if (shakeIntensity > 0.05) {
+    camera.position.x += (Math.random() - 0.5) * shakeIntensity;
+    camera.position.y += (Math.random() - 0.5) * shakeIntensity;
+    shakeIntensity *= shakeDecay;
+  }
+  if (myGame && myGame.keyboard) {
+    myGame.keyboard.update();
+  }
+  renderer.render(scene, camera);
 
   if (elPlayerHp) elPlayerHp.textContent = Math.max(0, player.hp);
   projectiles = projectiles.filter((p) => !p.isDead);
   myStorage.actu(score, time, player);
 
-  if (player.hp <= 0) {
-    clearInterval(GLoop);
+  if (player.hp() <= 0) {
     clearInterval(TLoop);
     clearInterval(SLoop);
-
     elGameScreen?.classList.add("hidden");
     elGameOverScreen?.classList.remove("hidden");
 
@@ -153,7 +224,12 @@ const gameLoop = () => {
 };
 
 const setupEventListeners = () => {
-  window.addEventListener("resize", () => myGame.keyboardUpdateSize());
+  window.addEventListener("resize", () => {
+    myGame.keyboardUpdateSize();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 
   document
     .getElementById("restart-btn")
@@ -167,11 +243,9 @@ const setupEventListeners = () => {
     if (player) {
       const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
       if (target) {
-        const coords = myGame.keyboard.getTilePixels(target.x, target.y);
-        const currentTileSize = myGame.keyboard.tileSize || 60;
         player.moveTo({
-          x: coords.x + currentTileSize / 2 - player.size.width / 2,
-          y: coords.y + currentTileSize / 2 - player.size.height / 2,
+          x: target.x,
+          y: target.y,
         });
       }
 
