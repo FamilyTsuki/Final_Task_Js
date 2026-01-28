@@ -7,7 +7,7 @@ export default class Boss extends Actor {
   constructor(name, hp, position, size, scene, fireballModel, bossModel) {
     super(name, hp, hp, position, size);
     this.stateTimer = 0;
-    this.attackInterval = 3000;
+    this.attackInterval = 300;
     this.scene = scene;
     this.fireballModel = fireballModel;
 
@@ -59,7 +59,7 @@ export default class Boss extends Actor {
       if (Math.random() > 0.5) {
         this.attackTentacle(player, bonks);
       } else {
-        this.attackInkRain(projectiles);
+        this.attackInkRain(player, projectiles);
       }
     }
   }
@@ -73,12 +73,22 @@ export default class Boss extends Actor {
     );
   }
 
-  attackInkRain(projectiles) {
+  attackInkRain(player, projectiles) {
     const nbProjectiles = 5;
+
+    const dx = player.position.x - this.position.x;
+    const dy = player.position.y - this.position.y;
+    const angleToPlayer = Math.atan2(dx, dy);
+
     for (let i = 0; i < nbProjectiles; i++) {
+      const spread = Math.PI / 2;
+
+      const finalAngle = angleToPlayer + (Math.random() - 0.5) * spread;
+
+      const speed = 0.2;
       const velocity = {
-        x: (Math.random() - 0.5) * 0.2,
-        y: (Math.random() - 0.5) * 0.2,
+        x: Math.sin(finalAngle) * speed,
+        y: Math.cos(finalAngle) * speed,
       };
 
       projectiles.push(
@@ -95,7 +105,6 @@ export default class Boss extends Actor {
       );
     }
   }
-
   attackTentacle(player, bonks) {
     bonks.push(
       new Bonk(
