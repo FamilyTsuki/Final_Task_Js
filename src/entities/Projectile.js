@@ -13,6 +13,10 @@ export default class Projectile extends DamageObject {
     spacing = 3.2,
     modelSource,
   ) {
+    if (!modelSource) {
+      throw new Error("No projectile model !");
+    }
+
     super(position, size, damage);
     this.velocity = velocity;
     this.team = team;
@@ -40,7 +44,7 @@ export default class Projectile extends DamageObject {
           child.material.emissiveIntensity = 2;
         }
       });
-    } else console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    }
   }
 
   update(cible, deltaTime) {

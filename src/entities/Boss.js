@@ -4,10 +4,19 @@ import Bonk from "./Bonk.js";
 import * as THREE from "three";
 
 export default class Boss extends Actor {
-  constructor(name, hp, position, size, scene, fireballModel, bossModel) {
-    super(name, hp, hp, position, size);
+  constructor(
+    name,
+    hp,
+    rawPosition,
+    position,
+    size,
+    scene,
+    fireballModel,
+    bossModel,
+  ) {
+    super(name, hp, hp, rawPosition, position, size);
     this.stateTimer = 0;
-    this.attackInterval = 300;
+    this.attackInterval = 1000;
     this.scene = scene;
     this.fireballModel = fireballModel;
 
@@ -37,19 +46,13 @@ export default class Boss extends Actor {
       return;
     }
 
-    const offsetY = 0;
-    let spacing = 3.2;
     if (this.mesh) {
-      this.mesh.position.set(
-        this.position.x * spacing,
-        offsetY,
-        this.position.y * spacing,
-      );
+      this.mesh.position.set(this.x, 0, this.y);
       this.mesh.updateMatrixWorld(true);
     }
 
     if (this.debugSphere) {
-      this.debugSphere.position.set(this.position.x, this.position.y, -5);
+      this.debugSphere.position.set(this.x, this.y, -5);
     }
 
     this.stateTimer += deltaTime;
@@ -66,18 +69,18 @@ export default class Boss extends Actor {
 
   checkCollision(other) {
     return (
-      this.position.x < other.position.x + other.size.width &&
-      this.position.x + this.size.width > other.position.x &&
-      this.position.y < other.position.y + other.size.height &&
-      this.position.y + this.size.height > other.position.y
+      this.rawPosition.x < other.position.x + other.size.width &&
+      this.rawPosition.x + this.size.width > other.position.x &&
+      this.rawPosition.y < other.position.y + other.size.height &&
+      this.rawPosition.y + this.size.height > other.position.y
     );
   }
 
   attackInkRain(player, projectiles) {
     const nbProjectiles = 5;
 
-    const dx = player.position.x - this.position.x;
-    const dy = player.position.y - this.position.y;
+    const dx = player.position.x - this.rawPosition.x;
+    const dy = player.position.y - this.rawPosition.y;
     const angleToPlayer = Math.atan2(dx, dy);
 
     for (let i = 0; i < nbProjectiles; i++) {
@@ -93,7 +96,7 @@ export default class Boss extends Actor {
 
       projectiles.push(
         new Projectile(
-          { x: this.position.x, y: this.position.y },
+          { x: this.rawPosition.x, y: this.rawPosition.y },
           { width: 0.5, height: 0.5 },
           10,
           velocity,

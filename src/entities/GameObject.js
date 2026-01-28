@@ -1,10 +1,15 @@
 export default class GameObject {
+  rawPosition; //? {x: Number, y: Number, z: Number}
   position; //? {x: Number, y: Number, z: Number}
 
-  constructor(position) {
+  constructor(rawPosition, position) {
+    this.rawPosition = rawPosition;
     this.position = position;
   }
 
+  get rawPosition() {
+    return this.rawPosition;
+  }
   get position() {
     return this.position;
   }
@@ -16,6 +21,13 @@ export default class GameObject {
   }
   get z() {
     return this.position.z;
+  }
+
+  set x(X) {
+    this.position.x = X;
+  }
+  set y(Y) {
+    this.position.y = Y;
   }
 
   draw(ctx) {

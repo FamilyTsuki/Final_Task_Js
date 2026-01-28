@@ -14,12 +14,19 @@ export default class Player extends Actor {
     playerName = "Unknow",
     hp = 100,
     hpMax = 100,
-    position,
+    rawPosition,
     size,
     scene,
     fireballModel,
   ) {
-    super(playerName, hp, hpMax, position, size);
+    const spacing = 3.2;
+    const position = {
+      x: rawPosition.x * spacing,
+      y: rawPosition.y * spacing,
+      z: rawPosition.z,
+    };
+
+    super(playerName, hp, hpMax, rawPosition, position, size);
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
     this.speed = 0.1;
 
@@ -43,6 +50,14 @@ export default class Player extends Actor {
       this.mesh.add(this.playerModel);
     });
   }
+
+  get wordSpells() {
+    return this.#wordSpells.map((wordSpell) => wordSpell.word);
+  }
+  get currentWord() {
+    return this.#currentWord;
+  }
+
   //? closestEnemy = {pos: {x: Number, y: Number}, dist: Number}
   attack(word, closestEnemy = null) {
     const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
@@ -53,40 +68,35 @@ export default class Player extends Actor {
 
     if (closestEnemy) {
       if (closestEnemy.dist <= spell.range) {
-        return this.shootProjectile(spell.damage, closestEnemy.pos);
+        return this.shootProjectile(
+          spell.damage,
+          closestEnemy.instance.position,
+        );
       }
     }
 
     return false;
   }
 
-  get wordSpells() {
-    return this.#wordSpells.map((wordSpell) => wordSpell.word);
-  }
   moveTo(newPos) {
-    this.startJumpPos = { x: this.position.x, y: this.position.y };
+    this.startJumpPos = { x: this.x, y: this.y };
     this.targetPosition = newPos;
 
     const dx = this.targetPosition.x - this.startJumpPos.x;
     const dy = this.targetPosition.y - this.startJumpPos.y;
     this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
   }
-  update(deltaTime) {
-    const dx = this.targetPosition.x - this.position.x;
-    const dy = this.targetPosition.y - this.position.y;
+  update() {
+    const dx = this.targetPosition.x - this.x;
+    const dy = this.targetPosition.y - this.y;
     const currentDist = Math.sqrt(dx * dx + dy * dy);
+    const spacing = 3.2;
 
-    this.position.x += dx * this.speed;
-    this.position.y += dy * this.speed;
+    this.x += dx * this.speed;
+    this.y += dy * this.speed;
 
     if (this.mesh && this.playerModel) {
-      const spacing = 3.2;
-
-      this.mesh.position.set(
-        this.position.x * spacing,
-        0,
-        this.position.y * spacing,
-      );
+      this.mesh.position.set(this.x, 0, this.y);
 
       if (currentDist > 0.01) {
         this.mesh.lookAt(
@@ -104,12 +114,12 @@ export default class Player extends Actor {
       } else {
         this.playerModel.position.y = 0.6;
         this.playerModel.rotation.x = 0;
-        this.position.x = this.targetPosition.x;
-        this.position.y = this.targetPosition.y;
+        this.x = this.targetPosition.x;
+        this.y = this.targetPosition.y;
       }
     }
   }
-  handleKeyPress(key, findClosestEnemy) {
+  handleKeyPress(key) {
     if (key.length === 1 && key.match(/[a-z]/i)) {
       this.#currentWord += key.toLowerCase();
     } else if (key === "Backspace") {
@@ -134,15 +144,7 @@ export default class Player extends Actor {
 
     return false;
   }
-  get x() {
-    return this.position.x;
-  }
-  get y() {
-    return this.position.y;
-  }
-  get currentWord() {
-    return this.#currentWord;
-  }
+
   shootProjectile(spellDamage, target) {
     if (!target) {
       throw new Error("No target !");
@@ -151,8 +153,8 @@ export default class Player extends Actor {
     const projectileSpeed = 2;
     const projectileSize = { width: 80, height: 80 };
 
-    const dx = target.x - this.position.x;
-    const dy = target.y - this.position.y;
+    const dx = target.x - this.x;
+    const dy = target.y - this.y;
     const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
     const velocity = {
@@ -161,9 +163,10 @@ export default class Player extends Actor {
     };
 
     const startPosition = {
-      x: this.position.x + this.size.width / 2,
-      y: this.position.y + this.size.height / 2,
+      x: this.x,
+      y: this.y,
     };
+    console.log(startPosition, this.position);
     return new Projectile(
       startPosition,
       projectileSize,

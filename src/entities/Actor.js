@@ -7,8 +7,8 @@ export default class Actor extends GameObject {
   size; //? {width: Number, height: Number}
   img; //? Image
 
-  constructor(name, hp, hpMax, position, size, img) {
-    super(position);
+  constructor(name, hp, hpMax, rawPosition, position, size, img) {
+    super(rawPosition, position);
 
     this.name = name;
     this.hp = hp;
