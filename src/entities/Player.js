@@ -1,5 +1,8 @@
 import Actor from "./Actor.js";
 import Projectile from "./Projectile.js";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 export default class Player extends Actor {
   #wordSpells = [
     { word: "undefined", damage: 100, range: 10 },
@@ -14,17 +17,24 @@ export default class Player extends Actor {
     hpMax = 100,
     position,
     size,
-    img,
-  ) {
-    super(playerName, hp, hpMax, position, size, img);
-    this.targetPosition = { x: position.x, y: position.y };
-    this.speed = 0.2;
-    this.imgIdle = img;
-    this.imgMove = new Image();
-    this.imgMove.src = "./assets/ron.png";
 
-    this.projectileImg = new Image();
-    this.projectileImg.src = "./assets/fireball.png";
+    scene,
+  ) {
+    super(playerName, hp, hpMax, position, size);
+    this.targetPosition = { x: position.x, y: position.y, z: position.z };
+    this.speed = 0.1;
+    this.mesh = new THREE.Group();
+    scene.add(this.mesh);
+
+    const loader = new GLTFLoader();
+    loader.load("./assets/player.glb", (gltf) => {
+      const model = gltf.scene;
+
+      model.scale.set(1.3, 1.3, 1.3);
+      model.position.y = 0.6;
+
+      this.mesh.add(model);
+    });
   }
 
   //? closestEnemy = {pos: {x: Number, y: Number}, dist: Number}
@@ -58,8 +68,8 @@ export default class Player extends Actor {
     this.position.x += dx * this.speed;
     this.position.y += dy * this.speed;
 
-    if (Math.abs(dx) < 4) this.position.x = this.targetPosition.x;
-    if (Math.abs(dy) < 4) this.position.y = this.targetPosition.y;
+    if (Math.abs(dx) < 0.01) this.position.x = this.targetPosition.x;
+    if (Math.abs(dy) < 0.01) this.position.y = this.targetPosition.y;
 
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
       this.img = this.imgIdle;

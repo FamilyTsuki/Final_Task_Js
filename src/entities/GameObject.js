@@ -1,5 +1,5 @@
 export default class GameObject {
-  position; //? {x: Number, y: Number}
+  position; //? {x: Number, y: Number, z: Number}
 
   constructor(position) {
     this.position = position;
@@ -13,6 +13,9 @@ export default class GameObject {
   }
   get y() {
     return this.position.y;
+  }
+  get y() {
+    return this.position.z;
   }
 
   draw(ctx) {
