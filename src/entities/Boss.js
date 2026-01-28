@@ -55,7 +55,12 @@ export default class Boss extends Actor {
     this.stateTimer += deltaTime;
     if (this.stateTimer >= this.attackInterval) {
       this.stateTimer = 0;
-      this.attackInkRain(projectiles);
+
+      if (Math.random() > 0.5) {
+        this.attackTentacle(player, bonks);
+      } else {
+        this.attackInkRain(projectiles);
+      }
     }
   }
 
