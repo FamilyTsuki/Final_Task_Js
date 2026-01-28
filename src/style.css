@@ -178,8 +178,10 @@ html {
 .clignotant {
   font-size: 4rem;
   font-weight: 900;
-  color: #8e44ad;
+  color: #fff;
+  text-shadow:
+    0 0 20px rgba(142, 68, 173, 0.8),
+    0 0 5px white;
   margin-left: 5px;
   animation: clignote 1s infinite linear;
-  text-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
 }
