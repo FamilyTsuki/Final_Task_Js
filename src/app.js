@@ -98,7 +98,7 @@ const init = async () => {
   );
   const listElement = document.getElementById("spell-list");
   if (listElement) {
-    listElement.innerHTML = "";
+    listElement.textContent = "";
     player.wordSpells.forEach((word) => {
       const li = document.createElement("li");
       li.textContent = word;
