@@ -22,7 +22,27 @@ export default class Enemy extends Actor {
     if (!player) {
       throw new Error("No player !");
     }
-
     player.hp -= this.#damage;
+  }
+
+  moveTo(newPos) {
+    this.targetPosition = newPos;
+  }
+
+  update() {
+    const dx = this.targetPosition.x - this.position.x;
+    const dy = this.targetPosition.y - this.position.y;
+
+    this.position.x += dx * this.speed;
+    this.position.y += dy * this.speed;
+
+    if (Math.abs(dx) < 4) this.position.x = this.targetPosition.x;
+    if (Math.abs(dy) < 4) this.position.y = this.targetPosition.y;
+
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      this.img = this.imgIdle;
+    } else {
+      this.img = this.imgMove;
+    }
   }
 }
