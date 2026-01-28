@@ -41,6 +41,9 @@ export default class Projectile extends DamageObject {
         }
       });
     } else console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    this.fireSound = new Audio("../../public/assets/sounds/fire.wav");
+    this.fireSound.volume = 0.5;
+    this.fireSound.play();
   }
 
   update(cible, deltaTime) {

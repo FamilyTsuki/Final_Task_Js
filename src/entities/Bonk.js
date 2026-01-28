@@ -12,7 +12,8 @@ export default class Bonk extends DamageObject {
     this.spacing = spacing;
     const geoWidth = size.width * spacing * 0.9;
     const geoHeight = size.height * spacing * 0.9;
-
+    this.bonkSound = new Audio("../../public/assets/sounds/bonk.wav");
+    this.bonkSound.volume = 0.5;
     const geometry = new THREE.PlaneGeometry(geoWidth, geoHeight);
     this.material = new THREE.MeshBasicMaterial({
       color: 0xff0000,
@@ -41,14 +42,14 @@ export default class Bonk extends DamageObject {
         this.isAttacking = true;
         this.material.opacity = 0.8;
         this.material.color.set(0xffffff);
-
+        this.bonkSound.play();
         if (typeof window.startShake === "function") {
           window.startShake(1.5);
         } else {
           console.warn("window.startShake n'est pas encore définie !");
         }
         if (this.checkCollision(player)) {
-          player.hp -= this.damage;
+          player.damage(this.damage);
         }
       }
     } else {

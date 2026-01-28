@@ -32,6 +32,11 @@ export default class Player extends Actor {
     this.jumpTimer = 0;
     this.startJumpPos = { x: position.x, y: position.y };
     this.totalJumpDist = 0;
+    this.jumpSound = new Audio("../../public/assets/sounds/jump.wav");
+    this.jumpSound.volume = 0.5;
+
+    this.damageSound = new Audio("../../public/assets/sounds/ouch.wav");
+    this.damageSound.volume = 0.5;
 
     const loader = new GLTFLoader();
     loader.load("./assets/player.glb", (gltf) => {
@@ -70,6 +75,7 @@ export default class Player extends Actor {
     const dx = this.targetPosition.x - this.startJumpPos.x;
     const dy = this.targetPosition.y - this.startJumpPos.y;
     this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
+    this.jumpSound.play();
   }
   update(deltaTime) {
     const dx = this.targetPosition.x - this.position.x;
@@ -108,6 +114,10 @@ export default class Player extends Actor {
         this.position.y = this.targetPosition.y;
       }
     }
+  }
+  damage(nb) {
+    this.hp -= nb;
+    this.damageSound.play();
   }
   handleKeyPress(key, findClosestEnemy) {
     if (key.length === 1 && key.match(/[a-z]/i)) {

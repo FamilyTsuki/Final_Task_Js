@@ -79,6 +79,12 @@ const updateCamera = () => {
 const init = async () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
+  const music = new Audio("../public/assets/sounds/music.mp3");
+
+  music.volume = 0.5;
+  music.loop = true;
+
+  music.play();
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
@@ -188,7 +194,7 @@ const gameLoop = () => {
         }
       } else if (p.team === "boss") {
         if (player.checkCollision(p)) {
-          player.hp -= p.damage;
+          player.damage(p.damage);
           p.isDead = true;
           p.die();
           if (window.startShake) window.startShake(0.5);
