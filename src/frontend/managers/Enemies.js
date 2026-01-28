@@ -1,6 +1,6 @@
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import NodeAStar from "../utilities/NodeAStar";
-import Boss from "./Boss";
+import Boss from "../models/Boss";
 
 const loader = new GLTFLoader();
 

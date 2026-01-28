@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Key from "./Key";
+import Key from "../models/Key";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export default class Keyboard {

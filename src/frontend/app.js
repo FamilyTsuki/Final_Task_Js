@@ -1,7 +1,7 @@
 import "./style.css";
 import Game from "./Game.js";
-import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
-import Stocage from "./Storage.js";
+import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
+import Storage from "./Storage.js";
 import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
