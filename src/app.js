@@ -32,18 +32,13 @@ let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 
 let boss3d = null;
 
-let fireballModel = null;
-let isLoaded = false; // L'interrupteur
+let fireballModel = null; // 1. Variable globale vide
 
 const loader = new GLTFLoader();
 loader.load("./assets/fireball.glb", (gltf) => {
-  fireballModel = gltf;
-  isLoaded = true; // Le modèle est arrivé !
-
-  // On ne crée le joueur et on ne lance le jeu
-  // QUE maintenant, quand on est sûr d'avoir le modèle.
-  init();
+  fireballModel = gltf; // 2. On la remplit quand c'est prêt
 });
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -279,3 +274,5 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = false;
   });
 };
+
+window.addEventListener("DOMContentLoaded", init);
