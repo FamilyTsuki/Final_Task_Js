@@ -13,7 +13,8 @@ export default class Key extends GameObject {
       y: y * (tileSize + 8) + 50,
     });
 
-    ((this.#rawPos = { x, y }), (this.#key = key));
+    this.#key = key;
+    this.#rawPos = { x, y };
     this.#isPressed = isPressed;
     this.#tileSize = tileSize;
 
