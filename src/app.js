@@ -10,12 +10,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   player: {
     name: "Héros",
-    imgSrc: "./assets/player.jpg",
+    imgSrc: "../public/assets/player.jpg",
     startPos: { x: 0, y: 0, z: 5 },
     size: { width: 0.8, height: 0.8 },
   },
   projectile: {
-    imgSrc: "./assets/fireball.png",
+    imgSrc: "../public/assets/fireball.png",
     size: { width: 0.4, height: 0.4 },
     speed: 5,
   },
@@ -35,9 +35,6 @@ let boss3d = null;
 let fireballModel = null;
 
 const loader = new GLTFLoader();
-loader.load("./assets/fireball.glb", (gltf) => {
-  fireballModel = gltf;
-});
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -61,7 +58,7 @@ const formatTime = (t) => {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(ms).padStart(2, "0")}`;
 };
 
-const init = () => {
+const init = async () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
 
@@ -97,7 +94,7 @@ const init = () => {
     CONFIG.player.startPos,
     CONFIG.player.size,
     scene,
-    fireballModel,
+    loader.load("../public/assets/fireball.glb", (gltf) => gltf),
   );
   const listElement = document.getElementById("spell-list");
   if (listElement) {
@@ -108,10 +105,12 @@ const init = () => {
       listElement.appendChild(li);
     });
   }
-  loader.load("./assets/yameter.glb", (bossGltf) => {
+
+  //! may be something to do here
+  loader.load("../public/assets/yameter.glb", (bossGltf) => {
     const bossModel = bossGltf;
 
-    loader.load("./assets/fireball.glb", (fireballGltf) => {
+    loader.load("../public/assets/fireball.glb", (fireballGltf) => {
       const fireballModel = fireballGltf.scene;
       fireballModel.visible = false;
 
