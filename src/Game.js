@@ -6,15 +6,15 @@ export default class Game {
   #keyboard;
   #enemies;
 
-  constructor(scene, keyboardLayout) {
+  constructor(scene, enemies, keyboard) {
     this.#canvas = document.getElementById("game-canvas");
     this.scene = scene;
     if (!this.#canvas) {
       throw new Error("No canvas found !");
     }
 
-    this.#keyboard = Keyboard.init(this.scene, keyboardLayout);
-    this.#enemies = Enemies.init(this.#keyboard.keyboardLayout, scene);
+    this.#keyboard = keyboard;
+    this.#enemies = enemies;
   }
 
   keyboardUpdate() {
@@ -32,5 +32,15 @@ export default class Game {
   }
   get enemies() {
     return this.#enemies;
+  }
+
+  static async init(scene, keyboardLayout) {
+    const keyboard = Keyboard.init(scene, keyboardLayout);
+
+    return new Game(
+      scene,
+      await Enemies.init(keyboard.keyboardLayout, scene),
+      keyboard,
+    );
   }
 }
