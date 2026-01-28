@@ -76,7 +76,7 @@ const updateCamera = () => {
   camera.updateProjectionMatrix();
   camera.lookAt(16, 2, 2);
 };
-const init = () => {
+const init = async () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
 
@@ -100,7 +100,7 @@ const init = () => {
   //myStorage = new Storage();
   //myStorage.init();
 
-  myGame = new Game(scene, KEYBOARD_LAYOUT);
+  myGame = await Game.init(scene, KEYBOARD_LAYOUT);
 
   player = new Player(
     CONFIG.player.name,

@@ -4,13 +4,13 @@ export default class Key extends GameObject {
   #key;
   #isPressed;
   #tileSize;
-  #gridPos;
+  #rawPos;
 
   constructor(key, x, y, isPressed, tileSize) {
     super({ x, y });
 
     this.#key = key;
-    this.#gridPos = { x, y };
+    this.#rawPos = { x, y };
     this.#isPressed = isPressed;
     this.#tileSize = tileSize;
 
@@ -21,16 +21,10 @@ export default class Key extends GameObject {
     return this.#key;
   }
   get rawPos() {
-    return this.#gridPos;
+    return this.#rawPos;
   }
   set isPressed(isPressed) {
     this.#isPressed = isPressed;
-  }
-  get x() {
-    return this.#gridPos.x;
-  }
-  get y() {
-    return this.#gridPos.y;
   }
 
   get isPressed() {
