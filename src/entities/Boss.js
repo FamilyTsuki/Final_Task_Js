@@ -1,30 +1,61 @@
 import Actor from "./Actor.js";
 import Projectile from "./Projectile.js";
 import Bonk from "./Bonk.js";
+import * as THREE from "three";
 
 export default class Boss extends Actor {
-  constructor(name, hp, position, size, scene, fireballModel) {
+  constructor(name, hp, position, size, scene, fireballModel, bossModel) {
     super(name, hp, hp, position, size);
     this.stateTimer = 0;
     this.attackInterval = 3000;
-    this.projectileImg = new Image();
     this.scene = scene;
     this.fireballModel = fireballModel;
+
+    if (bossModel) {
+      this.mesh = bossModel.scene.clone();
+
+      this.mesh.traverse((child) => {
+        if (child.isMesh) {
+          child.visible = true;
+          if (child.material) {
+            child.material.side = THREE.DoubleSide;
+            child.material.transparent = false;
+            child.material.opacity = 1;
+          }
+        }
+      });
+
+      this.scene.add(this.mesh);
+
+      this.mesh.scale.set(this.size.width, this.size.height, this.size.width);
+    }
   }
 
   update(deltaTime, player, projectiles, bonks) {
-    if (this.hp <= 0) return;
+    if (this.hp <= 0) {
+      if (this.mesh) this.mesh.visible = false;
+      return;
+    }
+
+    const offsetY = 0;
+    let spacing = 3.2;
+    if (this.mesh) {
+      this.mesh.position.set(
+        this.position.x * spacing,
+        offsetY,
+        this.position.y * spacing,
+      );
+      this.mesh.updateMatrixWorld(true);
+    }
+
+    if (this.debugSphere) {
+      this.debugSphere.position.set(this.position.x, this.position.y, -5);
+    }
 
     this.stateTimer += deltaTime;
-
     if (this.stateTimer >= this.attackInterval) {
       this.stateTimer = 0;
-
-      if (Math.random() > 0.5) {
-        this.attackTentacle(player, bonks);
-      } else {
-        this.attackInkRain(projectiles);
-      }
+      this.attackInkRain(projectiles);
     }
   }
 
@@ -36,6 +67,7 @@ export default class Boss extends Actor {
       this.position.y + this.size.height > other.position.y
     );
   }
+
   attackInkRain(projectiles) {
     const nbProjectiles = 5;
     for (let i = 0; i < nbProjectiles; i++) {
@@ -43,6 +75,7 @@ export default class Boss extends Actor {
         x: (Math.random() - 0.5) * 0.2,
         y: (Math.random() - 0.5) * 0.2,
       };
+
       projectiles.push(
         new Projectile(
           { x: this.position.x, y: this.position.y },
@@ -57,6 +90,7 @@ export default class Boss extends Actor {
       );
     }
   }
+
   attackTentacle(player, bonks) {
     bonks.push(
       new Bonk(
@@ -70,15 +104,5 @@ export default class Boss extends Actor {
         3.2,
       ),
     );
-  }
-  draw(ctx) {
-    if (this.hp <= 0) return;
-    super.draw(ctx);
-
-    ctx.fillStyle = "black";
-    ctx.fillRect(this.position.x, this.position.y - 20, this.size.width, 10);
-    ctx.fillStyle = "purple";
-    const hpWidth = (this.hp / this.hpMax) * this.size.width;
-    ctx.fillRect(this.position.x, this.position.y - 20, hpWidth, 10);
   }
 }

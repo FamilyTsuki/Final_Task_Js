@@ -31,6 +31,7 @@ let TLoop, SLoop;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 
 let fireballModel = null;
+let boss3d = null;
 
 const loader = new GLTFLoader();
 
@@ -94,20 +95,26 @@ const init = () => {
 
     scene,
   );
-  loader.load("./assets/fireball.glb", (gltf) => {
-    fireballModel = gltf.scene;
-    fireballModel.visible = false;
+  loader.load("./assets/yameter.glb", (bossGltf) => {
+    const bossModel = bossGltf;
 
-    boss = new Boss(
-      "Octopus",
-      500,
-      { x: 5, y: -2 },
-      { width: 2, height: 2 },
-      scene,
-      fireballModel,
-    );
+    loader.load("./assets/fireball.glb", (fireballGltf) => {
+      const fireballModel = fireballGltf.scene;
+      fireballModel.visible = false;
+
+      boss = new Boss(
+        "Octopus",
+        500,
+        { x: 5, y: -2 },
+        { width: 2, height: 2 },
+        scene,
+        fireballModel,
+        bossModel,
+      );
+
+      console.log("Boss et Fireball chargés !");
+    });
   });
-
   TLoop = setInterval(() => {
     time += 1;
     if (elTimer) elTimer.textContent = formatTime(time);
@@ -151,6 +158,7 @@ const gameLoop = () => {
   }
   if (boss && boss.hp > 0) {
     boss.update(deltaTime, player, projectiles, bonks);
+    console.log(boss);
   }
 
   bonks.forEach((b, index) => {
