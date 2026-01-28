@@ -88,7 +88,7 @@ export default class Boss extends Actor {
 
       const finalAngle = angleToPlayer + (Math.random() - 0.5) * spread;
 
-      const speed = 0.2;
+      const speed = 0.1;
       const velocity = {
         x: Math.sin(finalAngle) * speed,
         y: Math.cos(finalAngle) * speed,
