@@ -41,9 +41,6 @@ export default class Projectile extends DamageObject {
         }
       });
     } else console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-    this.light = new THREE.PointLight(0xff6600, 2, 5);
-    this.mesh.add(this.light);
   }
 
   update(deltaTime) {

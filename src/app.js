@@ -32,11 +32,11 @@ let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 
 let boss3d = null;
 
-let fireballModel = null; // 1. Variable globale vide
+let fireballModel = null;
 
 const loader = new GLTFLoader();
 loader.load("./assets/fireball.glb", (gltf) => {
-  fireballModel = gltf; // 2. On la remplit quand c'est prêt
+  fireballModel = gltf;
 });
 
 const scene = new THREE.Scene();
