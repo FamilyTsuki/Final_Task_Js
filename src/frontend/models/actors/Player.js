@@ -86,7 +86,6 @@ export default class Player extends Actor {
   moveTo(newPos) {
     this.startJumpPos = { x: this.x, y: this.y };
     this.targetPosition = newPos;
-    console.log(this.targetPosition);
 
     const dx = this.targetPosition.x - this.startJumpPos.x;
     const dy = this.targetPosition.y - this.startJumpPos.y;
