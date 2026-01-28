@@ -75,7 +75,7 @@ export default class Player extends Actor {
       if (closestEnemy.dist <= spell.range) {
         return this.shootProjectile(
           spell.damage,
-          closestEnemy.instance.position,
+          closestEnemy.instance.rawPosition,
         );
       }
     }
@@ -86,6 +86,7 @@ export default class Player extends Actor {
   moveTo(newPos) {
     this.startJumpPos = { x: this.x, y: this.y };
     this.targetPosition = newPos;
+    console.log(this.targetPosition);
 
     const dx = this.targetPosition.x - this.startJumpPos.x;
     const dy = this.targetPosition.y - this.startJumpPos.y;
@@ -161,7 +162,7 @@ export default class Player extends Actor {
       throw new Error("No target !");
     }
 
-    const projectileSpeed = 2;
+    const projectileSpeed = 0.1;
     const projectileSize = { width: 80, height: 80 };
 
     const dx = target.x - this.x;
@@ -169,15 +170,15 @@ export default class Player extends Actor {
     const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
     const velocity = {
-      x: (dx / distance) * projectileSpeed,
-      y: (dy / distance) * projectileSpeed,
+      x: dx * projectileSpeed,
+      y: dy * projectileSpeed,
     };
 
+    const spacing = 3.2;
     const startPosition = {
-      x: this.x,
-      y: this.y,
+      x: this.x * spacing,
+      y: this.y * spacing,
     };
-    console.log(startPosition, this.position);
     return new Projectile(
       startPosition,
       projectileSize,
