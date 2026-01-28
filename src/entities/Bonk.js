@@ -1,12 +1,32 @@
+import * as THREE from "three";
 import DamageObject from "./DamageObject.js";
 
 export default class Bonk extends DamageObject {
-  constructor(position, size, damage) {
+  constructor(position, size, damage, scene, spacing) {
     super(position, size, damage);
+
     this.timer = 0;
     this.isAttacking = false;
     this.duration = 1000;
     this.attackWindow = 200;
+    this.spacing = spacing;
+    const geoWidth = size.width * spacing * 0.9;
+    const geoHeight = size.height * spacing * 0.9;
+
+    const geometry = new THREE.PlaneGeometry(geoWidth, geoHeight);
+    this.material = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      transparent: true,
+      opacity: 0.3,
+      side: THREE.DoubleSide,
+    });
+
+    this.mesh = new THREE.Mesh(geometry, this.material);
+
+    this.mesh.position.set(position.x * spacing, 1.2, position.y * spacing);
+    this.mesh.rotation.x = -Math.PI / 2;
+
+    scene.add(this.mesh);
   }
 
   update(deltaTime, player) {
@@ -14,16 +34,30 @@ export default class Bonk extends DamageObject {
 
     if (this.timer < this.duration) {
       this.isAttacking = false;
+      this.material.opacity = 0.3;
+      this.material.color.set(0xff0000);
     } else if (this.timer < this.duration + this.attackWindow) {
       if (!this.isAttacking) {
         this.isAttacking = true;
+        this.material.opacity = 0.8;
+        this.material.color.set(0xffffff);
+
+        if (typeof window.startShake === "function") {
+          window.startShake(1.5);
+        } else {
+          console.warn("window.startShake n'est pas encore définie !");
+        }
         if (this.checkCollision(player)) {
           player.hp -= this.damage;
-          console.log("AIE ! Le joueur a pris un Bonk !");
         }
       }
     } else {
       this.isDead = true;
+      if (this.mesh) {
+        this.mesh.parent.remove(this.mesh);
+        this.mesh.geometry.dispose();
+        this.material.dispose();
+      }
     }
   }
 
