@@ -3,7 +3,6 @@ import Game from "./Game.js";
 import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 import Stocage from "./Storage.js";
-import Boss from "./entities/Boss.js";
 import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -21,7 +20,7 @@ const CONFIG = {
   },
 };
 
-let myGame, player, boss; //myStorage;
+let myGame, player; //myStorage;
 let canvas, ctx, renderer;
 let score = 0,
   time = 0;
@@ -29,10 +28,6 @@ let projectiles = [],
   bonks = [];
 let TLoop, SLoop;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
-
-let boss3d = null;
-
-let fireballModel = null;
 
 const loader = new GLTFLoader();
 
@@ -69,9 +64,6 @@ const init = async () => {
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  const light = new THREE.AmbientLight(0xffffff, 1);
-  scene.add(light);
-
   camera.position.set(16, 15, 15);
   camera.lookAt(16, 0, 2);
 
@@ -106,25 +98,6 @@ const init = async () => {
     });
   }
 
-  //! may be something to do here
-  loader.load("../public/assets/yameter.glb", (bossGltf) => {
-    const bossModel = bossGltf;
-
-    loader.load("../public/assets/fireball.glb", (fireballGltf) => {
-      const fireballModel = fireballGltf.scene;
-      fireballModel.visible = false;
-
-      boss = new Boss(
-        "Octopus",
-        500,
-        { x: 5, y: -2 },
-        { width: 2, height: 2 },
-        scene,
-        fireballModel,
-        bossModel,
-      );
-    });
-  });
   TLoop = setInterval(() => {
     time += 1;
     if (elTimer) elTimer.textContent = formatTime(time);
@@ -166,8 +139,8 @@ const gameLoop = () => {
 
     player.mesh.position.set(targetX * spacing, 1.5, targetY * spacing);
   }
-  if (boss && boss.hp > 0) {
-    boss.update(deltaTime, player, projectiles, bonks);
+  if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
+    myGame.enemies.boss.update(deltaTime, player, projectiles, bonks);
   }
 
   bonks.forEach((b, index) => {
@@ -190,7 +163,7 @@ const gameLoop = () => {
           myGame.enemies.boss.hp -= p.damage;
           p.isDead = true;
         }
-      } else if (p.team === "myGame.enemies.boss") {
+      } else if (p.team === "boss") {
         if (player.checkCollision(p)) {
           player.hp -= p.damage;
           p.isDead = true;
