@@ -310,9 +310,11 @@ const setupEventListeners = () => {
             projectiles.push(newProj);
           }
         }
-      }
-
-      if (elCurrentWord) elCurrentWord.textContent = player.currentWord;
+        elCurrentWord.textContent = word;
+        setTimeout(() => {
+          elCurrentWord.textContent = player.currentWord;
+        }, 100);
+      } else if (elCurrentWord) elCurrentWord.textContent = player.currentWord;
     }
   });
 
