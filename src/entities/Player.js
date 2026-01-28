@@ -134,7 +134,12 @@ export default class Player extends Actor {
 
     return false;
   }
-
+  get x() {
+    return this.position.x;
+  }
+  get y() {
+    return this.position.y;
+  }
   get currentWord() {
     return this.#currentWord;
   }

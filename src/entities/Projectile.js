@@ -43,7 +43,7 @@ export default class Projectile extends DamageObject {
     } else console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   }
 
-  update(deltaTime) {
+  update(cible, deltaTime) {
     //if (!deltaTime) deltaTime = 16;
     //const dt = deltaTime && deltaTime > 0 ? deltaTime : 16.6;
 
@@ -60,16 +60,13 @@ export default class Projectile extends DamageObject {
       this.mesh.rotation.x += 0.1;
       this.mesh.rotation.z += 0.1;
     }
-
-    if (Math.abs(this.position.x) > 50 || Math.abs(this.position.y) > 50) {
-      this.die();
-    }
   }
 
   die() {
     this.isDead = true;
     if (this.mesh && this.mesh.parent) {
       this.mesh.parent.remove(this.mesh);
+      this.mesh.visible = false;
     }
   }
 

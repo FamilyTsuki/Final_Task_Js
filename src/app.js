@@ -172,11 +172,9 @@ const gameLoop = () => {
   });
 
   projectiles.forEach((p) => {
-    p.update();
-    if (!p.isDead) {
-      p.update({ width: canvas.widht, height: canvas.height });
-      p.draw(ctx);
+    p.update(player, deltaTime);
 
+    if (!p.isDead) {
       if (
         p.team === "player" &&
         myGame.enemies.boss &&
@@ -185,16 +183,19 @@ const gameLoop = () => {
         if (myGame.enemies.boss.checkCollision(p)) {
           myGame.enemies.boss.hp -= p.damage;
           p.isDead = true;
+          p.die();
+          if (window.startShake) window.startShake(0.2);
         }
       } else if (p.team === "boss") {
         if (player.checkCollision(p)) {
           player.hp -= p.damage;
           p.isDead = true;
+          p.die();
+          if (window.startShake) window.startShake(0.5);
         }
       }
     }
   });
-
   if (myGame && myGame.keyboard) {
     myGame.keyboard.keyboardLayout.forEach((tile) => {
       const isPlayerOnTile =
