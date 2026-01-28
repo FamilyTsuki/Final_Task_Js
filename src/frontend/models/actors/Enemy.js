@@ -1,13 +1,10 @@
-import Actor from "./Actor";
-
-const ENEMY_IMG = new Image();
-ENEMY_IMG.src = "../../assets/enemy.jpg";
+import Actor from "../Actor";
 
 export default class Enemy extends Actor {
   #damage;
   constructor(
     position,
-    img = ENEMY_IMG,
+    img = undefined,
     size = { width: 40, height: 40 },
     hp = 100,
     hpMax = 100,

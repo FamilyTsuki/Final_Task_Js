@@ -1,7 +1,7 @@
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import Enemies from "./entities/Enemies";
-import Keyboard from "./entities/Keyboard";
-import Player from "./entities/Player";
+import Enemies from "./managers/Enemies";
+import Keyboard from "./managers/Keyboard";
+import Player from "./models/actors/Player";
 
 const loader = new GLTFLoader();
 
