@@ -16,16 +16,10 @@ export default class Keyboard {
     this.loadAndCreateKeys(scene);
   }
 
-  static init(scene, keyboardLayout) {
-    const initialSize = 1;
-    const keys = keyboardLayout.map(
-      (tile) => new Key(tile.key, tile.x, tile.y, tile.isPressed, initialSize),
-    );
-    return new Keyboard(keys, initialSize, scene);
-  }
   get keyboardLayout() {
     return this.#keyboardLayout;
   }
+
   loadAndCreateKeys(scene) {
     const loader = new GLTFLoader();
 
@@ -37,8 +31,7 @@ export default class Keyboard {
         this.#keyboardLayout.forEach((keyObj) => {
           const keyMesh = keyModel.clone();
 
-          const spacing = 3.2;
-          keyMesh.position.set(keyObj.x * spacing, 0, keyObj.y * spacing);
+          keyMesh.position.set(keyObj.x, 0, keyObj.y);
 
           keyMesh.traverse((child) => {
             if (child.isMesh) {
@@ -71,7 +64,7 @@ export default class Keyboard {
       },
       undefined,
       (error) => {
-        console.error("Erreur lors du chargement du modèle GLB:", error);
+        throw new Error(`Erreur lors du chargement du modèle GLB: ${error}`);
       },
     );
   }
@@ -89,7 +82,16 @@ export default class Keyboard {
   }
 
   find(keyToFind) {
-    return this.#keyboardLayout.find((key) => key.key === keyToFind) || false;
+    return this.#keyboardLayout.find((key) => key.key === keyToFind);
+  }
+
+  static init(scene, keyboardLayout) {
+    const initialSize = 1;
+    const keys = keyboardLayout.map(
+      (keyRaw) =>
+        new Key(keyRaw.key, keyRaw.x, keyRaw.y, keyRaw.isPressed, initialSize),
+    );
+    return new Keyboard(keys, initialSize, scene);
   }
 }
 

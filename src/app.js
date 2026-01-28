@@ -1,18 +1,11 @@
 import "./style.css";
 import Game from "./Game.js";
-import Player from "./entities/Player.js";
 import { KEYBOARD_LAYOUT } from "./backend/KEYBOARD.js";
 import Stocage from "./Storage.js";
 import * as THREE from "three";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
-  player: {
-    name: "Héros",
-    imgSrc: "../public/assets/player.jpg",
-    startPos: { x: 0, y: 0, z: 5 },
-    size: { width: 0.8, height: 0.8 },
-  },
   projectile: {
     imgSrc: "../public/assets/fireball.png",
     size: { width: 0.4, height: 0.4 },
@@ -20,7 +13,7 @@ const CONFIG = {
   },
 };
 
-let myGame, player; //myStorage;
+let myGame; //myStorage;
 let canvas, ctx, renderer;
 let score = 0,
   time = 0;
@@ -108,19 +101,10 @@ const init = async () => {
 
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
 
-  player = new Player(
-    CONFIG.player.name,
-    100,
-    100,
-    CONFIG.player.startPos,
-    CONFIG.player.size,
-    scene,
-    loader.load("../public/assets/fireball.glb", (gltf) => gltf),
-  );
   const listElement = document.getElementById("spell-list");
   if (listElement) {
     listElement.textContent = "";
-    player.wordSpells.forEach((word) => {
+    myGame.player.wordSpells.forEach((word) => {
       const li = document.createElement("li");
       li.textContent = word;
       listElement.appendChild(li);
@@ -154,35 +138,35 @@ const init = async () => {
 
 const gameLoop = () => {
   requestAnimationFrame(gameLoop);
-  if (!renderer || !player) return;
+  if (!renderer || !myGame.player) return;
 
   const deltaTime = 10;
 
-  player.update();
+  myGame.player.update();
 
-  if (player.mesh) {
+  if (myGame.player.mesh) {
     const spacing = 3.2;
 
-    const targetX = player.position.x;
-    const targetY = player.position.y;
+    const targetX = myGame.player.position.x;
+    const targetY = myGame.player.position.y;
 
-    player.mesh.position.set(targetX * spacing, 1.5, targetY * spacing);
+    myGame.player.mesh.position.set(targetX * spacing, 1.5, targetY * spacing);
   }
   if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
-    myGame.enemies.boss.update(deltaTime, player, projectiles, bonks);
+    myGame.enemies.boss.update(deltaTime, myGame.player, projectiles, bonks);
   }
 
   bonks.forEach((b, index) => {
-    b.update(deltaTime, player);
+    b.update(deltaTime, myGame.player);
     if (b.isDead) bonks.splice(index, 1);
   });
 
   projectiles.forEach((p) => {
-    p.update(player, deltaTime);
+    p.update(myGame.player, deltaTime);
 
     if (!p.isDead) {
       if (
-        p.team === "player" &&
+        p.team === "myGame.player" &&
         myGame.enemies.boss &&
         myGame.enemies.boss.hp > 0
       ) {
@@ -193,8 +177,8 @@ const gameLoop = () => {
           if (window.startShake) window.startShake(0.2);
         }
       } else if (p.team === "boss") {
-        if (player.checkCollision(p)) {
-          player.damage(p.damage);
+        if (myGame.player.checkCollision(p)) {
+          myGame.player.hp -= p.damage;
           p.isDead = true;
           p.die();
           if (window.startShake) window.startShake(0.5);
@@ -205,8 +189,8 @@ const gameLoop = () => {
   if (myGame && myGame.keyboard) {
     myGame.keyboard.keyboardLayout.forEach((tile) => {
       const isPlayerOnTile =
-        Math.abs(player.position.x - tile.x) < 0.4 &&
-        Math.abs(player.position.y - tile.y) < 0.4;
+        Math.abs(myGame.player.position.x - tile.x) < 0.4 &&
+        Math.abs(myGame.player.position.y - tile.y) < 0.4;
 
       tile.isPressed = isPlayerOnTile;
     });
@@ -226,10 +210,10 @@ const gameLoop = () => {
   }
   renderer.render(scene, camera);
 
-  if (elPlayerHp) elPlayerHp.textContent = Math.max(0, player.hp);
+  if (elPlayerHp) elPlayerHp.textContent = Math.max(0, myGame.player.hp);
   projectiles = projectiles.filter((p) => !p.isDead);
 
-  if (player.hp <= 0) {
+  if (myGame.player.hp <= 0) {
     clearInterval(TLoop);
     clearInterval(SLoop);
     elGameScreen?.classList.add("hidden");
@@ -271,32 +255,35 @@ const setupEventListeners = () => {
     const keyTile = myGame.keyboard.find(keyName);
     if (keyTile) keyTile.isPressed = true;
 
-    if (player) {
+    if (myGame.player) {
       const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
       if (target) {
-        player.moveTo({
+        myGame.player.moveTo({
           x: target.x,
           y: target.y,
         });
       }
 
-      let word = player.handleKeyPress(e.key);
+      let word = myGame.player.handleKeyPress(e.key);
       if (e.key === "ArrowUp") {
         word = "sum";
       }
       if (word) {
-        const closestEnemy = myGame.enemies.findClosestEnemy(player.position);
+        const closestEnemy = myGame.enemies.findClosestEnemy(
+          myGame.player.position,
+        );
         if (closestEnemy) {
-          const newProj = player.attack(word, closestEnemy);
+          const newProj = myGame.player.attack(word, closestEnemy);
           if (newProj) {
             projectiles.push(newProj);
           }
         }
         elCurrentWord.textContent = word;
         setTimeout(() => {
-          elCurrentWord.textContent = player.currentWord;
+          elCurrentWord.textContent = myGame.player.currentWord;
         }, 100);
-      } else if (elCurrentWord) elCurrentWord.textContent = player.currentWord;
+      } else if (elCurrentWord)
+        elCurrentWord.textContent = myGame.player.currentWord;
     }
   });
 

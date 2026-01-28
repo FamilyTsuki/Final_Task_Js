@@ -1,12 +1,18 @@
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import Enemies from "./entities/Enemies";
 import Keyboard from "./entities/Keyboard";
+import Player from "./entities/Player";
+
+const loader = new GLTFLoader();
 
 export default class Game {
   #canvas;
   #keyboard;
+  #player;
   #enemies;
+  #fireBallModel;
 
-  constructor(scene, enemies, keyboard) {
+  constructor(scene, player, enemies, keyboard, fireBallModel) {
     this.#canvas = document.getElementById("game-canvas");
     this.scene = scene;
     if (!this.#canvas) {
@@ -14,7 +20,9 @@ export default class Game {
     }
 
     this.#keyboard = keyboard;
+    this.#player = player;
     this.#enemies = enemies;
+    this.#fireBallModel = fireBallModel;
   }
 
   keyboardUpdate() {
@@ -30,6 +38,9 @@ export default class Game {
   get keyboard() {
     return this.#keyboard;
   }
+  get player() {
+    return this.#player;
+  }
   get enemies() {
     return this.#enemies;
   }
@@ -37,10 +48,27 @@ export default class Game {
   static async init(scene, keyboardLayout) {
     const keyboard = Keyboard.init(scene, keyboardLayout);
 
+    const fireballGltf = await loader.loadAsync(
+      "../public/assets/fireball.glb",
+      (fireballGltf) => fireballGltf,
+    );
+
+    const player = new Player(
+      "Héros",
+      100,
+      100,
+      { x: 0, y: 0, z: 5 },
+      { width: 0.8, height: 0.8 },
+      scene,
+      fireballGltf.scene,
+    );
+
     return new Game(
       scene,
-      await Enemies.init(keyboard.keyboardLayout, scene),
+      player,
+      await Enemies.init(keyboard.keyboardLayout, scene, fireballGltf.scene),
       keyboard,
+      fireballGltf.scene,
     );
   }
 }

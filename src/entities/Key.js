@@ -4,13 +4,12 @@ export default class Key extends GameObject {
   #key;
   #isPressed;
   #tileSize;
-  #rawPos;
 
   constructor(key, x, y, isPressed, tileSize) {
-    super({ x, y });
+    const spacing = 3.2;
+    super({ x, y }, { x: x * spacing, y: y * spacing });
 
     this.#key = key;
-    this.#rawPos = { x, y };
     this.#isPressed = isPressed;
     this.#tileSize = tileSize;
 
@@ -19,9 +18,6 @@ export default class Key extends GameObject {
 
   get key() {
     return this.#key;
-  }
-  get rawPos() {
-    return this.#rawPos;
   }
   set isPressed(isPressed) {
     this.#isPressed = isPressed;

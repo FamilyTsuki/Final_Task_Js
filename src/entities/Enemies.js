@@ -24,7 +24,7 @@ export default class Enemies {
         new NodeAStar(
           key.key,
           position,
-          findNeighbours(key.key, key.rawPos, keyboardLayout),
+          findNeighbours(key.key, key.rawPosition, keyboardLayout),
         ),
       );
     }
@@ -83,38 +83,33 @@ export default class Enemies {
     return false;
   }
 
-  static async init(keyboardLayout, scene) {
+  static async init(keyboardLayout, scene, fireballModel) {
     //* boss start
-    const bossPosition = { x: 5, y: -2 };
+    const bossRawPosition = { x: 5, y: -2 };
 
     const bossModel = await loader.loadAsync(
       "../public/assets/yameter.glb",
       (bossGltf) => bossGltf,
     );
 
-    const fireballGltf = await loader.loadAsync(
-      "../public/assets/fireball.glb",
-      (fireballGltf) => fireballGltf,
-    );
-
+    const spacing = 3.2;
     const boss = new Boss(
       "Octopus",
       500,
-      bossPosition,
+      bossRawPosition,
+      {
+        x: bossRawPosition.x * spacing,
+        y: bossRawPosition.y * spacing,
+        z: bossRawPosition.z,
+      },
       { width: 2, height: 2 },
       scene,
-      fireballGltf.scene,
+      fireballModel,
       bossModel,
     );
 
     //? set the mesh position
-    const offsetY = 0;
-    let spacing = 3.2;
-    boss.mesh.position.set(
-      bossPosition.x * spacing,
-      offsetY,
-      bossPosition.y * spacing,
-    );
+    boss.mesh.position.set(boss.x, 0, boss.y);
     //* boss end
 
     return new Enemies(keyboardLayout, boss);
@@ -126,8 +121,14 @@ function findNeighbours(keyTargetedName, position, keyboardLayout) {
 
   for (const key of keyboardLayout) {
     if (keyTargetedName !== key.key) {
-      if (position.x - 1 <= key.rawPos.x && key.rawPos.x <= position.x + 1) {
-        if (position.y - 1 <= key.rawPos.y && key.rawPos.y <= position.y + 1) {
+      if (
+        position.x - 1 <= key.rawPosition.x &&
+        key.rawPosition.x <= position.x + 1
+      ) {
+        if (
+          position.y - 1 <= key.rawPosition.y &&
+          key.rawPosition.y <= position.y + 1
+        ) {
           neighbours.push(key.key);
         }
       }
