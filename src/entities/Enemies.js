@@ -98,8 +98,8 @@ export default class Enemies {
       500,
       bossRawPosition,
       {
-        x: bossRawPosition.x * spacing,
-        y: bossRawPosition.y * spacing,
+        x: bossRawPosition.x,
+        y: bossRawPosition.y,
         z: bossRawPosition.z,
       },
       { width: 2, height: 2 },

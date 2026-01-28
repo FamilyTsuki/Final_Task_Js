@@ -19,6 +19,14 @@ export default class Boss extends Actor {
     this.attackInterval = 1000;
     this.scene = scene;
     this.fireballModel = fireballModel;
+    this.totalTime = 0;
+    this.container = new THREE.Group();
+    this.scene.add(this.container);
+    this.targetRotationX = 0;
+    this.targetRotationY = 0;
+    this.attackPhase = "idle";
+    this.attackStartTime = 0;
+    this.isAttacking = false;
 
     if (bossModel) {
       this.mesh = bossModel.scene.clone();
@@ -26,47 +34,62 @@ export default class Boss extends Actor {
       this.mesh.traverse((child) => {
         if (child.isMesh) {
           child.visible = true;
-          if (child.material) {
-            child.material.side = THREE.DoubleSide;
-            child.material.transparent = false;
-            child.material.opacity = 1;
+          if (child.isSkinnedMesh) {
+            child.frustumCulled = false;
           }
         }
       });
 
       this.scene.add(this.mesh);
-
       this.mesh.scale.set(this.size.width, this.size.height, this.size.width);
     }
   }
-
   update(deltaTime, player, projectiles, bonks) {
-    if (this.hp <= 0) {
-      if (this.mesh) this.mesh.visible = false;
-      return;
-    }
+    if (this.hp <= 0) return;
+
+    const spacing = 3.2;
+    this.totalTime += deltaTime * 0.001;
 
     if (this.mesh) {
-      this.mesh.position.set(this.x, 0, this.y);
-      this.mesh.updateMatrixWorld(true);
-    }
+      let xToReach = this.isAttacking ? this.targetX : this.position.x;
+      this.mesh.position.x = THREE.MathUtils.lerp(
+        this.mesh.position.x,
+        xToReach * spacing,
+        0.05,
+      );
+      this.mesh.position.z = this.position.y * spacing;
 
-    if (this.debugSphere) {
-      this.debugSphere.position.set(this.x, this.y, -5);
+      if (this.isAttacking) {
+        const elapsed = this.totalTime - this.attackStartTime;
+
+        if (elapsed < 0.8) {
+          this.mesh.rotation.x = 0;
+        } else if (elapsed < 1.0) {
+          const strikeProgress = (elapsed - 0.8) / 0.2;
+          this.mesh.rotation.x = strikeProgress * 1.4;
+        } else if (elapsed < 1.2) {
+          this.mesh.rotation.x = 1.4;
+        } else if (elapsed < 1.6) {
+          const recoveryProgress = (elapsed - 1.2) / 0.4;
+          this.mesh.rotation.x = 1.4 * (1 - recoveryProgress);
+        } else {
+          this.isAttacking = false;
+          this.mesh.rotation.x = 0;
+        }
+      } else {
+        this.mesh.rotation.y = Math.sin(this.totalTime * 2) * 0.2;
+      }
+
+      this.mesh.updateMatrixWorld(true);
     }
 
     this.stateTimer += deltaTime;
     if (this.stateTimer >= this.attackInterval) {
       this.stateTimer = 0;
-
-      if (Math.random() > 0.5) {
-        this.attackTentacle(player, bonks);
-      } else {
-        this.attackInkRain(player, projectiles);
-      }
+      if (Math.random() > 0.5) this.attackTentacle(player, bonks);
+      else this.attackInkRain(player, projectiles);
     }
   }
-
   checkCollision(other) {
     return (
       this.rawPosition.x < other.position.x + other.size.width &&
@@ -109,12 +132,13 @@ export default class Boss extends Actor {
     }
   }
   attackTentacle(player, bonks) {
+    this.targetX = player.position.x;
+    this.attackStartTime = this.totalTime;
+    this.isAttacking = true;
+
     bonks.push(
       new Bonk(
-        {
-          x: player.position.x,
-          y: player.position.y,
-        },
+        { x: player.position.x, y: player.position.y },
         { width: 1, height: 4 },
         25,
         this.scene,
