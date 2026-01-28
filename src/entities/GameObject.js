@@ -14,7 +14,7 @@ export default class GameObject {
   get y() {
     return this.position.y;
   }
-  get y() {
+  get z() {
     return this.position.z;
   }
 
