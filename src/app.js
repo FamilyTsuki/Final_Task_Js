@@ -72,12 +72,10 @@ const updateCamera = () => {
 const init = async () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
-  const music = new Audio("../public/assets/sounds/music.mp3");
 
+  const music = new Audio("../public/assets/sounds/music.mp3");
   music.volume = 0.5;
   music.loop = true;
-
-  music.play();
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
@@ -96,9 +94,6 @@ const init = async () => {
   elGameScreen = document.getElementById("game-screen");
   elGameOverScreen = document.getElementById("game-over-screen");
 
-  //myStorage = new Storage();
-  //myStorage.init();
-
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
 
   const listElement = document.getElementById("spell-list");
@@ -111,29 +106,38 @@ const init = async () => {
     });
   }
 
-  TLoop = setInterval(() => {
-    time += 1;
-    if (elTimer) elTimer.textContent = formatTime(time);
-  }, 10);
+  const startBtn = document.getElementById("start-btn");
+  const startScreen = document.getElementById("start-screen");
 
-  SLoop = setInterval(() => {
-    score += 10;
-    if (elScore) elScore.textContent = score;
-  }, 1000);
+  startBtn.addEventListener("click", () => {
+    music.play().catch((e) => console.log("Audio bloqué par le navigateur"));
+    startScreen.classList.add("hidden");
+    elGameScreen?.classList.remove("hidden");
+
+    TLoop = setInterval(() => {
+      time += 1;
+      if (elTimer) elTimer.textContent = formatTime(time);
+    }, 10);
+
+    SLoop = setInterval(() => {
+      score += 10;
+      if (elScore) elScore.textContent = score;
+    }, 1000);
+
+    gameLoop();
+  });
+
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambientLight);
-
   const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
   sunLight.position.set(10, 20, 10);
   scene.add(sunLight);
-
   const fillLight = new THREE.PointLight(0x0088ff, 0.5);
   fillLight.position.set(-10, 10, -10);
   scene.add(fillLight);
+
   setupEventListeners();
   updateCamera();
-  gameLoop();
-  elGameScreen?.classList.remove("hidden");
 };
 
 const gameLoop = () => {
@@ -166,7 +170,7 @@ const gameLoop = () => {
 
     if (!p.isDead) {
       if (
-        p.team === "myGame.player" &&
+        p.team === "player" &&
         myGame.enemies.boss &&
         myGame.enemies.boss.hp > 0
       ) {
