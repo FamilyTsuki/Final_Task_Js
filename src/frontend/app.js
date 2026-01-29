@@ -3,7 +3,7 @@ import Game from "./Game.js";
 import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
-
+import Projectile from "./models/Projectile.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   projectile: {
@@ -350,32 +350,30 @@ const setupEventListeners = () => {
     if (myGame.player) {
       const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
       if (target) {
-        myGame.player.moveTo({
-          x: target.x,
-          y: target.y,
-        });
+        myGame.player.moveTo({ x: target.x, y: target.y });
       }
 
       let word = myGame.player.handleKeyPress(e.key);
-      if (e.key === "ArrowUp") {
-        word = "sum";
-      }
+
+      if (e.key === "ArrowUp") word = "sum";
+
       if (word) {
         const closestEnemy = myGame.enemies.findClosestEnemy(
           myGame.player.position,
         );
-        if (closestEnemy) {
-          const newProj = myGame.player.attack(word, closestEnemy);
-          if (newProj) {
-            projectiles.push(newProj);
-          }
+
+        const spellResult = myGame.player.attack(word, closestEnemy);
+
+        if (spellResult instanceof Projectile) {
+          projectiles.push(spellResult);
         }
         elCurrentWord.textContent = word;
         setTimeout(() => {
           elCurrentWord.textContent = myGame.player.currentWord;
         }, 100);
-      } else if (elCurrentWord)
+      } else if (elCurrentWord) {
         elCurrentWord.textContent = myGame.player.currentWord;
+      }
     }
   });
 
