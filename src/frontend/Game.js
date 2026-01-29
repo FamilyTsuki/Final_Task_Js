@@ -87,14 +87,15 @@ export default class Game {
   static async init(scene, keyboardLayout) {
     const keyboard = Keyboard.init(scene, keyboardLayout);
 
-    const enemyGltf = await loader.loadAsync(
-      "../../public/assets/bug.glb",
-      (enemyGltf) => enemyGltf,
-    );
-
+    const enemyGltf = await loader.loadAsync("../../public/assets/bug.glb");
     const fireballGltf = await loader.loadAsync(
       "../../public/assets/fireball.glb",
-      (fireballGltf) => fireballGltf,
+    );
+
+    const enemiesManager = new Enemies(
+      keyboard.keyboardLayout,
+      enemyGltf.scene,
+      fireballGltf.scene,
     );
 
     const player = new Player(
@@ -105,14 +106,15 @@ export default class Game {
       { width: 0.4, height: 0.4 },
       scene,
       fireballGltf.scene,
-      this.enemies,
+      enemiesManager,
     );
 
     return new Game(
       scene,
       player,
-      new Enemies(keyboard.keyboardLayout, enemyGltf.scene, fireballGltf.scene),
+      enemiesManager,
       keyboard,
+      enemyGltf.scene,
       fireballGltf.scene,
     );
   }
