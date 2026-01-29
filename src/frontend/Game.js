@@ -2,6 +2,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import Enemies from "./managers/Enemies";
 import Keyboard from "./managers/Keyboard";
 import Player from "./models/actors/Player";
+import Projectile from "./models/Projectile";
 
 const loader = new GLTFLoader();
 
@@ -10,6 +11,8 @@ export default class Game {
   #keyboard;
   #player;
   #enemies;
+  #projectiles;
+  #bonks;
   #fireBallModel;
 
   constructor(scene, player, enemies, keyboard, enemyModel, fireBallModel) {
@@ -22,6 +25,8 @@ export default class Game {
     this.#keyboard = keyboard;
     this.#player = player;
     this.#enemies = enemies;
+    this.#projectiles = [];
+    this.#bonks = [];
     this.#fireBallModel = fireBallModel;
   }
 
@@ -33,6 +38,18 @@ export default class Game {
   }
   get enemies() {
     return this.#enemies;
+  }
+  get projectiles() {
+    return this.#projectiles;
+  }
+  set projectiles(projectiles) {
+    this.#projectiles = projectiles;
+  }
+  get bonks() {
+    return this.#bonks;
+  }
+  set bonks(bonks) {
+    this.#bonks = bonks;
   }
 
   keyboardUpdate() {
@@ -47,7 +64,7 @@ export default class Game {
 
   update() {
     this.#enemies.clearDead();
-    this.#enemies.update();
+    this.#enemies.update(this.#player.position, this.#projectiles, this.#bonks);
   }
   moveEnemies() {
     this.#enemies.move();

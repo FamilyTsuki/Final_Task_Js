@@ -54,8 +54,15 @@ export default class Boss extends Actor {
     return this.hp <= 0 || this.hp === undefined;
   }
 
-  update(deltaTime, player, projectiles, bonks) {
-    if (this.hp <= 0) return;
+  /**
+   *
+   * @param {Number} deltaTime
+   * @param {Object} playerPos = {x: Number, y: Number}
+   * @param {Array} projectiles
+   * @param {Array} bonks
+   */
+  update(deltaTime, playerPos, projectiles, bonks) {
+    if (this.isDead) return;
     if (this.isEmerging) {
       this.emergeProgress += deltaTime * 0.0005;
 
@@ -118,8 +125,8 @@ export default class Boss extends Actor {
     this.stateTimer += deltaTime;
     if (this.stateTimer >= this.attackInterval) {
       this.stateTimer = 0;
-      if (Math.random() > 0.5) this.attackTentacle(player, bonks);
-      else this.attackInkRain(player, projectiles);
+      if (Math.random() > 0.5) this.attackTentacle(playerPos, bonks);
+      else this.attackInkRain(playerPos, projectiles);
     }
   }
   checkCollision(other) {
@@ -131,11 +138,11 @@ export default class Boss extends Actor {
     );
   }
 
-  attackInkRain(player, projectiles) {
+  attackInkRain(playerPos, projectiles) {
     const nbProjectiles = 5;
 
-    const dx = player.position.x - this.rawPosition.x;
-    const dy = player.position.y - this.rawPosition.y;
+    const dx = playerPos.x - this.rawPosition.x;
+    const dy = playerPos.y - this.rawPosition.y;
     const angleToPlayer = Math.atan2(dx, dy);
 
     for (let i = 0; i < nbProjectiles; i++) {
@@ -163,14 +170,14 @@ export default class Boss extends Actor {
       );
     }
   }
-  attackTentacle(player, bonks) {
-    this.targetX = player.position.x;
+  attackTentacle(playerPos, bonks) {
+    this.targetX = playerPos.x;
     this.attackStartTime = this.totalTime;
     this.isAttacking = true;
 
     bonks.push(
       new Bonk(
-        { x: player.position.x, y: player.position.y },
+        { x: playerPos.x, y: playerPos.y },
         { width: 1, height: 4 },
         25,
         this.scene,

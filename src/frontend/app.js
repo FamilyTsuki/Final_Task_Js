@@ -16,11 +16,9 @@ const CONFIG = {
 let boss_alive = 1;
 let myGame;
 let myStorage;
-let canvas, ctx, renderer;
+let canvas, renderer;
 let score = 0,
   time = 0;
-let projectiles = [],
-  bonks = [];
 let TLoop, SLoop;
 let spawnBosslopp;
 let music;
@@ -243,9 +241,6 @@ const gameLoop = () => {
 
     myGame.player.mesh.position.set(targetX * spacing, 1.5, targetY * spacing);
   }
-  if (myGame.enemies.boss && !myGame.enemies.boss.isDead) {
-    myGame.enemies.boss.update(deltaTime, myGame.player, projectiles, bonks);
-  }
   if (myGame.player && myGame.player.wordSpellsInstances) {
     myGame.player.wordSpellsInstances.forEach((spell) => {
       if (spell.update) {
@@ -253,12 +248,12 @@ const gameLoop = () => {
       }
     });
   }
-  bonks.forEach((b, index) => {
+  myGame.bonks.forEach((b, index) => {
     b.update(deltaTime, myGame.player);
-    if (b.isDead) bonks.splice(index, 1);
+    if (b.isDead) myGame.bonks.splice(index, 1);
   });
 
-  projectiles.forEach((p) => {
+  myGame.projectiles.forEach((p) => {
     p.update(myGame.player, deltaTime);
 
     if (!p.isDead) {
@@ -316,7 +311,7 @@ const gameLoop = () => {
   renderer.render(scene, camera);
 
   if (elPlayerHp) elPlayerHp.textContent = Math.max(0, myGame.player.hp);
-  projectiles = projectiles.filter((p) => !p.isDead);
+  myGame.projectiles = myGame.projectiles.filter((p) => !p.isDead);
 
   if (myGame.player.hp <= 0) {
     isGameOver = true;
@@ -396,7 +391,7 @@ const setupEventListeners = () => {
         const spellResult = myGame.player.attack(word, closestEnemy);
 
         if (spellResult instanceof Projectile) {
-          projectiles.push(spellResult);
+          myGame.projectiles.push(spellResult);
         }
         elCurrentWord.textContent = word;
         setTimeout(() => {

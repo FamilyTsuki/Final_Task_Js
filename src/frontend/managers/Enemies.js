@@ -57,10 +57,20 @@ export default class Enemies {
     this.#container = this.#container.filter((enemy) => !enemy.isDead);
   }
 
-  update(ctx) {
+  /**
+   *
+   * @param {Object} playerPos = {x: Number, y: Number}
+   * @param {Array} projectiles
+   * @param {Array} bonks
+   */
+  update(playerPos, projectiles, bonks) {
     for (const enemy of this.#container) {
-      enemy.update(ctx);
+      if (enemy !== this.#boss) {
+        enemy.update();
+      }
     }
+
+    this.#boss.update(10, playerPos, projectiles, bonks);
   }
 
   move() {
