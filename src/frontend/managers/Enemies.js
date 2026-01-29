@@ -64,7 +64,7 @@ export default class Enemies {
         this.mesh.parent.remove(this.mesh);
         this.mesh.visible = false;
       }
-  }
+  } 
   /**
    *
    * @param {Object} playerPos = {x: Number, y: Number}

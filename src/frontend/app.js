@@ -122,9 +122,9 @@ const updateCamera = () => {
   camera.lookAt(16, 2, 2);
 };
 const spawnBoss = () => {
+  boss_alive += 1;
   if (myGame) {
     myGame.spawnBoss();
-    boss_alive += 1;
     music.pause();
     music.currentTime = 0;
 
