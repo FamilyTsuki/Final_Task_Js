@@ -199,19 +199,31 @@ html {
   text-align: center;
   color: #00d2ff;
   font-family: "Courier New", Courier, monospace;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.menu-content h1 {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 15px #00d2ff;
 }
 
 #start-btn {
-  padding: 15px 30px;
-  font-size: 20px;
+  margin-top: 20px;
+  padding: 18px 45px;
+  font-size: 24px;
   background: #00d2ff;
   color: black;
   border: none;
   cursor: pointer;
   font-weight: bold;
-  border-radius: 5px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
-
 #start-btn:hover {
   background: #fff;
 }
