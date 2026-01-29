@@ -2,7 +2,7 @@ import Spell from "../Spell";
 
 export default class Undefined extends Spell {
   constructor() {
-    super("undefined", undefined, 100);
+    super("undefined", undefined, 10);
   }
 
   /**
