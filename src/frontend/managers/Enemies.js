@@ -166,6 +166,27 @@ export default class Enemies {
     //? set the mesh position
     this.boss.mesh.position.set(this.boss.x, 0, this.boss.y);
   }
+  updatePath(playerKey, keyboard) {
+    for (const enemy of this.#container) {
+      if (enemy !== this.#boss && !enemy.isDead) {
+        // 1. Calculer le chemin de l'ennemi vers le joueur
+        const pathKeys = findBestPath(
+          enemy.actualKey, // Départ (ex: 'M')
+          playerKey, // Arrivée (ex: 'Q')
+          this.#aStarGrid, // La grille de noeuds
+        );
+
+        if (pathKeys) {
+          // 2. Transformer les clés ('Q', 'S') en données de touches réelles
+          // On récupère l'objet touche complet du clavier pour avoir .rawPosition
+          enemy.path = pathKeys.map((keyStr) => keyboard.find(keyStr));
+
+          // 3. Dire à l'ennemi de commencer à se diriger vers la première étape
+          enemy.move();
+        }
+      }
+    }
+  }
 }
 
 function findNeighbours(keyTargetedName, position, keyboardLayout) {

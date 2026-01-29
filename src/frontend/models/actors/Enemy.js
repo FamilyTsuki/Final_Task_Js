@@ -64,37 +64,34 @@ export default class Enemy extends Actor {
   move() {
     if (this.#path.length > 0) {
       this.#targetedPosition = this.#path[0].rawPosition;
+      this.#actualKey = this.#path.keys;
       this.#path.shift();
     }
   }
 
   update() {
-    // Si on n'a pas de cible, on ne fait rien
-    console.log(this.#targetedPosition);
     if (!this.#targetedPosition) return;
 
     const dx = this.#targetedPosition.x - this.position.x;
     const dy = this.#targetedPosition.y - this.position.y;
 
-    // Utilise une valeur par défaut pour speed si elle est undefined
-    const moveSpeed = this.speed || 0.05;
+    this.position.x += dx * this.speed;
+    this.position.y += dy * this.speed;
 
-    this.position.x += dx * moveSpeed;
-    this.position.y += dy * moveSpeed;
-
-    // Mise à jour de la position du Mesh Three.js pour qu'il suive
+    // Mise à jour visuelle (Three.js)
     if (this.mesh) {
       this.mesh.position.x = this.position.x * 3.2;
-      this.mesh.position.z = this.position.y * 3.2; // Rappel: Y au sol = Z dans Three.js
+      this.mesh.position.z = this.position.y * 3.2;
     }
 
-    // On snap la position si on est très proche pour éviter les tremblements
-    if (Math.abs(dx) < 0.1) this.position.x = this.#targetedPosition.x;
-    if (Math.abs(dy) < 0.1) this.position.y = this.#targetedPosition.y;
-    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
-      this.model = this.modelIdle;
-    } else {
-      this.model = this.modelMove;
+    // SI L'ENNEMI ARRIVE À SA CIBLE (proche de 0)
+    if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+      this.position.x = this.#targetedPosition.x;
+      this.position.y = this.#targetedPosition.y;
+
+      // IMPORTANT : Trouver sur quelle touche il vient d'arriver
+      // On met à jour son #actualKey pour le prochain calcul de chemin
+      // Tu peux ajouter une petite fonction pour trouver la clé selon la position
     }
   }
 }

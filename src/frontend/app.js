@@ -4,7 +4,7 @@ import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
 import Projectile from "./models/Projectile.js";
-import findBestPath from "";
+import findBestPath from "./utilities/aStar.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   projectile: {
@@ -204,7 +204,15 @@ const init = async () => {
     // }, 60000);
 
     const EMLoop = setInterval(() => {
-      myGame.moveEnemies();
+      if (myGame && myGame.player && myGame.enemies) {
+        // 1. On récupère la touche actuelle du joueur
+        // (Tu as probablement une propriété .actualKey sur ton Player)
+        const playerKey = myGame.player.actualKey || "A";
+
+        // 2. On demande à la classe Enemies de calculer le chemin
+        // updatePath va appeler findBestPath en interne avec les bons arguments
+        myGame.enemies.updatePath(playerKey, myGame.keyboard);
+      }
     }, 1000);
 
     gameLoop();
