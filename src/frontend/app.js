@@ -35,7 +35,7 @@ let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
 const SPAWN_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 3000;
+const BOSS_SPAWN_DELAY = 30000;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -261,23 +261,24 @@ const gameLoop = () => {
 
   myGame.projectiles.forEach((p) => {
     p.update(myGame.player, deltaTime);
-    console.log(myGame.enemies);
+
     if (!p.isDead) {
-      if (
-        p.team === "player" &&
-        myGame.enemies.boss &&
-        myGame.enemies.boss.hp > 0
-      ) {
-        if (myGame.enemies.boss.checkCollision(p)) {
-          myGame.enemies.boss.hp -= p.damage;
-          myGame.enemies.boss.updateHpBar();
-          p.isDead = true;
-          p.die();
-          if (window.startShake) window.startShake(0.2);
+      if (p.team === "player") {
+        console.log(myGame.projectiles);
+        if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
+          if (myGame.enemies.boss.checkCollision(p)) {
+            myGame.enemies.boss.hp -= p.damage;
+            myGame.enemies.boss.updateHpBar();
+            p.isDead = true;
+            p.die();
+            if (window.startShake) window.startShake(0.2);
+          }
         } else {
+          console.log("ok");
           myGame.enemies.container.forEach((enemi) => {
             if (enemi.checkCollision(p)) {
               enemi.takeDamage(p.damage);
+              p.die;
             }
           });
         }

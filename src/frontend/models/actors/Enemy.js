@@ -14,7 +14,7 @@ export default class Enemy extends Actor {
     hp = 100,
     hpMax = 100,
     model = undefined,
-    size = { width: 40, height: 40 },
+    size = { width: 10 * 3.2, height: 10 * 3.2 },
     id = crypto.randomUUID(),
   ) {
     super(id, hp, hpMax, position, position, size, model);
