@@ -1,7 +1,12 @@
 export default class GameObject {
-  rawPosition; //? {x: Number, y: Number, z: Number}
-  position; //? {x: Number, y: Number, z: Number}
+  rawPosition;
+  position;
 
+  /**
+   *
+   * @param {Object} rawPosition = {x: Number, y: Number}
+   * @param {Object} position = {x: Number, y: Number}
+   */
   constructor(rawPosition, position) {
     this.rawPosition = rawPosition;
     this.position = position;
@@ -30,11 +35,7 @@ export default class GameObject {
     this.position.y = Y;
   }
 
-  draw(ctx) {
-    if (!ctx) {
-      throw new Error("No ctx on draw !");
-    }
-
+  draw() {
     console.log("Drawing");
   }
 }
