@@ -5,7 +5,7 @@ import Undefined from "../spells/Undefined.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import ProjectileLuncher from "../spells/ProjectileLuncher.js";
-
+import HealSpell from "../spells/HealSpells.js";
 export default class Player extends Actor {
   #wordSpells;
   #currentWord = "";
@@ -31,6 +31,7 @@ export default class Player extends Actor {
       new Undefined(),
       new Spell("fire", 1, 1),
       new ProjectileLuncher("nuke", 10000, 10000, fireballModel), //! debug only
+      new HealSpell("heal", 30),
     ];
 
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
@@ -78,11 +79,7 @@ export default class Player extends Actor {
       throw new Error("There is no spell related to that word.");
     }
 
-    return spell.effect(
-      closestEnemy,
-      { pos: this.position, size: this.size },
-      this.scene,
-    );
+    return spell.effect(closestEnemy, this, this.scene);
   }
 
   moveTo(newPos) {
