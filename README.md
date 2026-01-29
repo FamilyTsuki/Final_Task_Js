@@ -39,7 +39,7 @@ Le projet suit une structure orientée objet pour faciliter la maintenance :
 
 1.  **Cloner le projet** :
     ```bash
-    git clone [https://github.com/votre-username/keyboard-survivor.git](https://github.com/votre-username/keyboard-survivor.git)
+    git clone https://github.com/FamilyTsuki/Final_Task_Js.git
     ```
 2.  **Installer les dépendances** :
     ```bash
