@@ -88,7 +88,7 @@ export default class FireCircle extends Spell {
       0.6 + Math.sin(this.#timer * 0.003) * 0.1,
     );
 
-    this.enemiesRef.container.forEach((enemy) => {
+    this.#enemiesRef.container.forEach((enemy) => {
       const dist = Math.sqrt(
         (this.#mesh.position.x - enemy.mesh.position.x) ** 2 +
           (this.#mesh.position.z - enemy.mesh.position.z) ** 2,
