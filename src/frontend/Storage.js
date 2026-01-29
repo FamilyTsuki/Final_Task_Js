@@ -1,10 +1,10 @@
 export default class Storage {
-  static getHistory() {
+  getHistory() {
     const data = localStorage.getItem("MON_JEU_TYPING");
     return data ? JSON.parse(data) : [];
   }
 
-  static saveGame(score, time) {
+  saveGame(score, time) {
     const history = this.getHistory();
 
     history.unshift({
@@ -17,7 +17,7 @@ export default class Storage {
     localStorage.setItem("MON_JEU_TYPING", JSON.stringify(history));
   }
 
-  static clearHistory() {
+  clearHistory() {
     localStorage.removeItem("MON_JEU_TYPING");
   }
 }
