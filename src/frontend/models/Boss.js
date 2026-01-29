@@ -49,6 +49,11 @@ export default class Boss extends Actor {
     this.mesh.position.y = -10;
     this.mesh.scale.set(0, 0, 0);
   }
+
+  get isDead() {
+    return this.hp <= 0 || this.hp === undefined;
+  }
+
   update(deltaTime, player, projectiles, bonks) {
     if (this.hp <= 0) return;
     if (this.isEmerging) {

@@ -1,9 +1,10 @@
-/*
-grid = Map {
+/**
+@param {Map} grid = Map {
     key -> NodeAstar,
     ...
 }
-startKey/goalKey = String
+@param {String} startKey
+@param {String} goalKey
 */
 
 export default function findBestPath(startKey, goalKey, grid) {

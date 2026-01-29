@@ -91,8 +91,8 @@ const updateCamera = () => {
   camera.lookAt(16, 2, 2);
 };
 const spawnBoss = () => {
-  if (myGame.enemies) {
-    myGame.enemies.spawnBoss();
+  if (myGame) {
+    myGame.spawnBoss();
 
     music.pause();
     music.currentTime = 0;
@@ -136,6 +136,9 @@ const init = async () => {
   elGameOverScreen = document.getElementById("game-over-screen");
 
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
+  myGame.spawnAt(3, 3);
+  myGame.enemies.updatePath("P", myGame.keyboard);
+  await myGame.spawnBoss();
 
   const listElement = document.getElementById("spell-list");
   if (listElement) {
@@ -165,6 +168,14 @@ const init = async () => {
       if (elScore) elScore.textContent = score;
     }, 1000);
 
+    // const WLoop = setInterval(() => {
+    //   myGame.spawnWave(5);
+    // }, 60000);
+
+    const EMLoop = setInterval(() => {
+      myGame.moveEnemies();
+    }, 1000);
+
     gameLoop();
   });
 
@@ -182,6 +193,8 @@ const init = async () => {
 };
 
 const gameLoop = () => {
+  myGame.update();
+
   if (isGameOver) return;
   requestAnimationFrame(gameLoop);
   if (!renderer || !myGame.player) return;
@@ -198,7 +211,7 @@ const gameLoop = () => {
 
     myGame.player.mesh.position.set(targetX * spacing, 1.5, targetY * spacing);
   }
-  if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
+  if (myGame.enemies.boss && !myGame.enemies.boss.isDead) {
     myGame.enemies.boss.update(deltaTime, myGame.player, projectiles, bonks);
   }
 
@@ -243,14 +256,13 @@ const gameLoop = () => {
 
     myGame.keyboard.update();
   }
-  /*
   if (shakeIntensity > 0.05) {
     camera.position.x += (Math.random() - 0.5) * shakeIntensity;
     camera.position.y += (Math.random() - 0.5) * shakeIntensity;
     shakeIntensity *= shakeDecay;
   } else {
     updateCamera();
-  }*/
+  }
   updateCamera();
 
   if (shakeIntensity > 0.0) {
@@ -318,11 +330,14 @@ const setupEventListeners = () => {
     if (keyTile) keyTile.isPressed = true;
 
     if (myGame.player) {
-      const target = KEYBOARD_LAYOUT.find((t) => t.key === keyName);
+      const target = myGame.keyboard.find(keyName);
+
+      // myGame.enemies.updatePath(target);
+
       if (target) {
-        myGame.player.moveTo({
-          x: target.x,
-          y: target.y,
+        myGame.player.move({
+          x: target.rawPosition.x,
+          y: target.rawPosition.y,
         });
       }
 
@@ -348,11 +363,6 @@ const setupEventListeners = () => {
         elCurrentWord.textContent = myGame.player.currentWord;
     }
   });
-
-  /*window.addEventListener("keyup", (e) => {
-    const keyTile = myGame.keyboard.find(e.key.toUpperCase());
-    if (keyTile) keyTile.isPressed = false;
-  });*/
 };
 
 window.addEventListener("DOMContentLoaded", init);

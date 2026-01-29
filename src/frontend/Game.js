@@ -12,7 +12,7 @@ export default class Game {
   #enemies;
   #fireBallModel;
 
-  constructor(scene, player, enemies, keyboard, fireBallModel) {
+  constructor(scene, player, enemies, keyboard, enemyModel, fireBallModel) {
     this.#canvas = document.getElementById("game-canvas");
     this.scene = scene;
     if (!this.#canvas) {
@@ -25,16 +25,6 @@ export default class Game {
     this.#fireBallModel = fireBallModel;
   }
 
-  keyboardUpdate() {
-    this.#keyboard.update();
-  }
-
-  keyboardUpdateSize() {
-    if (this.#keyboard.updateSize) {
-      this.#keyboard.updateSize(this.#canvas);
-    }
-  }
-
   get keyboard() {
     return this.#keyboard;
   }
@@ -45,11 +35,48 @@ export default class Game {
     return this.#enemies;
   }
 
+  keyboardUpdate() {
+    this.#keyboard.update();
+  }
+
+  keyboardUpdateSize() {
+    if (this.#keyboard.updateSize) {
+      this.#keyboard.updateSize(this.#canvas);
+    }
+  }
+
+  update() {
+    this.#enemies.clearDead();
+    this.#enemies.update();
+  }
+  moveEnemies() {
+    this.#enemies.move();
+  }
+
+  async spawnBoss() {
+    await this.#enemies.spawnBoss(this.scene);
+  }
+
+  spawnWave(enemyNumber) {
+    for (let x = 0; x < enemyNumber; x++) {
+      this.#enemies.add(x, 3 + x);
+    }
+  }
+
+  spawnAt(x, y) {
+    return this.#enemies.spawnAt(x, y, this.scene);
+  }
+
   static async init(scene, keyboardLayout) {
     const keyboard = Keyboard.init(scene, keyboardLayout);
 
+    const enemyGltf = await loader.loadAsync(
+      "../../public/assets/bug.glb",
+      (enemyGltf) => enemyGltf,
+    );
+
     const fireballGltf = await loader.loadAsync(
-      "../public/assets/fireball.glb",
+      "../../public/assets/fireball.glb",
       (fireballGltf) => fireballGltf,
     );
 
@@ -66,7 +93,7 @@ export default class Game {
     return new Game(
       scene,
       player,
-      await Enemies.init(keyboard.keyboardLayout, scene, fireballGltf.scene),
+      new Enemies(keyboard.keyboardLayout, enemyGltf.scene, fireballGltf.scene),
       keyboard,
       fireballGltf.scene,
     );

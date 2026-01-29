@@ -85,7 +85,11 @@ export default class Player extends Actor {
     );
   }
 
-  moveTo(newPos) {
+  /**
+   *
+   * @param {Object} newPos = { x: Number, y: Number }
+   */
+  move(newPos) {
     this.startJumpPos = { x: this.x, y: this.y };
     this.targetPosition = newPos;
 

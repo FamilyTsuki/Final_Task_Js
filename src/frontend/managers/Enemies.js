@@ -1,6 +1,8 @@
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import NodeAStar from "../utilities/NodeAStar";
 import Boss from "../models/Boss";
+import Enemy from "../models/actors/Enemy";
+import findBestPath from "../utilities/aStar";
 
 const loader = new GLTFLoader();
 
@@ -8,13 +10,14 @@ export default class Enemies {
   #aStarGrid;
   #container;
   #boss;
+  #enemyModel;
+  #fireBallModel;
 
-  constructor(keyboardLayout, boss) {
+  constructor(keyboardLayout, enemyModel, fireballModel) {
     this.#aStarGrid = new Map();
     this.#container = [];
-
-    this.#boss = boss;
-    this.#container.push(this.#boss);
+    this.#enemyModel = enemyModel;
+    this.#fireBallModel = fireballModel;
 
     for (const key of keyboardLayout) {
       const position = { x: key.x, y: key.y };
@@ -46,13 +49,41 @@ export default class Enemies {
     return this.#boss;
   }
 
-  //! TODO add/remove enemy
-  add() {}
-  remove() {}
+  add(position) {
+    console.error("here");
+    this.#container.push(new Enemy(position, 50, 50, this.#enemyModel));
+  }
+  clearDead() {
+    this.#container = this.#container.filter((enemy) => !enemy.isDead);
+  }
 
-  draw(ctx) {
+  update(ctx) {
     for (const enemy of this.#container) {
-      enemy.draw(ctx);
+      enemy.update(ctx);
+    }
+  }
+
+  move() {
+    for (const enemy of this.#container) {
+      enemy.move();
+    }
+  }
+
+  /**
+   *
+   * @param {String} playerKey
+   */
+  updatePath(playerKey, keyboard) {
+    for (const enemy of this.#container) {
+      if (enemy !== this.#boss) {
+        const path = findBestPath(
+          enemy.actualKey,
+          playerKey,
+          this.#aStarGrid,
+        ).map((keyStr) => keyboard.find(keyStr));
+        enemy.path = path;
+        enemy.move();
+      }
     }
   }
 
@@ -83,8 +114,16 @@ export default class Enemies {
     return false;
   }
 
-  static async init(keyboardLayout, scene, fireballModel) {
-    //* boss start
+  spawnAt(x, y, scene) {
+    //TODO ajouter la mecanique de creation de l'enemi
+    const enemy = new Enemy(scene, { x, y }, 50, 50, this.#enemyModel.clone());
+
+    this.#container.push(enemy);
+
+    return enemy;
+  }
+
+  async spawnBoss(scene) {
     const bossRawPosition = { x: 5, y: -2 };
 
     const bossModel = await loader.loadAsync(
@@ -92,8 +131,7 @@ export default class Enemies {
       (bossGltf) => bossGltf,
     );
 
-    const spacing = 3.2;
-    const boss = new Boss(
+    this.#boss = new Boss(
       "Octopus",
       500,
       bossRawPosition,
@@ -104,15 +142,13 @@ export default class Enemies {
       },
       { width: 2, height: 2 },
       scene,
-      fireballModel,
+      this.#fireBallModel,
       bossModel,
     );
+    this.#container.push(this.#boss);
 
     //? set the mesh position
-    boss.mesh.position.set(boss.x, 0, boss.y);
-    //* boss end
-
-    return new Enemies(keyboardLayout, boss);
+    this.boss.mesh.position.set(this.boss.x, 0, this.boss.y);
   }
 }
 
