@@ -89,7 +89,7 @@ export default class Enemies {
    */
   updatePath(playerKey, keyboard) {
     for (const enemy of this.#container) {
-      if (enemy !== this.#boss) {
+      if (enemy.name !== "Octopus" && enemy) {
         const path = findBestPath(
           enemy.actualKey,
           playerKey,
