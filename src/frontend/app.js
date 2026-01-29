@@ -28,13 +28,14 @@ let music;
 let musicBoss;
 let rire;
 let spawnBossSound;
+let quak;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 let isGameOver = false;
 let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
 const SPAWN_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 60000;
+const BOSS_SPAWN_DELAY = 3000;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -127,12 +128,13 @@ const spawnBoss = async () => {
     await myGame.spawnBoss();
     music.pause();
     music.currentTime = 0;
-
-    spawnBossSound.play();
-
+    quak.play();
+    setTimeout(() => {
+      spawnBossSound.play();
+    }, 4000);
     setTimeout(() => {
       musicBoss.play();
-    }, 3000);
+    }, 8000);
   }
 };
 const init = async () => {
@@ -142,14 +144,15 @@ const init = async () => {
   music = new Audio("../public/assets/sounds/music.mp3");
   music.volume = 0.5;
   music.loop = true;
-  musicBoss = new Audio("../public/assets/sounds/musicBoss.m4a");
+  musicBoss = new Audio("../public/assets/sounds/bossMusic.wav");
   musicBoss.volume = 0.5;
   musicBoss.loop = true;
-  rire = new Audio("../public/assets/sounds/rire.mp3");
+  rire = new Audio("../public/assets/sounds/rire.wav");
   rire.volume = 0.5;
   spawnBossSound = new Audio("../public/assets/sounds/spawnBoss.mp3");
   spawnBossSound.volume = 0.5;
-  spawnBossSound.loop = true;
+  quak = new Audio("../public/assets/sounds/quak.wav");
+  quak.volume = 0.5;
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
