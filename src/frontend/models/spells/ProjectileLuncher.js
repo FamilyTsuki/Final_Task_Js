@@ -15,7 +15,6 @@ export default class ProjectileLuncher extends Spell {
    * @param player = { pos: {x: Number, y: Number}, size: { width: Number, height: Number } }
    */
   shootProjectile(target, player, scene) {
-    console.log(scene);
     if (!target) {
       throw new Error("No target !");
     }
