@@ -328,7 +328,7 @@ const gameLoop = () => {
     deathSound.play();
     console.table(myStorage.getHistory());
   }
-  if (myGame.enemies.boss.hp <= 0 && boss_alive > 0) {
+  if (myGame.enemies.boss.isDead && boss_alive > 0) {
     myGame.enemies.boss.die();
     score += 5000;
     boss_alive -= 1;
