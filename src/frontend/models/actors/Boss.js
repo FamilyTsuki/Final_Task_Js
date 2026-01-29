@@ -1,6 +1,6 @@
-import Actor from "./Actor.js";
-import Projectile from "./Projectile.js";
-import Bonk from "./Bonk.js";
+import Actor from "../Actor.js";
+import Projectile from "../Projectile.js";
+import Bonk from "../Bonk.js";
 import * as THREE from "three";
 
 export default class Boss extends Actor {

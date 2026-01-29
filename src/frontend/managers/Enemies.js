@@ -1,6 +1,6 @@
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import NodeAStar from "../utilities/NodeAStar";
-import Boss from "../models/Boss";
+import Boss from "../models/actors/Boss";
 import Enemy from "../models/actors/Enemy";
 import findBestPath from "../utilities/aStar";
 
