@@ -50,8 +50,29 @@ export default class Enemy extends Actor {
         }
       });
 
+      if (this.hpSprite) {
+        this.model.add(this.hpSprite);
+
+        this.hpSprite.position.set(0, 1.5, 0);
+      }
+
       this.mesh.add(this.model);
     });
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 64;
+    const context = canvas.getContext("2d");
+    this.hpCanvas = canvas;
+    this.hpContext = context;
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    this.hpSprite = new THREE.Sprite(spriteMaterial);
+
+    this.hpSprite.scale.set(2, 0.5, 1);
+    this.hpSprite.position.y = 2.5;
+
+    this.updateHpBar();
   }
 
   get isDead() {
@@ -66,7 +87,12 @@ export default class Enemy extends Actor {
   set path(path) {
     this.#path = path;
   }
+  takeDamage(nb) {
+    this.hp -= nb;
+    if (this.hp < 0) this.hp = 0;
 
+    this.updateHpBar();
+  }
   attack(player) {
     if (!player) {
       throw new Error("No player !");
@@ -90,7 +116,29 @@ export default class Enemy extends Actor {
       this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
     }
   }
+  updateHpBar() {
+    const ctx = this.hpContext;
+    const width = this.hpCanvas.width;
+    const height = this.hpCanvas.height;
+    const ratio = Math.max(0, this.hp / this.hpMax);
 
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = ratio > 0.3 ? "#2ecc71" : "#e74c3c";
+    ctx.fillRect(5, 5, (width - 10) * ratio, height - 10);
+
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 40px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      `${Math.ceil(this.hp)}/${this.hpMax}`,
+      width / 2,
+      height / 2 + 10,
+    );
+
+    this.hpSprite.material.map.needsUpdate = true;
+  }
   update(player) {
     if (!this.#targetedPosition) return;
 
@@ -123,19 +171,29 @@ export default class Enemy extends Actor {
         const jumpAmplitude = 1.5;
 
         if (this.model) {
-          this.model.position.y =
-            1.6 + Math.sin(progression * Math.PI) * jumpAmplitude;
+          const sinePos = Math.sin(progression * Math.PI);
+          this.model.position.y = 1.6 + sinePos * jumpAmplitude;
+
+          const stretchFactor = 0.3 * Math.sin(progression * Math.PI);
+
+          this.model.scale.y = 1.3 + stretchFactor;
+          this.model.scale.x = 1.3 - stretchFactor * 0.5;
+          this.model.scale.z = 1.3 - stretchFactor * 0.5;
         }
 
         if (currentDist < 0.05) {
           this.isJumping = false;
-          if (this.model) this.model.position.y = 1.6;
+          if (this.model) {
+            this.model.position.y = 1.6;
+            this.model.scale.set(1.3, 1.3, 1.3);
+          }
           this.position.x = this.#targetedPosition.x;
           this.position.y = this.#targetedPosition.y;
           this.totalJumpDist = 0;
         }
       }
     }
+
     if (this.checkCollision(player)) {
       this.hp = -1;
       player.damage(50);

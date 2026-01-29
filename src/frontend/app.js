@@ -261,7 +261,7 @@ const gameLoop = () => {
 
   myGame.projectiles.forEach((p) => {
     p.update(myGame.player, deltaTime);
-
+    console.log(myGame.enemies);
     if (!p.isDead) {
       if (
         p.team === "player" &&
@@ -270,9 +270,16 @@ const gameLoop = () => {
       ) {
         if (myGame.enemies.boss.checkCollision(p)) {
           myGame.enemies.boss.hp -= p.damage;
+          myGame.enemies.boss.updateHpBar();
           p.isDead = true;
           p.die();
           if (window.startShake) window.startShake(0.2);
+        } else {
+          myGame.enemies.container.forEach((enemi) => {
+            if (enemi.checkCollision(p)) {
+              enemi.takeDamage(p.damage);
+            }
+          });
         }
       } else if (p.team === "boss") {
         if (myGame.player.checkCollision(p)) {

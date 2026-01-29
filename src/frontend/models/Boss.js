@@ -48,12 +48,26 @@ export default class Boss extends Actor {
 
     this.mesh.position.y = -10;
     this.mesh.scale.set(0, 0, 0);
+    const bossUI = document.getElementById("boss-ui");
+    if (bossUI) bossUI.classList.remove("hidden");
+    this.updateHpBar();
   }
 
   get isDead() {
     return this.hp <= 0 || this.hp === undefined;
   }
+  updateHpBar() {
+    const ratio = Math.max(0, (this.hp / this.hpMax) * 100);
 
+    // Mise à jour de la barre visuelle
+    const fill = document.getElementById("boss-hp-fill");
+    const currentTxt = document.getElementById("boss-hp-current");
+    const maxTxt = document.getElementById("boss-hp-max");
+
+    if (fill) fill.style.width = ratio + "%";
+    if (currentTxt) currentTxt.innerText = Math.ceil(this.hp);
+    if (maxTxt) maxTxt.innerText = this.hpMax;
+  }
   /**
    *
    * @param {Number} deltaTime
@@ -186,6 +200,9 @@ export default class Boss extends Actor {
     );
   }
   die() {
+    const bossUI = document.getElementById("boss-ui");
+    if (bossUI) bossUI.classList.add("hidden");
+
     if (this.mesh && this.mesh.parent) {
       this.mesh.parent.remove(this.mesh);
       this.mesh.visible = false;
