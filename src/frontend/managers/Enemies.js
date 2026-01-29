@@ -52,11 +52,18 @@ export default class Enemies {
   add(position) {
     console.error("here");
     this.#container.push(new Enemy(position, 50, 50, this.#enemyModel));
+    enemy_alive += 1;
   }
   clearDead() {
     this.#container = this.#container.filter((enemy) => !enemy.isDead);
   }
 
+  die() {
+    if (this.mesh && this.mesh.parent) {
+        this.mesh.parent.remove(this.mesh);
+        this.mesh.visible = false;
+      }
+  }
   /**
    *
    * @param {Object} playerPos = {x: Number, y: Number}

@@ -14,6 +14,8 @@ const CONFIG = {
 };
 
 let boss_alive = 1;
+let enemy_alive = 1;
+
 let myGame;
 let myStorage;
 let canvas, renderer;
@@ -332,6 +334,11 @@ const gameLoop = () => {
     myGame.enemies.boss.die();
     score += 5000;
     boss_alive -= 1;
+  }
+  if (myGame.enemies.isDead && enemy_alive > 0) {
+    myGame.enemies.die();
+    score += 500;
+    enemy_alive -= 1;
   }
 };
 
