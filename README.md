@@ -65,8 +65,8 @@ Le jeu utilise un système de mapping entre une grille logique et le monde 3D :
 
 * 🔥 **FIRE** : Lance un projectile vers l'ennemi le plus proche.
 * ☢️ **NUKE** : Sort de débug infligeant 10 000 points de dégâts.
-* 💚 **HEAL** : Restaure 30 HP au héros.
-* ⭕ **CIRCLE** : Crée une zone de flammes protectrice autour du joueur.
+* 💚 **HEAL** : Restaure 15 HP au héros.
+* ⭕ **CIRCLE** : Crée une zone de flammes brulante autour du joueur.
 
 ---
 
