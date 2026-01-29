@@ -97,6 +97,10 @@ export default class Enemies {
     }
   }
 
+  /**
+   *
+   * @param {Object} playerPos = {x: Number, y: Number}
+   */
   findClosestEnemy(playerPos) {
     if (this.#container.length > 0) {
       const first = this.#container[0];

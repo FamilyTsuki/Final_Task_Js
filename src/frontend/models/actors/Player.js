@@ -74,7 +74,11 @@ export default class Player extends Actor {
     return this.#currentWord;
   }
 
-  //? closestEnemy = {pos: {x: Number, y: Number}, dist: Number}
+  /**
+   *
+   * @param {String} word
+   * @param {Enemy} closestEnemy = {pos: {x: Number, y: Number}, dist: Number}
+   */
   attack(word, closestEnemy = null) {
     const spell = this.#wordSpells.find((wordSpell) => wordSpell.word === word);
 
