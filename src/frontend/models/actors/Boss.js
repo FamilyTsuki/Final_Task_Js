@@ -49,7 +49,10 @@ export default class Boss extends Actor {
     this.mesh.position.y = -10;
     this.mesh.scale.set(0, 0, 0);
     const bossUI = document.getElementById("boss-ui");
-    if (bossUI) bossUI.classList.remove("hidden");
+    if (bossUI)
+      setTimeout(() => {
+        bossUI.classList.remove("hidden");
+      }, 5500);
     this.updateHpBar();
   }
 

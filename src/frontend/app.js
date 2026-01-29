@@ -124,10 +124,10 @@ const spawnBoss = async () => {
     quak.play();
     setTimeout(() => {
       spawnBossSound.play();
-    }, 4000);
+    }, 0);
     setTimeout(() => {
       musicBoss.play();
-    }, 8000);
+    }, 3000);
   }
 };
 const init = async () => {
@@ -342,6 +342,8 @@ const gameLoop = () => {
     document.getElementById("final-score").textContent = score;
     music.pause();
     displayHistory();
+    musicBoss.stop();
+    music.stop();
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
     console.table(myStorage.getHistory());
