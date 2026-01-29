@@ -34,10 +34,11 @@ let isGameOver = false;
 let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
-const SPAWN_INTERVAL = 6000;
+let SPAWN_INTERVAL = 6000;
 const BOSS_SPAWN_DELAY = 45000;
 const loader = new GLTFLoader();
-
+const initialCameraPos = { x: 16, y: 15, z: 15 };
+const initialLookAt = { x: 16, y: 2, z: 2 };
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -47,7 +48,21 @@ const camera = new THREE.PerspectiveCamera(
 );
 let shakeIntensity = 0;
 const shakeDecay = 0.9;
+const resetCamera = () => {
+  // On remet les coordonnées de départ
+  camera.position.set(
+    initialCameraPos.x,
+    initialCameraPos.y,
+    initialCameraPos.z,
+  );
+  camera.lookAt(initialLookAt.x, initialLookAt.y, initialLookAt.z);
 
+  // On force la mise à jour des matrices
+  camera.updateProjectionMatrix();
+
+  // Optionnel : on remet l'intensité du shake à 0 au cas où
+  shakeIntensity = 0;
+};
 window.startShake = function (intensity) {
   shakeIntensity = intensity;
 };
@@ -57,7 +72,7 @@ const manageEnemiesLogic = (deltaTime) => {
   gameTimer += deltaTime;
 
   // 1. SPAWN DES ENNEMIS RÉGULIERS
-  if (gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
+  if (!bossIsPresent && gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
     // On récupère toutes les touches du clavier sauf celle du joueur
     const availableTiles = myGame.keyboard.keyboardLayout.filter((tile) => {
       const distToPlayer = Math.sqrt(
@@ -368,6 +383,10 @@ const gameLoop = () => {
       myGame.enemies.boss.die();
       score += 5000;
       bossIsPresent = false;
+      gameTimer = 0;
+      lastSpawnTime = 0;
+      SPAWN_INTERVAL -= 1000;
+      resetCamera();
     }
   }
 };
