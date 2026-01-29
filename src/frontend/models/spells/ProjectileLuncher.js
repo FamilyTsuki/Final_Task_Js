@@ -11,8 +11,8 @@ export default class ProjectileLuncher extends Spell {
   }
 
   /**
-   * @param target = { x: Number, y: Number }
-   * @param player = { pos: {x: Number, y: Number}, size: { width: Number, height: Number } }
+   * @param {Object} target = { x: Number, y: Number }
+   * @param {Player} player
    */
   shootProjectile(target, player, scene) {
     if (!target) {
@@ -22,8 +22,8 @@ export default class ProjectileLuncher extends Spell {
     const projectileSpeed = 2;
     const projectileSize = { width: 80, height: 80 };
 
-    const dx = target.x - player.pos.x;
-    const dy = target.y - player.pos.y;
+    const dx = target.x - player.x;
+    const dy = target.y - player.y;
     const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
     const velocity = {
@@ -33,8 +33,8 @@ export default class ProjectileLuncher extends Spell {
 
     const spacing = 3.2;
     const startPosition = {
-      x: (player.pos.x + player.size.width / 2) * spacing,
-      y: (player.pos.y + player.size.height / 2) * spacing,
+      x: (player.x + player.size.width / 2) * spacing,
+      y: (player.y + player.size.height / 2) * spacing,
     };
     return new Projectile(
       startPosition,
@@ -49,8 +49,8 @@ export default class ProjectileLuncher extends Spell {
   }
 
   /**
-    @param closestEnemy = { instance: Enemy, dist = Number }
-    @param player = { pos: {x: Number, y: Number}, size: { width: Number, height: Number } }
+    @param {Object} closestEnemy = { instance: Enemy, dist = Number }
+    @param {Player} player
   */
   effect(closestEnemy, player, scene) {
     if (closestEnemy) {

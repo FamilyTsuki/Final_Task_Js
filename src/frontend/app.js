@@ -166,9 +166,9 @@ const init = async () => {
   elGameOverScreen = document.getElementById("game-over-screen");
 
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
+  await myGame.spawnBoss();
   myGame.spawnAt(3, 3);
   myGame.enemies.updatePath("P", myGame.keyboard);
-  await myGame.spawnBoss();
 
   const listElement = document.getElementById("spell-list");
   if (listElement) {

@@ -186,7 +186,6 @@ export default class Boss extends Actor {
     );
   }
   die() {
-    this.isDead = true;
     if (this.mesh && this.mesh.parent) {
       this.mesh.parent.remove(this.mesh);
       this.mesh.visible = false;
