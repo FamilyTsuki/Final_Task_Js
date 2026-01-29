@@ -29,7 +29,7 @@ export default class Player extends Actor {
 
     this.#wordSpells = [
       new Undefined(),
-      new FireCircle("fire", 10, 2, 3000, scene, this, enemiesManager),
+      new FireCircle("fire", 1, 2.3, 9000, scene, this, enemiesManager),
       new ProjectileLuncher("wasa", 25, 10000, fireballModel),
       new HealSpell("heal", 15),
     ];

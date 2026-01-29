@@ -31,7 +31,7 @@ export default class FireCircle extends Spell {
     this.#player = player;
     this.#enemies = enemies;
 
-    this.#attackSpeed = 500;
+    this.#attackSpeed = 40;
 
     this.#timer = 0;
     this.#isActive = false;
@@ -69,13 +69,22 @@ export default class FireCircle extends Spell {
 
     this.#loopId = setInterval(() => {
       this.#enemies.container.forEach((enemy) => {
+        const enemyPos = new THREE.Vector3();
+        enemy.mesh.getWorldPosition(enemyPos);
+
         const dist = Math.sqrt(
-          (this.#mesh.position.x - enemy.mesh.position.x) ** 2 +
-            (this.#mesh.position.z - enemy.mesh.position.z) ** 2,
+          (this.#mesh.position.x - enemyPos.x) ** 2 +
+            (this.#mesh.position.z - enemyPos.z) ** 2,
         );
 
-        if (dist <= this.range * 3.2 && !enemy.isBurning) {
-          enemy.hp -= this.damage;
+        if (dist <= this.range * 3.2) {
+          if (enemy.takeDamage) {
+            enemy.takeDamage(this.damage);
+          } else {
+            enemy.hp -= this.damage;
+          }
+
+          console.log(`Brûle l'ennemi ! HP restant: ${enemy.hp}`);
         }
       });
     }, this.#attackSpeed);
@@ -91,18 +100,25 @@ export default class FireCircle extends Spell {
     if (this.#isActive && this.#mesh) {
       this.#timer += deltaTime;
 
-      const playerPosWorld = {
-        x: this.#player.position.x * 3.2,
-        y: this.#player.position.y * 3.2,
-      };
-      this.#mesh.position.set(playerPosWorld.x, 0.1, playerPosWorld.y);
+      // --- FIXATION DE LA TAILLE ---
+      // On s'assure que le scale reste à 1, peu importe le timer
+      this.#mesh.scale.set(1, 1, 1);
 
+      // Animation visuelle (Opacité et Couleur)
       this.#mesh.material.opacity = 0.5 + Math.sin(this.#timer * 0.01) * 0.2;
+
       this.#mesh.material.color.setHSL(
         Math.sin(this.#timer * 0.005) * 0.1 + 0.08,
         1,
         0.6 + Math.sin(this.#timer * 0.003) * 0.1,
       );
+
+      // Suivre le joueur
+      const playerPosWorld = {
+        x: this.#player.position.x * 3.2,
+        z: this.#player.position.y * 3.2, // Attention: utilise Z pour la profondeur en 3D
+      };
+      this.#mesh.position.set(playerPosWorld.x, 0.1, playerPosWorld.z);
 
       if (this.#timer >= this.#duration) {
         this.desactivate();

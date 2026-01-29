@@ -76,8 +76,7 @@ const manageEnemiesLogic = (deltaTime) => {
     // On récupère toutes les touches du clavier sauf celle du joueur
     const availableTiles = myGame.keyboard.keyboardLayout.filter((tile) => {
       const distToPlayer = Math.sqrt(
-        Math.pow(tile.x - myGame.player.x, 2) +
-          Math.pow(tile.y - myGame.player.y, 2),
+        (tile.x - myGame.player.x) ** 2 + (tile.y - myGame.player.y) ** 2,
       );
       // On ne spawn pas sur le joueur (distance > 1 case)
       return distToPlayer > 1;
@@ -372,7 +371,9 @@ const gameLoop = () => {
     document.getElementById("final-score").textContent = score;
     music.pause();
     displayHistory();
-    musicBoss.stop();
+    if (musicBoss) {
+      musicBoss.stop();
+    }
     music.stop();
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
