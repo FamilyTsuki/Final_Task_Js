@@ -1,6 +1,6 @@
 import Actor from "../Actor";
 import * as THREE from "three";
-
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 export default class Enemy extends Actor {
   #damage;
   #actualKey; //? String
@@ -22,24 +22,26 @@ export default class Enemy extends Actor {
     this.#path = [];
     this.#targetedPosition = { x: position.x, y: position.y };
     this.speed = 0.05;
-    const geoWidth = 1 * 3.2 * 0.9;
-    const geoHeight = 1 * 3.2 * 0.9;
+
     this.bonkSound = new Audio("../../public/assets/sounds/bonk.wav");
     this.bonkSound.volume = 0.5;
-    const geometry = new THREE.PlaneGeometry(geoWidth, geoHeight);
-    this.material = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
-      transparent: true,
-      opacity: 0.3,
-      side: THREE.DoubleSide,
-    });
-    this.mesh = new THREE.Mesh(geometry, this.material);
-    this.mesh.position.set(position.x * 3.2, 1.2, position.y * 3.2);
-    this.mesh.rotation.x = -Math.PI / 2;
-
-    scene.add(this.mesh);
 
     this.#damage = 5;
+
+    this.mesh = new THREE.Group();
+    this.scene = scene;
+    scene.add(this.mesh);
+    this.model = null;
+    const loader = new GLTFLoader();
+    loader.load("./assets/bug.glb", (gltf) => {
+      this.model = gltf.scene;
+      this.model.scale.set(1.3, 1.3, 1.3);
+
+      this.model.position.y = 0.6;
+
+      this.mesh.add(this.model);
+    });
+    this.elVignette = document.getElementById("damage-vignette");
   }
 
   get isDead() {
@@ -79,20 +81,8 @@ export default class Enemy extends Actor {
     this.position.x += dx * this.speed;
     this.position.y += dy * this.speed;
 
-    // Mise à jour visuelle (Three.js)
-    if (this.mesh) {
-      this.mesh.position.x = this.position.x * 3.2;
-      this.mesh.position.z = this.position.y * 3.2;
-    }
-
-    // SI L'ENNEMI ARRIVE À SA CIBLE (proche de 0)
-    if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
-      this.position.x = this.#targetedPosition.x;
-      this.position.y = this.#targetedPosition.y;
-
-      // IMPORTANT : Trouver sur quelle touche il vient d'arriver
-      // On met à jour son #actualKey pour le prochain calcul de chemin
-      // Tu peux ajouter une petite fonction pour trouver la clé selon la position
+    if (this.mesh && this.model) {
+      this.mesh.position.set(this.x * 3.3, 0, this.y * 3.3);
     }
   }
 }
