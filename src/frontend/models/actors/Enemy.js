@@ -8,6 +8,7 @@ export default class Enemy extends Actor {
   #path; //? [Key, Key, ...]
 
   constructor(
+    actualKey,
     scene,
     position,
     hp = 100,
@@ -17,7 +18,7 @@ export default class Enemy extends Actor {
     id = crypto.randomUUID(),
   ) {
     super(id, hp, hpMax, position, position, size, model);
-    this.#actualKey = "M";
+    this.#actualKey = actualKey;
     this.#path = [];
     this.#targetedPosition = { x: position.x, y: position.y };
     this.speed = 0.05;
@@ -66,7 +67,7 @@ export default class Enemy extends Actor {
   move() {
     if (this.#path.length > 0) {
       this.#targetedPosition = this.#path[0].rawPosition;
-      this.#actualKey = this.#path.keys;
+      this.#actualKey = this.#path[0].key;
       this.#path.shift();
     }
   }

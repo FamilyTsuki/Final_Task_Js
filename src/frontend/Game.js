@@ -80,8 +80,12 @@ export default class Game {
     }
   }
 
-  spawnAt(x, y) {
-    return this.#enemies.spawnAt(x, y, this.scene);
+  /**
+   *
+   * @param {String} key
+   */
+  spawnAt(key) {
+    return this.#enemies.spawnAt(this.#keyboard.find(key), this.scene);
   }
 
   static async init(scene, keyboardLayout) {
