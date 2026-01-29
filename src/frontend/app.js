@@ -4,6 +4,7 @@ import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
 import Projectile from "./models/Projectile.js";
+import findBestPath from "";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   projectile: {
@@ -58,7 +59,7 @@ const manageEnemiesLogic = (deltaTime) => {
     const randomTile =
       KEYBOARD_LAYOUT[Math.floor(Math.random() * KEYBOARD_LAYOUT.length)];
 
-    myGame.enemies.spawnAt(randomTile.x, randomTile.y, minionModel);
+    myGame.enemies.spawnAt(randomTile.x, randomTile.y, scene);
 
     lastSpawnTime = gameTimer;
   }
@@ -232,7 +233,7 @@ const gameLoop = () => {
   if (!renderer || !myGame.player) return;
 
   const deltaTime = 10;
-  //manageEnemiesLogic(deltaTime);
+  manageEnemiesLogic(deltaTime);
   myGame.player.update();
 
   if (myGame.player.mesh) {
