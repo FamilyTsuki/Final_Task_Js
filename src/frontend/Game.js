@@ -61,6 +61,7 @@ export default class Game {
       { width: 0.4, height: 0.4 },
       scene,
       fireballGltf.scene,
+      this.enemies,
     );
 
     return new Game(

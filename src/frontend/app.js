@@ -231,7 +231,13 @@ const gameLoop = () => {
   if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
     myGame.enemies.boss.update(deltaTime, myGame.player, projectiles, bonks);
   }
-
+  if (myGame.player && myGame.player.wordSpellsInstances) {
+    myGame.player.wordSpellsInstances.forEach((spell) => {
+      if (spell.update) {
+        spell.update(16.6);
+      }
+    });
+  }
   bonks.forEach((b, index) => {
     b.update(deltaTime, myGame.player);
     if (b.isDead) bonks.splice(index, 1);
