@@ -3,7 +3,7 @@ import Game from "./Game.js";
 import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
-
+import Projectile from "./models/Projectile.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   projectile: {
@@ -13,6 +13,7 @@ const CONFIG = {
   },
 };
 
+let boss_alive = 1;
 let myGame;
 let myStorage;
 let canvas, ctx, renderer;
@@ -21,11 +22,18 @@ let score = 0,
 let projectiles = [],
   bonks = [];
 let TLoop, SLoop;
+let spawnBosslopp;
 let music;
 let musicBoss;
+let rire;
 let spawnBossSound;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 let isGameOver = false;
+let gameTimer = 0;
+let lastSpawnTime = 0;
+let bossIsPresent = false;
+const SPAWN_INTERVAL = 3000;
+const BOSS_SPAWN_DELAY = 60000;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -40,6 +48,28 @@ const shakeDecay = 0.9;
 
 window.startShake = function (intensity) {
   shakeIntensity = intensity;
+};
+const manageEnemiesLogic = (deltaTime) => {
+  if (isGameOver) return;
+
+  gameTimer += deltaTime;
+
+  if (!bossIsPresent && gameTimer - lastSpawnTime > SPAWN_INTERVAL) {
+    const randomTile =
+      KEYBOARD_LAYOUT[Math.floor(Math.random() * KEYBOARD_LAYOUT.length)];
+
+    myGame.enemies.spawnAt(randomTile.x, randomTile.y, minionModel);
+
+    lastSpawnTime = gameTimer;
+  }
+
+  if (!bossIsPresent && gameTimer >= BOSS_SPAWN_DELAY) {
+    rire.play();
+    setTimeout(() => {
+      bossIsPresent = true;
+      spawnBoss();
+    }, 4000);
+  }
 };
 const displayHistory = () => {
   const history = myStorage.getHistory();
@@ -93,7 +123,7 @@ const updateCamera = () => {
 const spawnBoss = () => {
   if (myGame) {
     myGame.spawnBoss();
-
+    boss_alive += 1;
     music.pause();
     music.currentTime = 0;
 
@@ -114,6 +144,8 @@ const init = async () => {
   musicBoss = new Audio("../public/assets/sounds/musicBoss.m4a");
   musicBoss.volume = 0.5;
   musicBoss.loop = true;
+  rire = new Audio("../public/assets/sounds/rire.mp3");
+  rire.volume = 0.5;
   spawnBossSound = new Audio("../public/assets/sounds/spawnBoss.mp3");
   spawnBossSound.volume = 0.5;
   spawnBossSound.loop = true;
@@ -200,7 +232,7 @@ const gameLoop = () => {
   if (!renderer || !myGame.player) return;
 
   const deltaTime = 10;
-
+  //manageEnemiesLogic(deltaTime);
   myGame.player.update();
 
   if (myGame.player.mesh) {
@@ -214,7 +246,13 @@ const gameLoop = () => {
   if (myGame.enemies.boss && !myGame.enemies.boss.isDead) {
     myGame.enemies.boss.update(deltaTime, myGame.player, projectiles, bonks);
   }
-
+  if (myGame.player && myGame.player.wordSpellsInstances) {
+    myGame.player.wordSpellsInstances.forEach((spell) => {
+      if (spell.update) {
+        spell.update(16.6);
+      }
+    });
+  }
   bonks.forEach((b, index) => {
     b.update(deltaTime, myGame.player);
     if (b.isDead) bonks.splice(index, 1);
@@ -295,6 +333,11 @@ const gameLoop = () => {
     deathSound.play();
     console.table(myStorage.getHistory());
   }
+  if (myGame.enemies.boss.hp <= 0 && boss_alive > 0) {
+    myGame.enemies.boss.die();
+    score += 5000;
+    boss_alive -= 1;
+  }
 };
 
 const setupEventListeners = () => {
@@ -342,25 +385,26 @@ const setupEventListeners = () => {
       }
 
       let word = myGame.player.handleKeyPress(e.key);
-      if (e.key === "ArrowUp") {
-        word = "sum";
-      }
+
+      if (e.key === "ArrowUp") word = "sum";
+
       if (word) {
         const closestEnemy = myGame.enemies.findClosestEnemy(
           myGame.player.position,
         );
-        if (closestEnemy) {
-          const newProj = myGame.player.attack(word, closestEnemy);
-          if (newProj) {
-            projectiles.push(newProj);
-          }
+
+        const spellResult = myGame.player.attack(word, closestEnemy);
+
+        if (spellResult instanceof Projectile) {
+          projectiles.push(spellResult);
         }
         elCurrentWord.textContent = word;
         setTimeout(() => {
           elCurrentWord.textContent = myGame.player.currentWord;
         }, 100);
-      } else if (elCurrentWord)
+      } else if (elCurrentWord) {
         elCurrentWord.textContent = myGame.player.currentWord;
+      }
     }
   });
 };

@@ -5,7 +5,8 @@ import Undefined from "../spells/Undefined.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import ProjectileLuncher from "../spells/ProjectileLuncher.js";
-
+import HealSpell from "../spells/HealSpells.js";
+import FireCircle from "../spells/FireCircle.js";
 export default class Player extends Actor {
   #wordSpells;
   #currentWord = "";
@@ -17,6 +18,7 @@ export default class Player extends Actor {
     size,
     scene,
     fireballModel,
+    enemiesManager,
   ) {
     const spacing = 3.2;
     const position = {
@@ -31,6 +33,8 @@ export default class Player extends Actor {
       new Undefined(),
       new Spell("fire", 1, 1),
       new ProjectileLuncher("nuke", 10000, 10000, fireballModel), //! debug only
+      new HealSpell("heal", 30),
+      new FireCircle("circle", 15, 2, 3000, scene, this, enemiesManager),
     ];
 
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
@@ -78,11 +82,7 @@ export default class Player extends Actor {
       throw new Error("There is no spell related to that word.");
     }
 
-    return spell.effect(
-      closestEnemy,
-      { pos: this.position, size: this.size },
-      this.scene,
-    );
+    return spell.effect(closestEnemy, this, this.scene);
   }
 
   /**
@@ -106,7 +106,13 @@ export default class Player extends Actor {
 
     this.x += dx * this.speed;
     this.y += dy * this.speed;
-
+    this.#wordSpells.forEach((spell) => {
+      if (spell.update) {
+        // On passe un deltaTime approximatif (16.6ms pour 60fps)
+        // Ou tu peux passer deltaTime en argument de la fonction update(dt)
+        spell.update(16.6);
+      }
+    });
     if (this.mesh && this.playerModel) {
       this.mesh.position.set(this.x, 0, this.y);
 
@@ -167,5 +173,8 @@ export default class Player extends Actor {
     }
 
     return false;
+  }
+  get wordSpellsInstances() {
+    return this.#wordSpells;
   }
 }
