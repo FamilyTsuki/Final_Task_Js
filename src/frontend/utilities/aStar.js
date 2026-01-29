@@ -1,12 +1,17 @@
 /**
-@param {Map} grid = Map {
+@param {Map} gridRaw = Map {
     key -> NodeAstar,
     ...
 }
 @param {String} startKey
 @param {String} goalKey
 */
-export default function findBestPath(startKey, goalKey, grid) {
+export default function findBestPath(startKey, goalKey, gridRaw) {
+  const grid = new Map();
+  for (const entries of gridRaw.entries()) {
+    grid.set(entries[0], entries[1].copy());
+  }
+
   let open = [];
   const close = [];
 
