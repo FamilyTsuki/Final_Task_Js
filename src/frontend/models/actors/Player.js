@@ -1,14 +1,13 @@
 import Actor from "../Actor.js";
 import Projectile from "../Projectile.js";
+import Spell from "../Spell.js";
+import Undefined from "../spells/Undefined.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import ProjectileLuncher from "../spells/ProjectileLuncher.js";
 
 export default class Player extends Actor {
-  #wordSpells = [
-    { word: "undefined", damage: 100, range: 10 },
-    { word: "nuke", damage: 999900, range: 99990 },
-    { word: "sum", damage: 10, range: 1000 },
-  ];
+  #wordSpells;
   #currentWord = "";
   constructor(
     playerName = "Unknow",
@@ -27,6 +26,13 @@ export default class Player extends Actor {
     };
 
     super(playerName, hp, hpMax, rawPosition, position, size);
+
+    this.#wordSpells = [
+      new Undefined(),
+      new Spell("fire", 1, 1),
+      new ProjectileLuncher("nuke", 10000, 10000, fireballModel), //! debug only
+    ];
+
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
     this.speed = 0.1;
 
@@ -72,16 +78,11 @@ export default class Player extends Actor {
       throw new Error("There is no spell related to that word.");
     }
 
-    if (closestEnemy) {
-      if (closestEnemy.dist <= spell.range) {
-        return this.shootProjectile(
-          spell.damage,
-          closestEnemy.instance.rawPosition,
-        );
-      }
-    }
-
-    return false;
+    return spell.effect(
+      closestEnemy,
+      { pos: this.position, size: this.size },
+      this.scene,
+    );
   }
 
   moveTo(newPos) {
@@ -162,39 +163,5 @@ export default class Player extends Actor {
     }
 
     return false;
-  }
-
-  shootProjectile(spellDamage, target) {
-    if (!target) {
-      throw new Error("No target !");
-    }
-
-    const projectileSpeed = 0.1;
-    const projectileSize = { width: 80, height: 80 };
-
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-    const distance = Math.sqrt(dx ** 2 + dy ** 2);
-
-    const velocity = {
-      x: dx * projectileSpeed,
-      y: dy * projectileSpeed,
-    };
-
-    const spacing = 3.2;
-    const startPosition = {
-      x: this.x * spacing,
-      y: this.y * spacing,
-    };
-    return new Projectile(
-      startPosition,
-      projectileSize,
-      spellDamage,
-      velocity,
-      this.scene,
-      "player",
-      1.0,
-      this.fireballModel,
-    );
   }
 }
