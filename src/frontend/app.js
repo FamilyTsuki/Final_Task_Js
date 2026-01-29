@@ -166,7 +166,7 @@ const init = async () => {
       score += 10;
       if (elScore) elScore.textContent = score;
     }, 1000);
-
+    
     gameLoop();
   });
 
