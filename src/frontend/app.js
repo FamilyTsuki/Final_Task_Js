@@ -13,7 +13,8 @@ const CONFIG = {
   },
 };
 
-let myGame; //myStorage;
+let myGame;
+let myStorage;
 let canvas, ctx, renderer;
 let score = 0,
   time = 0;
@@ -38,7 +39,24 @@ const shakeDecay = 0.9;
 window.startShake = function (intensity) {
   shakeIntensity = intensity;
 };
+const displayHistory = () => {
+  const history = myStorage.getHistory();
+  const container = document.getElementById("history-table-body");
 
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  history.forEach((game) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+            <td>${game.date}</td>
+            <td>${game.score}</td>
+            <td>${formatTime(game.time)}</td>
+        `;
+    container.appendChild(row);
+  });
+};
 const formatTime = (t) => {
   const ms = t % 100;
   const totalSeconds = Math.floor(t / 100);
@@ -71,9 +89,9 @@ const updateCamera = () => {
   camera.lookAt(16, 2, 2);
 };
 const init = async () => {
+  myStorage = new Storage();
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
-
   music = new Audio("../public/assets/sounds/music.mp3");
   music.volume = 0.5;
   music.loop = true;
@@ -187,7 +205,7 @@ const gameLoop = () => {
           myGame.player.damage(p.damage);
           p.isDead = true;
           p.die();
-          if (window.startShake) window.startShake(0.5);
+          if (window.startShake) window.startShake(0.2);
         }
       }
     }
@@ -213,7 +231,7 @@ const gameLoop = () => {
   }*/
   updateCamera();
 
-  if (shakeIntensity > 0.05) {
+  if (shakeIntensity > 0.0) {
     camera.position.x += (Math.random() - 0.5) * shakeIntensity;
     camera.position.y += (Math.random() - 0.5) * shakeIntensity;
     camera.position.z += (Math.random() - 0.5) * shakeIntensity;
@@ -234,12 +252,14 @@ const gameLoop = () => {
     clearInterval(SLoop);
     elGameScreen?.classList.add("hidden");
     elGameOverScreen?.classList.remove("hidden");
-
+    myStorage.saveGame(score, time);
     document.getElementById("final-time").textContent = formatTime(time);
     document.getElementById("final-score").textContent = score;
     music.pause();
+    displayHistory();
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
+    console.table(myStorage.getHistory());
   }
 };
 
