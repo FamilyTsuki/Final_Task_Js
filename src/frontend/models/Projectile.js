@@ -16,15 +16,34 @@ export default class Projectile extends DamageObject {
     if (!modelSource) {
       throw new Error("No projectile model !");
     }
-
     super(position, size, damage);
+    this.timer = 0;
+    this.warmUpDuration = 400;
+    this.isFlying = false;
+
     this.velocity = velocity;
     this.team = team;
     this.spacing = spacing;
-
+    this.scene = scene;
     this.mesh = new THREE.Group();
-    scene.add(this.mesh);
+    this.scene.add(this.mesh);
+    const lineLength = 10 * spacing;
+    const lineGeo = new THREE.PlaneGeometry(0.3 * spacing, lineLength);
+    lineGeo.translate(0, -lineLength / 2, 0);
+    this.lineMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.DoubleSide,
+    });
+    this.lineMesh = new THREE.Mesh(lineGeo, this.lineMaterial);
+    this.lineMesh.rotation.x = -Math.PI / 2;
 
+    const angle = Math.atan2(velocity.x, velocity.y);
+    this.lineMesh.rotation.z = angle;
+
+    this.lineMesh.position.set(position.x * spacing, 0.1, position.y * spacing);
+    this.scene.add(this.lineMesh);
     if (modelSource) {
       const model = modelSource.clone();
       model.visible = true;
@@ -43,6 +62,7 @@ export default class Projectile extends DamageObject {
           child.material.emissive = new THREE.Color(0xff4400);
           child.material.emissiveIntensity = 2;
         }
+        this.projectileModel = model;
       });
     } else console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     this.fireSound = new Audio("../../public/assets/sounds/fire.wav");
@@ -51,21 +71,39 @@ export default class Projectile extends DamageObject {
   }
 
   update(cible, deltaTime) {
-    //if (!deltaTime) deltaTime = 16;
-    //const dt = deltaTime && deltaTime > 0 ? deltaTime : 16.6;
+    this.timer += deltaTime;
 
-    this.position.x += this.velocity.x * 1; //(dt / 16.6);
-    this.position.y += this.velocity.y * 1; //(dt / 16.6);
+    if (this.timer < this.warmUpDuration) {
+      // PHASE DE VISÉE : La ligne clignote doucement
+      this.lineMaterial.opacity = 0.1 + Math.sin(this.timer * 0.02) * 0.1;
+    } else {
+      // PHASE DE VOL
+      if (!this.isFlying) {
+        this.isFlying = true;
+        this.projectileModel.visible = true; // On montre la boule de feu
+        this.fireSound.play();
 
-    if (this.mesh) {
-      this.mesh.position.set(
-        this.position.x * this.spacing,
-        1.5,
-        this.position.y * this.spacing,
-      );
+        // On supprime la ligne de visée
+        if (this.lineMesh) {
+          this.scene.remove(this.lineMesh);
+          this.lineMesh.geometry.dispose();
+          this.lineMaterial.dispose();
+        }
+      }
 
-      this.mesh.rotation.x += 0.1;
-      this.mesh.rotation.z += 0.1;
+      // Déplacement réel
+      this.position.x += this.velocity.x;
+      this.position.y += this.velocity.y;
+
+      if (this.mesh) {
+        this.mesh.position.set(
+          this.position.x * this.spacing,
+          1.5,
+          this.position.y * this.spacing,
+        );
+        this.mesh.rotation.x += 0.1;
+        this.mesh.rotation.z += 0.1;
+      }
     }
   }
 
