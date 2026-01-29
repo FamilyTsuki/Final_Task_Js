@@ -35,7 +35,7 @@ export default class Projectile extends DamageObject {
           child.material.emissiveIntensity = 5;
         }
       });
-      model.scale.set(0.5, 0.5, 0.5);
+      model.scale.set(0.9, 0.9, 0.9);
       this.mesh.add(model);
       model.traverse((child) => {
         if (child.isMesh) {

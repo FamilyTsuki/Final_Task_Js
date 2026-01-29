@@ -58,7 +58,7 @@ export default class Game {
       100,
       100,
       { x: 0, y: 0, z: 5 },
-      { width: 0.8, height: 0.8 },
+      { width: 0.45, height: 0.45 },
       scene,
       fireballGltf.scene,
     );

@@ -54,6 +54,7 @@ export default class Player extends Actor {
 
       this.mesh.add(this.playerModel);
     });
+    this.elVignette = document.getElementById("damage-vignette");
   }
 
   get wordSpells() {
@@ -129,6 +130,13 @@ export default class Player extends Actor {
   damage(nb) {
     this.hp -= nb;
     this.damageSound.play();
+    if (this.elVignette) {
+      this.elVignette.classList.add("flash-red");
+
+      setTimeout(() => {
+        this.elVignette.classList.remove("flash-red");
+      }, 500);
+    }
   }
   handleKeyPress(key, findClosestEnemy) {
     if (key.length === 1 && key.match(/[a-z]/i)) {

@@ -16,7 +16,7 @@ export default class Boss extends Actor {
   ) {
     super(name, hp, hp, rawPosition, position, size);
     this.stateTimer = 0;
-    this.attackInterval = 1000;
+    this.attackInterval = 1400;
     this.scene = scene;
     this.fireballModel = fireballModel;
     this.totalTime = 0;
@@ -43,10 +43,37 @@ export default class Boss extends Actor {
       this.scene.add(this.mesh);
       this.mesh.scale.set(this.size.width, this.size.height, this.size.width);
     }
+    this.isEmerging = true;
+    this.emergeProgress = 0;
+
+    this.mesh.position.y = -10;
+    this.mesh.scale.set(0, 0, 0);
   }
   update(deltaTime, player, projectiles, bonks) {
     if (this.hp <= 0) return;
+    if (this.isEmerging) {
+      this.emergeProgress += deltaTime * 0.0005;
 
+      if (this.emergeProgress < 1) {
+        const t = this.emergeProgress;
+        const smoothProgress = t * t * (3 - 2 * t);
+
+        this.mesh.position.y = -10 * (1 - smoothProgress);
+
+        const s_w = this.size.width * smoothProgress;
+        const s_h = this.size.height * smoothProgress;
+        this.mesh.scale.set(s_w, s_h, s_w);
+
+        if (window.startShake) window.startShake(0.3);
+
+        this.mesh.updateMatrixWorld(true);
+        return;
+      } else {
+        this.isEmerging = false;
+        this.mesh.position.y = 0;
+        this.mesh.scale.set(this.size.width, this.size.height, this.size.width);
+      }
+    }
     const spacing = 3.2;
     this.totalTime += deltaTime * 0.001;
 
@@ -120,7 +147,7 @@ export default class Boss extends Actor {
       projectiles.push(
         new Projectile(
           { x: this.rawPosition.x, y: this.rawPosition.y },
-          { width: 0.5, height: 0.5 },
+          { width: 0.4, height: 0.4 },
           10,
           velocity,
           this.scene,

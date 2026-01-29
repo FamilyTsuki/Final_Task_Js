@@ -218,3 +218,23 @@ html {
 .hidden {
   display: none !important;
 }
+#damage-vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    circle,
+    rgba(255, 0, 0, 0) 60%,
+    rgba(255, 0, 0, 0.6) 100%
+  );
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.flash-red {
+  opacity: 1 !important;
+}

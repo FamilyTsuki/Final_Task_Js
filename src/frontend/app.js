@@ -20,8 +20,9 @@ let score = 0,
 let projectiles = [],
   bonks = [];
 let TLoop, SLoop;
+let music;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
-
+let isGameOver = false;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -73,7 +74,7 @@ const init = async () => {
   canvas = document.getElementById("game-canvas");
   if (!canvas) return;
 
-  const music = new Audio("../public/assets/sounds/music.mp3");
+  music = new Audio("../public/assets/sounds/music.mp3");
   music.volume = 0.5;
   music.loop = true;
 
@@ -141,6 +142,7 @@ const init = async () => {
 };
 
 const gameLoop = () => {
+  if (isGameOver) return;
   requestAnimationFrame(gameLoop);
   if (!renderer || !myGame.player) return;
 
@@ -182,7 +184,7 @@ const gameLoop = () => {
         }
       } else if (p.team === "boss") {
         if (myGame.player.checkCollision(p)) {
-          myGame.player.hp -= p.damage;
+          myGame.player.damage(p.damage);
           p.isDead = true;
           p.die();
           if (window.startShake) window.startShake(0.5);
@@ -218,6 +220,7 @@ const gameLoop = () => {
   projectiles = projectiles.filter((p) => !p.isDead);
 
   if (myGame.player.hp <= 0) {
+    isGameOver = true;
     clearInterval(TLoop);
     clearInterval(SLoop);
     elGameScreen?.classList.add("hidden");
@@ -225,6 +228,9 @@ const gameLoop = () => {
 
     document.getElementById("final-time").textContent = formatTime(time);
     document.getElementById("final-score").textContent = score;
+    music.pause();
+    const deathSound = new Audio("../public/assets/sounds/game_over.wav");
+    deathSound.play();
   }
 };
 
@@ -255,6 +261,7 @@ const setupEventListeners = () => {
     ?.addEventListener("click", () => location.reload());
 
   window.addEventListener("keydown", (e) => {
+    if (isGameOver) return;
     const keyName = e.key.toUpperCase();
     const keyTile = myGame.keyboard.find(keyName);
     if (keyTile) keyTile.isPressed = true;
