@@ -35,7 +35,7 @@ let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
 const SPAWN_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 30000;
+const BOSS_SPAWN_DELAY = 45000;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -64,14 +64,6 @@ const manageEnemiesLogic = (deltaTime) => {
 
   //   lastSpawnTime = gameTimer;
   // }
-
-  if (!bossIsPresent && gameTimer >= BOSS_SPAWN_DELAY) {
-    rire.play();
-    setTimeout(() => {
-      bossIsPresent = true;
-      spawnBoss();
-    }, 4000);
-  }
 };
 const displayHistory = () => {
   const history = myStorage.getHistory();
@@ -125,6 +117,7 @@ const updateCamera = () => {
 const spawnBoss = async () => {
   boss_alive += 1;
   if (myGame) {
+    rire.play();
     await myGame.spawnBoss();
     music.pause();
     music.currentTime = 0;
@@ -202,6 +195,16 @@ const init = async () => {
       score += 10;
       if (elScore) elScore.textContent = score;
     }, 1000);
+
+    spawnBosslopp = setInterval(() => {
+      if (!bossIsPresent) {
+        rire.play();
+        bossIsPresent = true;
+        setTimeout(async () => {
+          await spawnBoss();
+        }, 4000);
+      }
+    }, BOSS_SPAWN_DELAY);
 
     // const WLoop = setInterval(() => {
     //   myGame.spawnWave(5);
@@ -388,9 +391,9 @@ const setupEventListeners = () => {
     if (myGame.player) {
       const target = myGame.keyboard.find(keyName);
 
-      myGame.enemies.updatePath(target.key, myGame.keyboard);
-
       if (target) {
+        myGame.enemies.updatePath(target.key, myGame.keyboard);
+
         myGame.player.move({
           x: target.rawPosition.x,
           y: target.rawPosition.y,
