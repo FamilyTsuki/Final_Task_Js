@@ -55,14 +55,14 @@ const manageEnemiesLogic = (deltaTime) => {
 
   gameTimer += deltaTime;
 
-  if (!bossIsPresent && gameTimer - lastSpawnTime > SPAWN_INTERVAL) {
-    const randomTile =
-      KEYBOARD_LAYOUT[Math.floor(Math.random() * KEYBOARD_LAYOUT.length)];
+  //TODO add random enemy
+  // if (!bossIsPresent && gameTimer - lastSpawnTime > SPAWN_INTERVAL) {
+  //   const randomKey = ;
 
-    myGame.enemies.spawnAt(randomTile.x, randomTile.y, scene);
+  //   myGame.enemies.spawnAt(randomTile.x, randomTile.y, scene);
 
-    lastSpawnTime = gameTimer;
-  }
+  //   lastSpawnTime = gameTimer;
+  // }
 
   if (!bossIsPresent && gameTimer >= BOSS_SPAWN_DELAY) {
     rire.play();
@@ -170,7 +170,7 @@ const init = async () => {
 
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
   await myGame.spawnBoss();
-  myGame.spawnAt(3, 3);
+  myGame.spawnAt("P");
   myGame.enemies.updatePath("P", myGame.keyboard);
 
   const listElement = document.getElementById("spell-list");
@@ -206,15 +206,8 @@ const init = async () => {
     // }, 60000);
 
     const EMLoop = setInterval(() => {
-      if (myGame && myGame.player && myGame.enemies) {
-        // 1. On récupère la touche actuelle du joueur
-        // (Tu as probablement une propriété .actualKey sur ton Player)
-        const playerKey = myGame.player.actualKey || "A";
-
-        // 2. On demande à la classe Enemies de calculer le chemin
-        // updatePath va appeler findBestPath en interne avec les bons arguments
-        myGame.enemies.updatePath(playerKey, myGame.keyboard);
-      }
+      if (!myGame) throw new Error("No Game instance");
+      myGame.moveEnemies();
     }, 1000);
 
     gameLoop();
@@ -386,7 +379,8 @@ const setupEventListeners = () => {
     if (myGame.player) {
       const target = myGame.keyboard.find(keyName);
 
-      // myGame.enemies.updatePath(target);
+      console.log(target.key);
+      myGame.enemies.updatePath(target.key, myGame.keyboard);
 
       if (target) {
         myGame.player.move({
