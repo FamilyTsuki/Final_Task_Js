@@ -266,6 +266,7 @@ const gameLoop = () => {
     p.update(myGame.player, deltaTime);
 
     if (!p.isDead) {
+      console.log(myGame.projectiles);
       if (p.team === "player") {
         if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
           if (myGame.enemies.boss.checkCollision(p)) {
@@ -278,8 +279,11 @@ const gameLoop = () => {
         } else {
           myGame.enemies.container.forEach((enemi) => {
             if (enemi.checkCollision(p)) {
+              console.log("ok");
+              console.log(myGame.projectiles);
+              console.log(enemi);
               enemi.takeDamage(p.damage);
-              p.die;
+              p.die();
             }
           });
         }

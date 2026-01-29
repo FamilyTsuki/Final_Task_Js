@@ -59,11 +59,13 @@ export default class Actor extends GameObject {
   }
   move() {}
   checkCollision(other) {
-    return (
+    const collision =
       this.position.x < other.position.x + other.size.width &&
       this.position.x + this.size.width > other.position.x &&
       this.position.y < other.position.y + other.size.height &&
-      this.position.y + this.size.height > other.position.y
-    );
+      this.position.y + this.size.height > other.position.y;
+
+    if (collision) console.log("CONTACT DETECTÉ !");
+    return collision;
   }
 }

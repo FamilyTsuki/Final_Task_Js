@@ -26,8 +26,8 @@ export default class ProjectileLuncher extends Spell {
       throw new Error("No target !");
     }
 
-    const projectileSpeed = 1;
-    const projectileSize = { width: 80, height: 80 };
+    const projectileSpeed = 0.2;
+    const projectileSize = { width: 0.4, height: 0.4 };
 
     const dx = target.x - player.x;
     const dy = target.y - player.y;
@@ -38,11 +38,11 @@ export default class ProjectileLuncher extends Spell {
       y: (dy / distance) * projectileSpeed,
     };
 
-    const spacing = 3.2;
     const startPosition = {
-      x: (player.x + player.size.width / 2) * spacing,
-      y: (player.y + player.size.height / 2) * spacing,
+      x: player.x,
+      y: player.y,
     };
+
     return new Projectile(
       startPosition,
       projectileSize,
@@ -50,7 +50,7 @@ export default class ProjectileLuncher extends Spell {
       velocity,
       scene,
       "player",
-      1.0,
+      3.2,
       this.#projectileModel,
     );
   }

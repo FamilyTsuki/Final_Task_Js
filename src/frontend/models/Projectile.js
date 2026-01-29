@@ -74,6 +74,21 @@ export default class Projectile extends DamageObject {
     this.fireSound = new Audio("../../public/assets/sounds/fire.wav");
     this.fireSound.volume = 0.5;
     this.fireSound.play();
+    // À la fin de ton constructeur Projectile.js
+    if (this.mesh) {
+      const hitBoxGeo = new THREE.BoxGeometry(
+        this.size.width * this.spacing,
+        this.size.height * this.spacing,
+        this.size.height * this.spacing,
+      );
+      const hitBoxMat = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: true,
+      });
+
+      this.debugBox = new THREE.Mesh(hitBoxGeo, hitBoxMat);
+      this.mesh.add(this.debugBox);
+    }
   }
 
   update(cible, deltaTime) {
@@ -93,10 +108,10 @@ export default class Projectile extends DamageObject {
             this.lineMaterial.dispose();
           }
         }
-
+        console.error(this.position);
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
-
+        console.error(this.position);
         if (this.mesh) {
           this.mesh.position.set(
             this.position.x * this.spacing,
@@ -113,7 +128,8 @@ export default class Projectile extends DamageObject {
         this.projectileModel.visible = true;
         this.fireSound.play();
       }
-
+      console.error(this);
+      console.error(this.position);
       this.position.x += this.velocity.x;
       this.position.y += this.velocity.y;
 
