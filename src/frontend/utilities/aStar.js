@@ -6,7 +6,6 @@
 @param {String} startKey
 @param {String} goalKey
 */
-
 export default function findBestPath(startKey, goalKey, grid) {
   let open = [];
   const close = [];
@@ -52,6 +51,10 @@ export default function findBestPath(startKey, goalKey, grid) {
   return findPath(current);
 }
 
+/**
+ *
+ * @param {Array} open
+ */
 function findLowestCost(open) {
   if (open.length <= 0) {
     throw new Error("Open is empty !");
@@ -68,10 +71,11 @@ function findLowestCost(open) {
   return lowestCost;
 }
 
-/*
-current = NodeAStar
-path = [String (key), ...]
-*/
+/**
+ *
+ * @param {NodeAStar} current
+ * @param {Array} path = [String, ...]
+ */
 function findPath(current, path = []) {
   if (!current) {
     return path.reverse();
@@ -81,6 +85,11 @@ function findPath(current, path = []) {
   return findPath(current.parent, path);
 }
 
+/**
+ *
+ * @param {NodeAStar} node
+ * @param {NodeAStar} goalNode
+ */
 function findCost(node, goalNode) {
   if (node.parent) {
     node.cost.g = node.parent.cost.g + 1;
