@@ -4,11 +4,23 @@ import * as THREE from "three";
 export default class HealSpell extends Spell {
   #healAmount;
 
+  /**
+   *
+   * @param {String} word
+   * @param {Number} healAmount
+   * @param {Number} range
+   */
   constructor(word, healAmount, range = Infinity) {
     super(word, healAmount, range);
     this.#healAmount = healAmount;
   }
 
+  /**
+   *
+   * @param {Enemy} closestEnemy
+   * @param {Player} player
+   * @param {Scene} scene
+   */
   effect(closestEnemy, player, scene) {
     if (player) {
       if (player.hp < 100) {
@@ -19,14 +31,19 @@ export default class HealSpell extends Spell {
         const heal = new Audio("../../../../public/assets/sounds/heal.wav");
         heal.volume = 0.5;
         heal.play();
-        this.triggerVisualEffect(player, scene);
+        this.triggerVisualEffect(player.position, scene);
       }
       return true;
     }
     return false;
   }
 
-  triggerVisualEffect(player, scene) {
+  /**
+   *
+   * @param {Object} playerPos = {x: Number, y: Number}
+   * @param {Scene} scene
+   */
+  triggerVisualEffect(playerPos, scene) {
     const geometry = new THREE.SphereGeometry(1.5, 32, 32);
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
@@ -38,11 +55,7 @@ export default class HealSpell extends Spell {
     const sphere = new THREE.Mesh(geometry, material);
 
     const spacing = 3.2;
-    sphere.position.set(
-      player.position.x * spacing,
-      1.5,
-      player.position.y * spacing,
-    );
+    sphere.position.set(playerPos.x * spacing, 1.5, playerPos.y * spacing);
 
     scene.add(sphere);
 

@@ -2,7 +2,6 @@ import Spell from "../Spell";
 import * as THREE from "three";
 
 export default class FireCircle extends Spell {
-  #radius;
   #duration;
   #scene;
   #playerRef;
@@ -12,10 +11,18 @@ export default class FireCircle extends Spell {
   #timer;
   #isActive;
 
-  constructor(word, damage, radius, duration, scene, playerRef, enemiesRef) {
-    super(word, damage, radius);
+  /**
+   *
+   * @param {String} word
+   * @param {Number} damage
+   * @param {Number} duration
+   * @param {Scene} scene
+   * @param {Player} playerRef
+   * @param {Enemy} enemiesRef
+   */
+  constructor(word, damage, range, duration, scene, playerRef, enemiesRef) {
+    super(word, damage, range);
 
-    this.#radius = radius;
     this.#duration = duration;
     this.#scene = scene;
     this.#playerRef = playerRef;
@@ -27,15 +34,15 @@ export default class FireCircle extends Spell {
     this.#mesh = null;
   }
 
-  effect(closestEnemy) {
+  effect() {
     if (this.#isActive) return false;
 
     this.#isActive = true;
     this.#timer = 0;
 
     const geometry = new THREE.CylinderGeometry(
-      this.#radius * 3.2,
-      this.#radius * 3.2,
+      this.range * 3.2,
+      this.range * 3.2,
       0.5,
       32,
     );
@@ -59,6 +66,10 @@ export default class FireCircle extends Spell {
     return true;
   }
 
+  /**
+   *
+   * @param {Number} deltaTime
+   */
   update(deltaTime) {
     if (!this.#isActive || !this.#mesh) return;
 
@@ -83,7 +94,7 @@ export default class FireCircle extends Spell {
           (this.#mesh.position.z - enemy.mesh.position.z) ** 2,
       );
 
-      if (dist <= this.#radius * 3.2 && !enemy.isBurning) {
+      if (dist <= this.range * 3.2 && !enemy.isBurning) {
         enemy.damage(this.damage);
         enemy.isBurning = true;
         setTimeout(() => (enemy.isBurning = false), 200);
