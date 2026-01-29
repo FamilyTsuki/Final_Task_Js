@@ -74,16 +74,13 @@ export default class Projectile extends DamageObject {
     this.timer += deltaTime;
 
     if (this.timer < this.warmUpDuration) {
-      // PHASE DE VISÉE : La ligne clignote doucement
       this.lineMaterial.opacity = 0.1 + Math.sin(this.timer * 0.02) * 0.1;
     } else {
-      // PHASE DE VOL
       if (!this.isFlying) {
         this.isFlying = true;
-        this.projectileModel.visible = true; // On montre la boule de feu
+        this.projectileModel.visible = true;
         this.fireSound.play();
 
-        // On supprime la ligne de visée
         if (this.lineMesh) {
           this.scene.remove(this.lineMesh);
           this.lineMesh.geometry.dispose();
@@ -91,7 +88,6 @@ export default class Projectile extends DamageObject {
         }
       }
 
-      // Déplacement réel
       this.position.x += this.velocity.x;
       this.position.y += this.velocity.y;
 
