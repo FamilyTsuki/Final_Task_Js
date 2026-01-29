@@ -35,7 +35,7 @@ let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
 const SPAWN_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 45000;
+const BOSS_SPAWN_DELAY = 4500;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -344,10 +344,10 @@ const gameLoop = () => {
     console.table(myStorage.getHistory());
   }
   if (myGame.enemies.boss) {
-    if (myGame.enemies.boss.isDead && boss_alive > 0) {
+    if (myGame.enemies.boss.isDead && bossIsPresent) {
       myGame.enemies.boss.die();
       score += 5000;
-      boss_alive -= 1;
+      bossIsPresent = false;
     }
   }
 };
