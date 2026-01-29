@@ -65,7 +65,6 @@ export default class Actor extends GameObject {
       this.position.y < other.position.y + other.size.height &&
       this.position.y + this.size.height > other.position.y;
 
-    if (collision) console.log("CONTACT DETECTÉ !");
     return collision;
   }
 }

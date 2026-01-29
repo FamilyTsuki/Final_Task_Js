@@ -35,7 +35,7 @@ let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
 const SPAWN_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 4500;
+const BOSS_SPAWN_DELAY = 45000;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -196,7 +196,7 @@ const init = async () => {
       if (elScore) elScore.textContent = score;
     }, 1000);
 
-    spawnBosslopp = setInterval(() => {
+    setTimeout(() => {
       if (!bossIsPresent) {
         rire.play();
         bossIsPresent = true;
@@ -266,7 +266,6 @@ const gameLoop = () => {
     p.update(myGame.player, deltaTime);
 
     if (!p.isDead) {
-      console.log(myGame.projectiles);
       if (p.team === "player") {
         if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
           if (myGame.enemies.boss.checkCollision(p)) {
@@ -352,6 +351,14 @@ const gameLoop = () => {
       myGame.enemies.boss.die();
       score += 5000;
       bossIsPresent = false;
+
+      setTimeout(() => {
+        rire.play();
+        bossIsPresent = true;
+        setTimeout(async () => {
+          await spawnBoss();
+        }, 4000);
+      }, BOSS_SPAWN_DELAY);
     }
   }
 };
@@ -402,7 +409,7 @@ const setupEventListeners = () => {
 
       let word = myGame.player.handleKeyPress(e.key);
 
-      if (e.key === "ArrowUp") word = "sum";
+      if (e.key === "ArrowUp") word = "fire";
 
       if (word) {
         const closestEnemy = myGame.enemies.findClosestEnemy(

@@ -4,8 +4,11 @@ import * as THREE from "three";
 export default class FireCircle extends Spell {
   #duration;
   #scene;
-  #playerRef;
-  #enemiesRef;
+  #player;
+  #enemies;
+
+  #loopId;
+  #attackSpeed;
 
   #mesh;
   #timer;
@@ -17,16 +20,18 @@ export default class FireCircle extends Spell {
    * @param {Number} damage
    * @param {Number} duration
    * @param {Scene} scene
-   * @param {Player} playerRef
-   * @param {Enemy} enemiesRef
+   * @param {Player} player
+   * @param {Enemies} enemies
    */
-  constructor(word, damage, range, duration, scene, playerRef, enemiesRef) {
+  constructor(word, damage, range, duration, scene, player, enemies) {
     super(word, damage, range);
 
     this.#duration = duration;
     this.#scene = scene;
-    this.#playerRef = playerRef;
-    this.#enemiesRef = enemiesRef;
+    this.#player = player;
+    this.#enemies = enemies;
+
+    this.#attackSpeed = 500;
 
     this.#timer = 0;
     this.#isActive = false;
@@ -56,13 +61,25 @@ export default class FireCircle extends Spell {
     this.#mesh = new THREE.Mesh(geometry, material);
 
     const playerPosWorld = {
-      x: this.#playerRef.position.x * 3.2,
-      y: this.#playerRef.position.y * 3.2,
+      x: this.#player.position.x * 3.2,
+      y: this.#player.position.y * 3.2,
     };
     this.#mesh.position.set(playerPosWorld.x, 0.1, playerPosWorld.y);
     this.#scene.add(this.#mesh);
 
-    console.log(`Cercle de Feu activé autour du joueur !`);
+    this.#loopId = setInterval(() => {
+      this.#enemies.container.forEach((enemy) => {
+        const dist = Math.sqrt(
+          (this.#mesh.position.x - enemy.mesh.position.x) ** 2 +
+            (this.#mesh.position.z - enemy.mesh.position.z) ** 2,
+        );
+
+        if (dist <= this.range * 3.2 && !enemy.isBurning) {
+          enemy.hp -= this.damage;
+        }
+      });
+    }, this.#attackSpeed);
+
     return true;
   }
 
@@ -71,50 +88,37 @@ export default class FireCircle extends Spell {
    * @param {Number} deltaTime
    */
   update(deltaTime) {
-    if (!this.#isActive || !this.#mesh) return;
+    if (this.#isActive && this.#mesh) {
+      this.#timer += deltaTime;
 
-    this.#timer += deltaTime;
+      const playerPosWorld = {
+        x: this.#player.position.x * 3.2,
+        y: this.#player.position.y * 3.2,
+      };
+      this.#mesh.position.set(playerPosWorld.x, 0.1, playerPosWorld.y);
 
-    const playerPosWorld = {
-      x: this.#playerRef.position.x * 3.2,
-      y: this.#playerRef.position.y * 3.2,
-    };
-    this.#mesh.position.set(playerPosWorld.x, 0.1, playerPosWorld.y);
-
-    this.#mesh.material.opacity = 0.5 + Math.sin(this.#timer * 0.01) * 0.2;
-    this.#mesh.material.color.setHSL(
-      Math.sin(this.#timer * 0.005) * 0.1 + 0.08,
-      1,
-      0.6 + Math.sin(this.#timer * 0.003) * 0.1,
-    );
-
-    this.#enemiesRef.container.forEach((enemy) => {
-      const dist = Math.sqrt(
-        (this.#mesh.position.x - enemy.mesh.position.x) ** 2 +
-          (this.#mesh.position.z - enemy.mesh.position.z) ** 2,
+      this.#mesh.material.opacity = 0.5 + Math.sin(this.#timer * 0.01) * 0.2;
+      this.#mesh.material.color.setHSL(
+        Math.sin(this.#timer * 0.005) * 0.1 + 0.08,
+        1,
+        0.6 + Math.sin(this.#timer * 0.003) * 0.1,
       );
 
-      if (dist <= this.range * 3.2 && !enemy.isBurning) {
-        enemy.damage(this.damage);
-        enemy.isBurning = true;
-        setTimeout(() => (enemy.isBurning = false), 200);
-        console.log(`Ennemi ${enemy.name} brûlé par le Cercle de Feu !`);
+      if (this.#timer >= this.#duration) {
+        this.desactivate();
       }
-    });
-
-    if (this.#timer >= this.#duration) {
-      this.deactivate();
     }
   }
 
-  deactivate() {
+  desactivate() {
     if (this.#mesh) {
       this.#scene.remove(this.#mesh);
       this.#mesh.geometry.dispose();
       this.#mesh.material.dispose();
       this.#mesh = null;
     }
+
+    clearInterval(this.#loopId);
     this.#isActive = false;
-    console.log("Cercle de Feu désactivé.");
   }
 }

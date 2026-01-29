@@ -70,7 +70,8 @@ export default class Projectile extends DamageObject {
         }
         this.projectileModel = model;
       });
-    } else console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    }
+
     this.fireSound = new Audio("../../public/assets/sounds/fire.wav");
     this.fireSound.volume = 0.5;
     this.fireSound.play();
@@ -108,10 +109,8 @@ export default class Projectile extends DamageObject {
             this.lineMaterial.dispose();
           }
         }
-        console.error(this.position);
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
-        console.error(this.position);
         if (this.mesh) {
           this.mesh.position.set(
             this.position.x * this.spacing,
@@ -128,8 +127,6 @@ export default class Projectile extends DamageObject {
         this.projectileModel.visible = true;
         this.fireSound.play();
       }
-      console.error(this);
-      console.error(this.position);
       this.position.x += this.velocity.x;
       this.position.y += this.velocity.y;
 

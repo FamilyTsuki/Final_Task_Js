@@ -1,6 +1,4 @@
 import Actor from "../Actor.js";
-import Projectile from "../Projectile.js";
-import Spell from "../Spell.js";
 import Undefined from "../spells/Undefined.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -31,10 +29,9 @@ export default class Player extends Actor {
 
     this.#wordSpells = [
       new Undefined(),
-      new ProjectileLuncher("fire", 2, 10000, fireballModel),
+      new FireCircle("fire", 10, 2, 3000, scene, this, enemiesManager),
       new ProjectileLuncher("nuke", 10000, 10000, fireballModel), //! debug only
       new HealSpell("heal", 30),
-      new FireCircle("circle", 15, 2, 3000, scene, this, enemiesManager),
     ];
 
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
