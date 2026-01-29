@@ -63,12 +63,12 @@ export default class Game {
       fireballGltf.scene,
     );
 
-    return new Game(
+    const enemies = await Enemies.init(
+      keyboardLayout,
       scene,
-      player,
-      await Enemies.init(keyboard.keyboardLayout, scene, fireballGltf.scene),
-      keyboard,
       fireballGltf.scene,
     );
+
+    return new Game(scene, player, enemies, keyboard, fireballGltf.scene);
   }
 }

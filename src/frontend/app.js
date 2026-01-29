@@ -22,6 +22,8 @@ let projectiles = [],
   bonks = [];
 let TLoop, SLoop;
 let music;
+let musicBoss;
+let spawnBossSound;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 let isGameOver = false;
 const loader = new GLTFLoader();
@@ -88,6 +90,20 @@ const updateCamera = () => {
   camera.updateProjectionMatrix();
   camera.lookAt(16, 2, 2);
 };
+const spawnBoss = () => {
+  if (myGame.enemies) {
+    myGame.enemies.spawnBoss();
+
+    music.pause();
+    music.currentTime = 0;
+
+    spawnBossSound.play();
+
+    setTimeout(() => {
+      musicBoss.play();
+    }, 3000);
+  }
+};
 const init = async () => {
   myStorage = new Storage();
   canvas = document.getElementById("game-canvas");
@@ -95,6 +111,12 @@ const init = async () => {
   music = new Audio("../public/assets/sounds/music.mp3");
   music.volume = 0.5;
   music.loop = true;
+  musicBoss = new Audio("../public/assets/sounds/musicBoss.m4a");
+  musicBoss.volume = 0.5;
+  musicBoss.loop = true;
+  spawnBossSound = new Audio("../public/assets/sounds/spawnBoss.mp3");
+  spawnBossSound.volume = 0.5;
+  spawnBossSound.loop = true;
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
