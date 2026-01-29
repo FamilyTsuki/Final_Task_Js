@@ -23,9 +23,15 @@ let projectiles = [],
 let TLoop, SLoop;
 let music;
 let musicBoss;
+let rire;
 let spawnBossSound;
 let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 let isGameOver = false;
+let gameTimer = 0;
+let lastSpawnTime = 0;
+let bossIsPresent = false;
+const SPAWN_INTERVAL = 3000;
+const BOSS_SPAWN_DELAY = 60000;
 const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
@@ -40,6 +46,28 @@ const shakeDecay = 0.9;
 
 window.startShake = function (intensity) {
   shakeIntensity = intensity;
+};
+const manageEnemiesLogic = (deltaTime) => {
+  if (isGameOver) return;
+
+  gameTimer += deltaTime;
+
+  if (!bossIsPresent && gameTimer - lastSpawnTime > SPAWN_INTERVAL) {
+    const randomTile =
+      KEYBOARD_LAYOUT[Math.floor(Math.random() * KEYBOARD_LAYOUT.length)];
+
+    myGame.enemies.spawnAt(randomTile.x, randomTile.y, minionModel);
+
+    lastSpawnTime = gameTimer;
+  }
+
+  if (!bossIsPresent && gameTimer >= BOSS_SPAWN_DELAY) {
+    rire.play();
+    setTimeout(() => {
+      bossIsPresent = true;
+      spawnBoss();
+    }, 4000);
+  }
 };
 const displayHistory = () => {
   const history = myStorage.getHistory();
@@ -114,6 +142,8 @@ const init = async () => {
   musicBoss = new Audio("../public/assets/sounds/musicBoss.m4a");
   musicBoss.volume = 0.5;
   musicBoss.loop = true;
+  rire = new Audio("../public/assets/sounds/rire.mp3");
+  rire.volume = 0.5;
   spawnBossSound = new Audio("../public/assets/sounds/spawnBoss.mp3");
   spawnBossSound.volume = 0.5;
   spawnBossSound.loop = true;
@@ -187,7 +217,7 @@ const gameLoop = () => {
   if (!renderer || !myGame.player) return;
 
   const deltaTime = 10;
-
+  //manageEnemiesLogic(deltaTime);
   myGame.player.update();
 
   if (myGame.player.mesh) {
