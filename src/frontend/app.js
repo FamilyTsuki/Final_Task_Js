@@ -4,6 +4,7 @@ import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
 import Projectile from "./models/Projectile.js";
+import findBestPath from "";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 const CONFIG = {
   projectile: {
@@ -166,6 +167,7 @@ const init = async () => {
   elGameOverScreen = document.getElementById("game-over-screen");
 
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
+  await myGame.spawnBoss();
   myGame.spawnAt(3, 3);
   myGame.enemies.updatePath("P", myGame.keyboard);
 
@@ -327,7 +329,7 @@ const gameLoop = () => {
     deathSound.play();
     console.table(myStorage.getHistory());
   }
-  if (myGame.enemies.boss && myGame.enemies.boss.hp <= 0 && boss_alive > 0) {
+  if (myGame.enemies.boss.isDead && boss_alive > 0) {
     myGame.enemies.boss.die();
     score += 5000;
     boss_alive -= 1;
