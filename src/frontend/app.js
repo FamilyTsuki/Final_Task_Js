@@ -13,6 +13,7 @@ const CONFIG = {
   },
 };
 
+let boss_alive = 1;
 let myGame;
 let myStorage;
 let canvas, ctx, renderer;
@@ -21,6 +22,7 @@ let score = 0,
 let projectiles = [],
   bonks = [];
 let TLoop, SLoop;
+let spawnBosslopp;
 let music;
 let musicBoss;
 let spawnBossSound;
@@ -93,7 +95,7 @@ const updateCamera = () => {
 const spawnBoss = () => {
   if (myGame.enemies) {
     myGame.enemies.spawnBoss();
-
+    boss_alive += 1;
     music.pause();
     music.currentTime = 0;
 
@@ -282,6 +284,11 @@ const gameLoop = () => {
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
     console.table(myStorage.getHistory());
+  }
+  if (myGame.enemies.boss.hp <=0 && boss_alive > 0) {
+    myGame.enemies.boss.die();
+    score += 5000;
+    boss_alive -= 1;
   }
 };
 
