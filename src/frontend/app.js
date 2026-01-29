@@ -261,23 +261,22 @@ const gameLoop = () => {
 
   myGame.projectiles.forEach((p) => {
     p.update(myGame.player, deltaTime);
-    console.log(myGame.enemies);
+
     if (!p.isDead) {
-      if (
-        p.team === "player" &&
-        myGame.enemies.boss &&
-        myGame.enemies.boss.hp > 0
-      ) {
-        if (myGame.enemies.boss.checkCollision(p)) {
-          myGame.enemies.boss.hp -= p.damage;
-          myGame.enemies.boss.updateHpBar();
-          p.isDead = true;
-          p.die();
-          if (window.startShake) window.startShake(0.2);
+      if (p.team === "player") {
+        if (myGame.enemies.boss && myGame.enemies.boss.hp > 0) {
+          if (myGame.enemies.boss.checkCollision(p)) {
+            myGame.enemies.boss.hp -= p.damage;
+            myGame.enemies.boss.updateHpBar();
+            p.isDead = true;
+            p.die();
+            if (window.startShake) window.startShake(0.2);
+          }
         } else {
           myGame.enemies.container.forEach((enemi) => {
             if (enemi.checkCollision(p)) {
               enemi.takeDamage(p.damage);
+              p.die;
             }
           });
         }
@@ -385,9 +384,9 @@ const setupEventListeners = () => {
     if (myGame.player) {
       const target = myGame.keyboard.find(keyName);
 
-      myGame.enemies.updatePath(target.key, myGame.keyboard);
-
       if (target) {
+        myGame.enemies.updatePath(target.key, myGame.keyboard);
+
         myGame.player.move({
           x: target.rawPosition.x,
           y: target.rawPosition.y,

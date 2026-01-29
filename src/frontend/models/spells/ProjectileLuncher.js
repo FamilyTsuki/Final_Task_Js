@@ -26,7 +26,7 @@ export default class ProjectileLuncher extends Spell {
       throw new Error("No target !");
     }
 
-    const projectileSpeed = 2;
+    const projectileSpeed = 1;
     const projectileSize = { width: 80, height: 80 };
 
     const dx = target.x - player.x;
