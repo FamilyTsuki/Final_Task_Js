@@ -36,6 +36,7 @@ export default class Enemies {
       for (let i = 0; i < key.neighbours.length; i++) {
         key.neighbours[i] = this.#aStarGrid.get(key.neighbours[i]);
       }
+      this.boss;
     }
   }
 
@@ -69,8 +70,9 @@ export default class Enemies {
         enemy.update();
       }
     }
-
-    this.#boss.update(10, playerPos, projectiles, bonks);
+    if (this.#boss) {
+      this.#boss.update(10, playerPos, projectiles, bonks);
+    }
   }
 
   move() {

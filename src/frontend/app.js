@@ -56,7 +56,7 @@ const manageEnemiesLogic = (deltaTime) => {
     const randomTile =
       KEYBOARD_LAYOUT[Math.floor(Math.random() * KEYBOARD_LAYOUT.length)];
 
-    myGame.enemies.spawnAt(randomTile.x, randomTile.y, minionModel);
+    myGame.enemies.spawnAt(randomTile.x, randomTile.y, scene);
 
     lastSpawnTime = gameTimer;
   }
@@ -168,7 +168,6 @@ const init = async () => {
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
   myGame.spawnAt(3, 3);
   myGame.enemies.updatePath("P", myGame.keyboard);
-  await myGame.spawnBoss();
 
   const listElement = document.getElementById("spell-list");
   if (listElement) {
@@ -230,7 +229,7 @@ const gameLoop = () => {
   if (!renderer || !myGame.player) return;
 
   const deltaTime = 10;
-  //manageEnemiesLogic(deltaTime);
+  manageEnemiesLogic(deltaTime);
   myGame.player.update();
 
   if (myGame.player.mesh) {
@@ -328,7 +327,7 @@ const gameLoop = () => {
     deathSound.play();
     console.table(myStorage.getHistory());
   }
-  if (myGame.enemies.boss.hp <= 0 && boss_alive > 0) {
+  if (myGame.enemies.boss && myGame.enemies.boss.hp <= 0 && boss_alive > 0) {
     myGame.enemies.boss.die();
     score += 5000;
     boss_alive -= 1;
