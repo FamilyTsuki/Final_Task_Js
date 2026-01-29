@@ -14,7 +14,7 @@ export default class Enemy extends Actor {
     hp = 100,
     hpMax = 100,
     model = undefined,
-    size = { width: 10 * 3.2, height: 10 * 3.2 },
+    size = { width: 1, height: 1 },
     id = crypto.randomUUID(),
   ) {
     super(id, hp, hpMax, position, position, size, model);
@@ -73,6 +73,30 @@ export default class Enemy extends Actor {
     this.hpSprite.position.y = 2.5;
 
     this.updateHpBar();
+    // À la fin de ton constructeur Enemy.js
+    if (this.mesh) {
+      const spacing = 3.2;
+      // On crée une boîte qui correspond à la taille de collision
+      // Note: width et height dans ton code correspondent souvent à X et Z en 3D
+      const hitBoxGeo = new THREE.BoxGeometry(
+        this.size.width * 0.1,
+        2,
+        this.size.height * 0.1,
+      );
+      const hitBoxMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.5,
+      });
+
+      this.debugBox = new THREE.Mesh(hitBoxGeo, hitBoxMat);
+      // On la place un peu au dessus du sol
+      this.debugBox.position.y = 1;
+
+      // On l'ajoute au mesh pour qu'elle suive l'ennemi
+      this.mesh.add(this.debugBox);
+    }
   }
 
   get isDead() {
