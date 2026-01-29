@@ -203,13 +203,22 @@ const gameLoop = () => {
 
     myGame.keyboard.update();
   }
-
+  /*
   if (shakeIntensity > 0.05) {
     camera.position.x += (Math.random() - 0.5) * shakeIntensity;
     camera.position.y += (Math.random() - 0.5) * shakeIntensity;
     shakeIntensity *= shakeDecay;
   } else {
     updateCamera();
+  }*/
+  updateCamera();
+
+  if (shakeIntensity > 0.05) {
+    camera.position.x += (Math.random() - 0.5) * shakeIntensity;
+    camera.position.y += (Math.random() - 0.5) * shakeIntensity;
+    camera.position.z += (Math.random() - 0.5) * shakeIntensity;
+
+    shakeIntensity *= shakeDecay;
   }
   if (myGame && myGame.keyboard) {
     myGame.keyboard.update();
