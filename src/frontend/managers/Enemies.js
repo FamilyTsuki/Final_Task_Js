@@ -59,22 +59,16 @@ export default class Enemies {
     this.#container = this.#container.filter((enemy) => !enemy.isDead);
   }
 
-  die() {
-    if (this.mesh && this.mesh.parent) {
-      this.mesh.parent.remove(this.mesh);
-      this.mesh.visible = false;
-    }
-  }
   /**
    *
    * @param {Object} playerPos = {x: Number, y: Number}
    * @param {Array} projectiles
    * @param {Array} bonks
    */
-  update(playerPos, projectiles, bonks) {
+  update(playerPos, projectiles, bonks, player) {
     for (const enemy of this.#container) {
       if (enemy !== this.#boss) {
-        enemy.update();
+        enemy.update(player);
       }
     }
     if (this.#boss) {

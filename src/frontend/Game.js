@@ -64,7 +64,12 @@ export default class Game {
 
   update() {
     this.#enemies.clearDead();
-    this.#enemies.update(this.#player.position, this.#projectiles, this.#bonks);
+    this.#enemies.update(
+      this.#player.position,
+      this.#projectiles,
+      this.#bonks,
+      this.#player,
+    );
   }
   moveEnemies() {
     this.#enemies.move();

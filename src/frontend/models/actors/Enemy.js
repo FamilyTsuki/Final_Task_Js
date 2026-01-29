@@ -91,7 +91,7 @@ export default class Enemy extends Actor {
     }
   }
 
-  update() {
+  update(player) {
     if (!this.#targetedPosition) return;
 
     const dx = this.#targetedPosition.x - this.position.x;
@@ -135,6 +135,17 @@ export default class Enemy extends Actor {
           this.totalJumpDist = 0;
         }
       }
+    }
+    if (this.checkCollision(player)) {
+      this.hp = -1;
+      player.damage(50);
+      this.die();
+    }
+  }
+  die() {
+    if (this.mesh && this.mesh.parent) {
+      this.mesh.parent.remove(this.mesh);
+      this.mesh.visible = false;
     }
   }
 }
