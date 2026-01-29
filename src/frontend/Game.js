@@ -58,17 +58,17 @@ export default class Game {
       100,
       100,
       { x: 0, y: 0, z: 5 },
-      { width: 0.45, height: 0.45 },
+      { width: 0.4, height: 0.4 },
       scene,
       fireballGltf.scene,
     );
 
-    const enemies = await Enemies.init(
-      keyboardLayout,
+    return new Game(
       scene,
+      player,
+      await Enemies.init(keyboard.keyboardLayout, scene, fireballGltf.scene),
+      keyboard,
       fireballGltf.scene,
     );
-
-    return new Game(scene, player, enemies, keyboard, fireballGltf.scene);
   }
 }
