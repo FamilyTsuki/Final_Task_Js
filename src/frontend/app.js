@@ -121,10 +121,10 @@ const updateCamera = () => {
   camera.updateProjectionMatrix();
   camera.lookAt(16, 2, 2);
 };
-const spawnBoss = () => {
+const spawnBoss = async () => {
   boss_alive += 1;
   if (myGame) {
-    myGame.spawnBoss();
+    await myGame.spawnBoss();
     music.pause();
     music.currentTime = 0;
 
@@ -169,7 +169,6 @@ const init = async () => {
   elGameOverScreen = document.getElementById("game-over-screen");
 
   myGame = await Game.init(scene, KEYBOARD_LAYOUT);
-  await myGame.spawnBoss();
   myGame.spawnAt("P");
   myGame.enemies.updatePath("P", myGame.keyboard);
 
@@ -332,15 +331,12 @@ const gameLoop = () => {
     deathSound.play();
     console.table(myStorage.getHistory());
   }
-  if (myGame.enemies.boss.isDead && boss_alive > 0) {
-    myGame.enemies.boss.die();
-    score += 5000;
-    boss_alive -= 1;
-  }
-  if (myGame.enemies.isDead && enemy_alive > 0) {
-    myGame.enemies.die();
-    score += 500;
-    enemy_alive -= 1;
+  if (myGame.enemies.boss) {
+    if (myGame.enemies.boss.isDead && boss_alive > 0) {
+      myGame.enemies.boss.die();
+      score += 5000;
+      boss_alive -= 1;
+    }
   }
 };
 
@@ -379,7 +375,6 @@ const setupEventListeners = () => {
     if (myGame.player) {
       const target = myGame.keyboard.find(keyName);
 
-      console.log(target.key);
       myGame.enemies.updatePath(target.key, myGame.keyboard);
 
       if (target) {

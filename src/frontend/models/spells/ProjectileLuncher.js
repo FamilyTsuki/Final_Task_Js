@@ -4,6 +4,12 @@ import Spell from "../Spell";
 export default class ProjectileLuncher extends Spell {
   #projectileModel;
 
+  /**
+   *
+   * @param {String} word
+   * @param {Number} damage
+   * @param {Number} range
+   */
   constructor(word, damage, range, projectileModel) {
     super(word, damage, range);
 
@@ -13,6 +19,7 @@ export default class ProjectileLuncher extends Spell {
   /**
    * @param {Object} target = { x: Number, y: Number }
    * @param {Player} player
+   * @param {Scene} scene
    */
   shootProjectile(target, player, scene) {
     if (!target) {
@@ -51,6 +58,7 @@ export default class ProjectileLuncher extends Spell {
   /**
     @param {Object} closestEnemy = { instance: Enemy, dist = Number }
     @param {Player} player
+    @param {Scene} scene
   */
   effect(closestEnemy, player, scene) {
     if (closestEnemy) {

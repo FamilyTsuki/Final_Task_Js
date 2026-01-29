@@ -5,7 +5,10 @@ export default class Undefined extends Spell {
     super("undefined", undefined, 100);
   }
 
-  //? closestEnemy = { instance: Enemy, dist = Number }
+  /**
+   *
+   * @param {Object} closestEnemy
+   */
   effect(closestEnemy) {
     if (closestEnemy) {
       if (closestEnemy.dist <= this.range) {
