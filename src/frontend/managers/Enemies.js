@@ -132,19 +132,25 @@ export default class Enemies {
     return false;
   }
 
-  spawnAt(key, scene) {
-    //TODO ajouter la mecanique de creation de l'enemi
+  spawnAt(keyObject, scene) {
+    if (!keyObject || !keyObject.rawPosition) {
+      console.error(
+        "Erreur: La touche fournie à spawnAt est invalide",
+        keyObject,
+      );
+      return;
+    }
+
     const enemy = new Enemy(
-      key.key,
+      keyObject.key,
       scene,
-      key.rawPosition,
+      keyObject.rawPosition,
       50,
       50,
       this.#enemyModel.clone(),
     );
 
     this.#container.push(enemy);
-
     return enemy;
   }
 

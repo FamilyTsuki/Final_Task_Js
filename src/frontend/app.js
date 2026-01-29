@@ -34,7 +34,7 @@ let isGameOver = false;
 let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
-const SPAWN_INTERVAL = 3000;
+const SPAWN_INTERVAL = 6000;
 const BOSS_SPAWN_DELAY = 45000;
 const loader = new GLTFLoader();
 
@@ -56,14 +56,41 @@ const manageEnemiesLogic = (deltaTime) => {
 
   gameTimer += deltaTime;
 
-  //TODO add random enemy
-  // if (!bossIsPresent && gameTimer - lastSpawnTime > SPAWN_INTERVAL) {
-  //   const randomKey = ;
+  // 1. SPAWN DES ENNEMIS RÉGULIERS
+  if (gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
+    // On récupère toutes les touches du clavier sauf celle du joueur
+    const availableTiles = myGame.keyboard.keyboardLayout.filter((tile) => {
+      const distToPlayer = Math.sqrt(
+        Math.pow(tile.x - myGame.player.x, 2) +
+          Math.pow(tile.y - myGame.player.y, 2),
+      );
+      // On ne spawn pas sur le joueur (distance > 1 case)
+      return distToPlayer > 1;
+    });
 
-  //   myGame.enemies.spawnAt(randomTile.x, randomTile.y, scene);
+    if (availableTiles.length > 0) {
+      // On choisit une touche au hasard
+      const randomTile =
+        availableTiles[Math.floor(Math.random() * availableTiles.length)];
 
-  //   lastSpawnTime = gameTimer;
-  // }
+      // IMPORTANT : On passe l'objet 'randomTile' entier,
+      // car Enemies.spawnAt a besoin de randomTile.rawPosition.x
+      myGame.enemies.spawnAt(randomTile, scene);
+    }
+
+    lastSpawnTime = gameTimer;
+  }
+
+  // 2. SPAWN DU BOSS
+  if (!bossIsPresent && gameTimer >= BOSS_SPAWN_DELAY) {
+    bossIsPresent = true;
+
+    if (rire) rire.play();
+
+    setTimeout(() => {
+      spawnBoss();
+    }, 4000);
+  }
 };
 const displayHistory = () => {
   const history = myStorage.getHistory();
@@ -196,16 +223,6 @@ const init = async () => {
       if (elScore) elScore.textContent = score;
     }, 1000);
 
-    setTimeout(() => {
-      if (!bossIsPresent) {
-        rire.play();
-        bossIsPresent = true;
-        setTimeout(async () => {
-          await spawnBoss();
-        }, 4000);
-      }
-    }, BOSS_SPAWN_DELAY);
-
     // const WLoop = setInterval(() => {
     //   myGame.spawnWave(5);
     // }, 60000);
@@ -299,8 +316,8 @@ const gameLoop = () => {
   if (myGame && myGame.keyboard) {
     myGame.keyboard.keyboardLayout.forEach((tile) => {
       const isPlayerOnTile =
-        Math.abs(myGame.player.position.x - tile.x) < 0.4 &&
-        Math.abs(myGame.player.position.y - tile.y) < 0.4;
+        Math.abs(myGame.player.position.x * 3.2 - tile.x) < 0.4 &&
+        Math.abs(myGame.player.position.y * 3.2 - tile.y) < 0.4;
 
       tile.isPressed = isPlayerOnTile;
     });
@@ -353,14 +370,6 @@ const gameLoop = () => {
       myGame.enemies.boss.die();
       score += 5000;
       bossIsPresent = false;
-
-      setTimeout(() => {
-        rire.play();
-        bossIsPresent = true;
-        setTimeout(async () => {
-          await spawnBoss();
-        }, 4000);
-      }, BOSS_SPAWN_DELAY);
     }
   }
 };
