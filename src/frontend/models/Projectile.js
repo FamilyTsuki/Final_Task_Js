@@ -27,23 +27,29 @@ export default class Projectile extends DamageObject {
     this.scene = scene;
     this.mesh = new THREE.Group();
     this.scene.add(this.mesh);
-    const lineLength = 10 * spacing;
-    const lineGeo = new THREE.PlaneGeometry(0.3 * spacing, lineLength);
-    lineGeo.translate(0, -lineLength / 2, 0);
-    this.lineMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
-      transparent: true,
-      opacity: 0.2,
-      side: THREE.DoubleSide,
-    });
-    this.lineMesh = new THREE.Mesh(lineGeo, this.lineMaterial);
-    this.lineMesh.rotation.x = -Math.PI / 2;
+    if (this.team !== "player") {
+      const lineLength = 10 * spacing;
+      const lineGeo = new THREE.PlaneGeometry(0.3 * spacing, lineLength);
+      lineGeo.translate(0, -lineLength / 2, 0);
+      this.lineMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.DoubleSide,
+      });
+      this.lineMesh = new THREE.Mesh(lineGeo, this.lineMaterial);
+      this.lineMesh.rotation.x = -Math.PI / 2;
 
-    const angle = Math.atan2(velocity.x, velocity.y);
-    this.lineMesh.rotation.z = angle;
+      const angle = Math.atan2(velocity.x, velocity.y);
+      this.lineMesh.rotation.z = angle;
 
-    this.lineMesh.position.set(position.x * spacing, 0.1, position.y * spacing);
-    this.scene.add(this.lineMesh);
+      this.lineMesh.position.set(
+        position.x * spacing,
+        0.1,
+        position.y * spacing,
+      );
+      this.scene.add(this.lineMesh);
+    }
     if (modelSource) {
       const model = modelSource.clone();
       model.visible = true;
@@ -72,20 +78,40 @@ export default class Projectile extends DamageObject {
 
   update(cible, deltaTime) {
     this.timer += deltaTime;
+    if (this.team !== "player") {
+      if (this.timer < this.warmUpDuration) {
+        this.lineMaterial.opacity = 0.1 + Math.sin(this.timer * 0.02) * 0.1;
+      } else {
+        if (!this.isFlying) {
+          this.isFlying = true;
+          this.projectileModel.visible = true;
+          this.fireSound.play();
 
-    if (this.timer < this.warmUpDuration) {
-      this.lineMaterial.opacity = 0.1 + Math.sin(this.timer * 0.02) * 0.1;
+          if (this.lineMesh) {
+            this.scene.remove(this.lineMesh);
+            this.lineMesh.geometry.dispose();
+            this.lineMaterial.dispose();
+          }
+        }
+
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+
+        if (this.mesh) {
+          this.mesh.position.set(
+            this.position.x * this.spacing,
+            1.5,
+            this.position.y * this.spacing,
+          );
+          this.mesh.rotation.x += 0.1;
+          this.mesh.rotation.z += 0.1;
+        }
+      }
     } else {
       if (!this.isFlying) {
         this.isFlying = true;
         this.projectileModel.visible = true;
         this.fireSound.play();
-
-        if (this.lineMesh) {
-          this.scene.remove(this.lineMesh);
-          this.lineMesh.geometry.dispose();
-          this.lineMaterial.dispose();
-        }
       }
 
       this.position.x += this.velocity.x;
