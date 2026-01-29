@@ -61,10 +61,10 @@ export default class Enemies {
 
   die() {
     if (this.mesh && this.mesh.parent) {
-        this.mesh.parent.remove(this.mesh);
-        this.mesh.visible = false;
-      }
-  } 
+      this.mesh.parent.remove(this.mesh);
+      this.mesh.visible = false;
+    }
+  }
   /**
    *
    * @param {Object} playerPos = {x: Number, y: Number}
@@ -91,6 +91,7 @@ export default class Enemies {
   /**
    *
    * @param {String} playerKey
+   * @param {Keyboard} keyboard
    */
   updatePath(playerKey, keyboard) {
     for (const enemy of this.#container) {
@@ -137,9 +138,16 @@ export default class Enemies {
     return false;
   }
 
-  spawnAt(x, y, scene) {
+  spawnAt(key, scene) {
     //TODO ajouter la mecanique de creation de l'enemi
-    const enemy = new Enemy(scene, { x, y }, 50, 50, this.#enemyModel.clone());
+    const enemy = new Enemy(
+      key.key,
+      scene,
+      key.rawPosition,
+      50,
+      50,
+      this.#enemyModel.clone(),
+    );
 
     this.#container.push(enemy);
 
@@ -172,27 +180,6 @@ export default class Enemies {
 
     //? set the mesh position
     this.boss.mesh.position.set(this.boss.x, 0, this.boss.y);
-  }
-  updatePath(playerKey, keyboard) {
-    for (const enemy of this.#container) {
-      if (enemy !== this.#boss && !enemy.isDead) {
-        // 1. Calculer le chemin de l'ennemi vers le joueur
-        const pathKeys = findBestPath(
-          enemy.actualKey, // Départ (ex: 'M')
-          playerKey, // Arrivée (ex: 'Q')
-          this.#aStarGrid, // La grille de noeuds
-        );
-
-        if (pathKeys) {
-          // 2. Transformer les clés ('Q', 'S') en données de touches réelles
-          // On récupère l'objet touche complet du clavier pour avoir .rawPosition
-          enemy.path = pathKeys.map((keyStr) => keyboard.find(keyStr));
-
-          // 3. Dire à l'ennemi de commencer à se diriger vers la première étape
-          enemy.move();
-        }
-      }
-    }
   }
 }
 
