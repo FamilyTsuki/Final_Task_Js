@@ -19,7 +19,7 @@ let isGameOver = false;
 let gameTimer = 0;
 let bossIsPresent = false;
 const WAVE_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 4500;
+const BOSS_SPAWN_DELAY = 45000;
 const initialCameraPos = { x: 16, y: 15, z: 15 };
 const initialLookAt = { x: 16, y: 2, z: 2 };
 const scene = new THREE.Scene();
@@ -330,7 +330,6 @@ const gameLoop = () => {
   if (myGame.enemies.bonus > 0) {
     myGame.score += myGame.enemies.bonus;
     myGame.enemies.bonus = 0;
-    console.log("score enemie atribué");
   }
 };
 

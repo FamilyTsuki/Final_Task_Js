@@ -61,7 +61,6 @@ export default class Enemies {
     for (const enemy of this.#container) {
       if (enemy.isDead) {
         this.bonus = 100;
-        console.log("Enemy dead, bonus", this.bonus);
       }
     }
 
