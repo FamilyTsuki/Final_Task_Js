@@ -12,6 +12,7 @@ export default class Enemies {
   #boss;
   #enemyModel;
   #fireBallModel;
+  bosnus = 0;
 
   constructor(keyboardLayout, enemyModel, fireballModel) {
     this.#aStarGrid = new Map();
@@ -56,7 +57,19 @@ export default class Enemies {
     enemy_alive += 1;
   }
   clearDead() {
-    this.#container = this.#container.filter((enemy) => !enemy.isDead);
+      // On compte combien d'ennemis sont morts
+      for (const enemy of this.#container) {
+          if (enemy.isDead) {
+              this.bonus = 100;
+              console.log("Enemy dead, bonus", this.bonus);
+          }
+      }
+
+      // On filtre le container pour ne garder que les vivants
+      this.#container = this.#container.filter((enemy) => !enemy.isDead);
+
+      // On renvoie le total à ajouter au score global
+      return this.bonus;
   }
 
   /**

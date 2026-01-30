@@ -6,6 +6,8 @@ import * as THREE from "three";
 import Projectile from "./models/Projectile.js";
 import findBestPath from "./utilities/aStar.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+export { score };
+
 const CONFIG = {
   projectile: {
     imgSrc: "../public/assets/fireball.png",
@@ -405,6 +407,11 @@ const gameLoop = () => {
       SPAWN_INTERVAL -= 1000;
       resetCamera();
     }
+  }
+  if (myGame.enemies.bonus > 0) {
+      score += myGame.enemies.bonus;
+      myGame.enemies.bonus = 0;
+      console.log("score enemie atribué");
   }
 };
 
