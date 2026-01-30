@@ -76,6 +76,9 @@ export default class Game {
   get time() {
     return this.#time;
   }
+  get bossIsPresent() {
+    return this.#bossIsPresent;
+  }
   set time(time) {
     this.#time = time;
   }
