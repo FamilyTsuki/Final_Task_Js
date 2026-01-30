@@ -83,8 +83,6 @@ export default class FireCircle extends Spell {
           } else {
             enemy.hp -= this.damage;
           }
-
-          console.log(`Brûle l'ennemi ! HP restant: ${enemy.hp}`);
         }
       });
     }, this.#attackSpeed);

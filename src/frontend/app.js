@@ -330,7 +330,6 @@ const gameLoop = () => {
   if (myGame.enemies.bonus > 0) {
     myGame.score += myGame.enemies.bonus;
     myGame.enemies.bonus = 0;
-    console.log("score enemie atribué");
   }
 };
 
