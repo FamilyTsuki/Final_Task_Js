@@ -19,7 +19,7 @@ let isGameOver = false;
 let gameTimer = 0;
 let bossIsPresent = false;
 const WAVE_INTERVAL = 3000;
-const BOSS_SPAWN_DELAY = 45000;
+const BOSS_SPAWN_DELAY = 4500;
 const initialCameraPos = { x: 16, y: 15, z: 15 };
 const initialLookAt = { x: 16, y: 2, z: 2 };
 const scene = new THREE.Scene();
@@ -93,17 +93,6 @@ const manageEnemiesLogic = (deltaTime) => {
 
     lastSpawnTime = gameTimer;
   }
-
-  // 2. SPAWN DU BOSS
-  if (!bossIsPresent && gameTimer >= BOSS_SPAWN_DELAY) {
-    bossIsPresent = true;
-
-    if (rire) rire.play();
-
-    setTimeout(() => {
-      spawnBoss();
-    }, 4000);
-  }
 };
 const displayHistory = () => {
   const history = myStorage.getHistory();
@@ -146,22 +135,6 @@ const updateCamera = () => {
 
   camera.updateProjectionMatrix();
   camera.lookAt(16, 2, 2);
-};
-const spawnBoss = () => {
-  boss_alive += 1;
-  if (myGame) {
-    myGame.sounds.laugth.play();
-    myGame.spawnBoss();
-    myGame.sounds.music.pause();
-    myGame.sounds.music.currentTime = 0;
-    myGame.sounds.quak.play();
-    setTimeout(() => {
-      myGame.sounds.spawnBossSound.play();
-    }, 0);
-    setTimeout(() => {
-      myGame.sounds.bossMusic.play();
-    }, 3000);
-  }
 };
 const init = async () => {
   canvas = document.getElementById("game-canvas");

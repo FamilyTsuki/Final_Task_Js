@@ -44,7 +44,7 @@ export default class Boss extends Actor {
       }
     });
 
-    this.scene.add(this.mesh);
+    this.#scene.add(this.mesh);
     this.mesh.scale.set(
       this.size.width * 2,
       this.size.height * 2,
