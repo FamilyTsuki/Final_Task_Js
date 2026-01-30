@@ -36,7 +36,7 @@ let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
 let SPAWN_INTERVAL = 4000;
-const BOSS_SPAWN_DELAY = 4000;
+const BOSS_SPAWN_DELAY = 45000;
 const loader = new GLTFLoader();
 const initialCameraPos = { x: 16, y: 15, z: 15 };
 const initialLookAt = { x: 16, y: 2, z: 2 };
@@ -409,9 +409,9 @@ const gameLoop = () => {
     }
   }
   if (myGame.enemies.bonus > 0) {
-      score += myGame.enemies.bonus;
-      myGame.enemies.bonus = 0;
-      console.log("score enemie atribué");
+    score += myGame.enemies.bonus;
+    myGame.enemies.bonus = 0;
+    console.log("score enemie atribué");
   }
 };
 
