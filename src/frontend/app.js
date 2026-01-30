@@ -3,41 +3,23 @@ import Game from "./Game.js";
 import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
-import Projectile from "./models/Projectile.js";
-import findBestPath from "./utilities/aStar.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-export { score };
-
-const CONFIG = {
-  projectile: {
-    imgSrc: "../public/assets/fireball.png",
-    size: { width: 0.4, height: 0.4 },
-    speed: 5,
-  },
-};
 
 let boss_alive = 1;
 let enemy_alive = 1;
 
+let SPAWN_INTERVAL = 4000;
+let lastSpawnTime = 0;
 let myGame;
 let myStorage;
 let canvas, renderer;
-let score = 0,
-  time = 0;
 let TLoop, SLoop;
-let music;
-let musicBoss;
-let rire;
-let spawnBossSound;
-let quak;
-let elScore, elTimer, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
+let spawnBosslopp;
+let elScore, elCurrentWord, elPlayerHp, elGameScreen, elGameOverScreen;
 let isGameOver = false;
 let gameTimer = 0;
-let lastSpawnTime = 0;
 let bossIsPresent = false;
-let SPAWN_INTERVAL = 4000;
+const WAVE_INTERVAL = 3000;
 const BOSS_SPAWN_DELAY = 45000;
-const loader = new GLTFLoader();
 const initialCameraPos = { x: 16, y: 15, z: 15 };
 const initialLookAt = { x: 16, y: 2, z: 2 };
 const scene = new THREE.Scene();
@@ -136,17 +118,10 @@ const displayHistory = () => {
     row.innerHTML = `
             <td>${game.date}</td>
             <td>${game.score}</td>
-            <td>${formatTime(game.time)}</td>
+            <td>${myGame.formatTime(game.time)}</td>
         `;
     container.appendChild(row);
   });
-};
-const formatTime = (t) => {
-  const ms = t % 100;
-  const totalSeconds = Math.floor(t / 100);
-  const seconds = totalSeconds % 60;
-  const minutes = Math.floor(totalSeconds / 60);
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(ms).padStart(2, "0")}`;
 };
 const updateCamera = () => {
   const width = window.innerWidth;
@@ -172,38 +147,27 @@ const updateCamera = () => {
   camera.updateProjectionMatrix();
   camera.lookAt(16, 2, 2);
 };
-const spawnBoss = async () => {
+const spawnBoss = () => {
   boss_alive += 1;
   if (myGame) {
-    rire.play();
-    await myGame.spawnBoss();
-    music.pause();
-    music.currentTime = 0;
-    quak.play();
+    myGame.sounds.laugth.play();
+    myGame.spawnBoss();
+    myGame.sounds.music.pause();
+    myGame.sounds.music.currentTime = 0;
+    myGame.sounds.quak.play();
     setTimeout(() => {
-      spawnBossSound.play();
+      myGame.sounds.spawnBossSound.play();
     }, 0);
     setTimeout(() => {
-      musicBoss.play();
+      myGame.sounds.bossMusic.play();
     }, 3000);
   }
 };
 const init = async () => {
-  myStorage = new Storage();
   canvas = document.getElementById("game-canvas");
-  if (!canvas) return;
-  music = new Audio("../public/assets/sounds/music.mp3");
-  music.volume = 0.5;
-  music.loop = true;
-  musicBoss = new Audio("../public/assets/sounds/bossMusic.wav");
-  musicBoss.volume = 0.5;
-  musicBoss.loop = true;
-  rire = new Audio("../public/assets/sounds/rire.wav");
-  rire.volume = 0.5;
-  spawnBossSound = new Audio("../public/assets/sounds/spawnBoss.mp3");
-  spawnBossSound.volume = 0.5;
-  quak = new Audio("../public/assets/sounds/quak.wav");
-  quak.volume = 0.5;
+  if (!canvas) throw new Error("No canvas !");
+
+  myStorage = new Storage();
 
   renderer = new THREE.WebGLRenderer({
     canvas: canvas,
@@ -216,13 +180,13 @@ const init = async () => {
   camera.lookAt(16, 2, 2);
 
   elScore = document.getElementById("current-score");
-  elTimer = document.getElementById("timer");
+  const elTimer = document.getElementById("timer");
   elCurrentWord = document.getElementById("currentWord");
   elPlayerHp = document.getElementById("player-health");
   elGameScreen = document.getElementById("game-screen");
   elGameOverScreen = document.getElementById("game-over-screen");
 
-  myGame = await Game.init(scene, KEYBOARD_LAYOUT);
+  myGame = await Game.init(scene, KEYBOARD_LAYOUT, BOSS_SPAWN_DELAY);
 
   const listElement = document.getElementById("spell-list");
   if (listElement) {
@@ -237,32 +201,14 @@ const init = async () => {
   const startBtn = document.getElementById("start-btn");
   const startScreen = document.getElementById("start-screen");
 
-  startBtn.addEventListener("click", () => {
-    music.play().catch((e) => console.log("Audio bloqué par le navigateur"));
-    startScreen.classList.add("hidden");
-    elGameScreen?.classList.remove("hidden");
-
-    TLoop = setInterval(() => {
-      time += 1;
-      if (elTimer) elTimer.textContent = formatTime(time);
-    }, 10);
-
-    SLoop = setInterval(() => {
-      score += 10;
-      if (elScore) elScore.textContent = score;
-    }, 1000);
-
-    // const WLoop = setInterval(() => {
-    //   myGame.spawnWave(5);
-    // }, 60000);
-
-    const EMLoop = setInterval(() => {
-      if (!myGame) throw new Error("No Game instance");
-      myGame.moveEnemies();
-    }, 1000);
-
-    gameLoop();
-  });
+  myGame.startBtn(
+    startBtn,
+    gameLoop,
+    elTimer,
+    elScore,
+    startScreen,
+    elGameScreen,
+  );
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambientLight);
@@ -273,7 +219,7 @@ const init = async () => {
   fillLight.position.set(-10, 10, -10);
   scene.add(fillLight);
 
-  setupEventListeners();
+  myGame.setupEventListeners(camera, renderer, elCurrentWord);
   updateCamera();
 };
 
@@ -324,9 +270,6 @@ const gameLoop = () => {
         } else {
           myGame.enemies.container.forEach((enemi) => {
             if (enemi.checkCollision(p)) {
-              console.log("ok");
-              console.log(myGame.projectiles);
-              console.log(enemi);
               enemi.takeDamage(p.damage);
               p.die();
             }
@@ -379,16 +322,15 @@ const gameLoop = () => {
     clearInterval(SLoop);
     elGameScreen?.classList.add("hidden");
     elGameOverScreen?.classList.remove("hidden");
-    myStorage.saveGame(score, time);
-    document.getElementById("final-time").textContent = formatTime(time);
-    document.getElementById("final-score").textContent = score;
-    music.pause();
+    myStorage.saveGame(myGame.score, myGame.time);
+    document.getElementById("final-time").textContent = myGame.formatTime(
+      myGame.time,
+    );
+    document.getElementById("final-score").textContent = myGame.score;
+    myGame.sounds.music.pause();
     displayHistory();
-    if (musicBoss) {
-      musicBoss.pause();
-      musicBoss.currentTime = 0;
-    }
-
+    myGame.sounds.bossMusic.stop();
+    myGame.sounds.music.stop();
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
     console.table(myStorage.getHistory());
@@ -396,12 +338,20 @@ const gameLoop = () => {
   if (myGame.enemies.boss) {
     if (myGame.enemies.boss.isDead && bossIsPresent) {
       myGame.enemies.boss.die();
-      score += 5000;
+      myGame.score += 5000;
       bossIsPresent = false;
       gameTimer = 0;
       lastSpawnTime = 0;
       SPAWN_INTERVAL -= 1000;
       resetCamera();
+
+      setTimeout(() => {
+        myGame.sounds.laugth.play();
+        bossIsPresent = true;
+        setTimeout(() => {
+          spawnBoss();
+        }, 4000);
+      }, BOSS_SPAWN_DELAY);
     }
   }
   if (myGame.enemies.bonus > 0) {
@@ -409,75 +359,6 @@ const gameLoop = () => {
     myGame.enemies.bonus = 0;
     console.log("score enemie atribué");
   }
-};
-
-const setupEventListeners = () => {
-  window.addEventListener("resize", () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
-
-    const referenceWidth = 1200;
-    const ratio = width / referenceWidth;
-
-    if (ratio < 1) {
-      const zoomOut = 1 / ratio;
-      camera.position.set(16, 15 * zoomOut, 10 * zoomOut);
-    } else {
-      camera.position.set(16, 15, 10);
-    }
-
-    camera.lookAt(16, 2, 2);
-  });
-
-  document
-    .getElementById("restart-btn")
-    ?.addEventListener("click", () => location.reload());
-
-  window.addEventListener("keydown", (e) => {
-    if (isGameOver) return;
-    const keyName = e.key.toUpperCase();
-    const keyTile = myGame.keyboard.find(keyName);
-    if (keyTile) keyTile.isPressed = true;
-
-    if (myGame.player) {
-      const target = myGame.keyboard.find(keyName);
-
-      if (target) {
-        myGame.enemies.updatePath(target.key, myGame.keyboard);
-
-        myGame.player.move({
-          x: target.rawPosition.x,
-          y: target.rawPosition.y,
-        });
-      }
-
-      let word = myGame.player.handleKeyPress(e.key);
-
-      if (e.key === "ArrowUp") word = "fire";
-
-      if (word) {
-        const closestEnemy = myGame.enemies.findClosestEnemy(
-          myGame.player.position,
-        );
-
-        const spellResult = myGame.player.attack(word, closestEnemy);
-
-        if (spellResult instanceof Projectile) {
-          myGame.projectiles.push(spellResult);
-        }
-        elCurrentWord.textContent = word;
-        setTimeout(() => {
-          elCurrentWord.textContent = myGame.player.currentWord;
-        }, 100);
-      } else if (elCurrentWord) {
-        elCurrentWord.textContent = myGame.player.currentWord;
-      }
-    }
-  });
 };
 
 window.addEventListener("DOMContentLoaded", init);

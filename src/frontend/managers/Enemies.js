@@ -1,23 +1,23 @@
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import NodeAStar from "../utilities/NodeAStar";
 import Boss from "../models/actors/Boss";
 import Enemy from "../models/actors/Enemy";
 import findBestPath from "../utilities/aStar";
-
-const loader = new GLTFLoader();
 
 export default class Enemies {
   #aStarGrid;
   #container;
   #boss;
   #enemyModel;
+  #enemyTexture;
+  #bossModel;
   #fireBallModel;
   bosnus = 0;
 
-  constructor(keyboardLayout, enemyModel, fireballModel) {
+  constructor(keyboardLayout, enemyTexture, bossModel, fireballModel) {
     this.#aStarGrid = new Map();
     this.#container = [];
-    this.#enemyModel = enemyModel;
+    this.#enemyTexture = enemyTexture;
+    this.#bossModel = bossModel;
     this.#fireBallModel = fireballModel;
 
     for (const key of keyboardLayout) {
@@ -53,23 +53,23 @@ export default class Enemies {
 
   add(position) {
     console.error("here");
-    this.#container.push(new Enemy(position, 50, 50, this.#enemyModel));
+    this.#container.push(new Enemy(position, 50, 50));
     enemy_alive += 1;
   }
   clearDead() {
-      // On compte combien d'ennemis sont morts
-      for (const enemy of this.#container) {
-          if (enemy.isDead) {
-              this.bonus = 100;
-              console.log("Enemy dead, bonus", this.bonus);
-          }
+    // On compte combien d'ennemis sont morts
+    for (const enemy of this.#container) {
+      if (enemy.isDead) {
+        this.bonus = 100;
+        console.log("Enemy dead, bonus", this.bonus);
       }
+    }
 
-      // On filtre le container pour ne garder que les vivants
-      this.#container = this.#container.filter((enemy) => !enemy.isDead);
+    // On filtre le container pour ne garder que les vivants
+    this.#container = this.#container.filter((enemy) => !enemy.isDead);
 
-      // On renvoie le total à ajouter au score global
-      return this.bonus;
+    // On renvoie le total à ajouter au score global
+    return this.bonus;
   }
 
   /**
@@ -161,6 +161,7 @@ export default class Enemies {
     } else if (type == "tank") {
       hp = 100;
     }
+
     const enemy = new Enemy(
       type,
       keyObject.key,
@@ -168,20 +169,15 @@ export default class Enemies {
       keyObject.rawPosition,
       hp,
       hp,
-      this.#enemyModel.clone(),
+      this.#enemyTexture.clone(),
     );
 
     this.#container.push(enemy);
     return enemy;
   }
 
-  async spawnBoss(scene) {
+  spawnBoss(scene) {
     const bossRawPosition = { x: 5, y: -2 };
-
-    const bossModel = await loader.loadAsync(
-      "../public/assets/yameter.glb",
-      (bossGltf) => bossGltf,
-    );
 
     this.#boss = new Boss(
       "Octopus",
@@ -195,7 +191,7 @@ export default class Enemies {
       { width: 1, height: 1 },
       scene,
       this.#fireBallModel,
-      bossModel,
+      this.#bossModel,
     );
     this.#container.push(this.#boss);
 

@@ -4,69 +4,72 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export default class Keyboard {
   #keyboardLayout;
+  #keyModel;
   tileSize;
   group;
 
-  constructor(keyboardLayout, tileSize, scene) {
+  /**
+   *
+   * @param {Map} keyboardLayout
+   * @param {Number} tileSize
+   * @param {Scene} scene
+   * @param {*} keyModel
+   */
+  constructor(keyboardLayout, tileSize, scene, keyModel) {
     this.#keyboardLayout = keyboardLayout;
+    this.#keyModel = keyModel;
     this.tileSize = tileSize;
     this.group = new THREE.Group();
     scene.add(this.group);
 
-    this.loadAndCreateKeys(scene);
+    this.createKeys(scene, this.#keyModel);
   }
 
   get keyboardLayout() {
     return this.#keyboardLayout;
   }
 
-  loadAndCreateKeys(scene) {
+  /**
+   *
+   * @param {Scene} scene
+   * @param {*} model
+   */
+  createKeys(scene, model) {
     const loader = new GLTFLoader();
 
-    loader.load(
-      "../../assets/key.glb",
-      (gltf) => {
-        const keyModel = gltf.scene;
+    this.#keyboardLayout.forEach((keyObj) => {
+      const keyMesh = model.clone();
 
-        this.#keyboardLayout.forEach((keyObj) => {
-          const keyMesh = keyModel.clone();
+      keyMesh.position.set(keyObj.x, 0, keyObj.y);
 
-          keyMesh.position.set(keyObj.x, 0, keyObj.y);
-
-          keyMesh.traverse((child) => {
-            if (child.isMesh) {
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0xaaaaaa,
-                roughness: 0.5,
-                metalness: 0.2,
-              });
-            }
+      keyMesh.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0xaaaaaa,
+            roughness: 0.5,
+            metalness: 0.2,
           });
+        }
+      });
 
-          const letterTexture = createTextTexture(keyObj.key.toUpperCase());
+      const letterTexture = createTextTexture(keyObj.key.toUpperCase());
 
-          const planeGeometry = new THREE.PlaneGeometry(1.2, 1.2);
-          const planeMaterial = new THREE.MeshBasicMaterial({
-            map: letterTexture,
-            transparent: true,
-            side: THREE.DoubleSide,
-          });
-          const letterPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+      const planeGeometry = new THREE.PlaneGeometry(1.2, 1.2);
+      const planeMaterial = new THREE.MeshBasicMaterial({
+        map: letterTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+      });
+      const letterPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 
-          letterPlane.position.set(0, 1, 0);
-          letterPlane.rotation.x = -Math.PI / 2;
+      letterPlane.position.set(0, 1, 0);
+      letterPlane.rotation.x = -Math.PI / 2;
 
-          keyMesh.add(letterPlane);
+      keyMesh.add(letterPlane);
 
-          keyObj.mesh = keyMesh;
-          this.group.add(keyMesh);
-        });
-      },
-      undefined,
-      (error) => {
-        throw new Error(`Erreur lors du chargement du modèle GLB: ${error}`);
-      },
-    );
+      keyObj.mesh = keyMesh;
+      this.group.add(keyMesh);
+    });
   }
 
   update() {
@@ -81,20 +84,40 @@ export default class Keyboard {
     });
   }
 
+  /**
+   *
+   * @param {String} keyToFind
+   * @returns {Key | undefined}
+   */
   find(keyToFind) {
     return this.#keyboardLayout.find((key) => key.key === keyToFind);
   }
 
-  static init(scene, keyboardLayout) {
+  /**
+   *
+   * @param {Scene} scene
+   * @param {Array} keyboardLayout
+   * @param {*} keyModel
+   * @returns {Keyboard}
+   */
+  static init(scene, keyboardLayout, keyModel) {
     const initialSize = 1;
     const keys = keyboardLayout.map(
       (keyRaw) =>
         new Key(keyRaw.key, keyRaw.x, keyRaw.y, keyRaw.isPressed, initialSize),
     );
-    return new Keyboard(keys, initialSize, scene);
+    return new Keyboard(keys, initialSize, scene, keyModel);
   }
 }
 
+/**
+ *
+ * @param {String} text
+ * @param {String} color
+ * @param {String} bgColor = rgba(Number, Number, Number, Number)
+ * @param {Number} fontSize
+ * @returns
+ */
 function createTextTexture(
   text,
   color = "black",
