@@ -302,8 +302,8 @@ const gameLoop = () => {
     document.getElementById("final-score").textContent = myGame.score;
     myGame.sounds.music.pause();
     displayHistory();
-    myGame.sounds.bossMusic.stop();
-    myGame.sounds.music.stop();
+    myGame.sounds.bossMusic.pause();
+    myGame.sounds.music.pause();
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
     console.table(myStorage.getHistory());
