@@ -76,8 +76,14 @@ export default class Game {
   get time() {
     return this.#time;
   }
+  set time(time) {
+    this.#time = time;
+  }
   get score() {
     return this.#score;
+  }
+  set score(score) {
+    this.#score = score;
   }
   get projectiles() {
     return this.#projectiles;
