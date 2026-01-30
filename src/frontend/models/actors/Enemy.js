@@ -84,8 +84,8 @@ export default class Enemy extends Actor {
 
         this.hpSprite.position.set(0, 2, 0);
       }
-      this.model.position.y = 2;
-      this.mesh.add(this.model);
+      this.#model.position.y = 2;
+      this.mesh.add(this.#model);
     });
 
     const canvas = document.createElement("canvas");
