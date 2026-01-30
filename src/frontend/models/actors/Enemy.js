@@ -28,7 +28,6 @@ export default class Enemy extends Actor {
     position,
     hp = 100,
     hpMax = 100,
-    model,
     texture,
     size = { width: 1, height: 1 },
     id = crypto.randomUUID(),
@@ -36,7 +35,6 @@ export default class Enemy extends Actor {
     super(id, hp, hpMax, position, position, size);
 
     this.#scene = scene;
-    this.#model = model;
     this.#texture = texture;
     this.#actualKey = actualKey;
     this.#path = [];
@@ -50,26 +48,30 @@ export default class Enemy extends Actor {
 
     this.#texture.flipY = false;
     this.#texture.colorSpace = THREE.SRGBColorSpace;
-    this.#model.scale.set(1.3, 1.3, 1.3);
 
-    this.#model.rotation.y = Math.PI / 2;
-    this.#model.traverse((child) => {
-      if (child.isMesh) {
-        child.material = new THREE.MeshLambertMaterial({
-          color: 0x00ff00,
-        });
+    const loader = new GLTFLoader();
+    loader.load("../../../../assets/models/bug.glb", (gltf) => {
+      this.#model = gltf.scene;
+      this.#model.scale.set(1.3, 1.3, 1.3);
+      this.#model.rotation.y = Math.PI / 2;
+      this.#model.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshLambertMaterial({
+            color: 0x00ff00,
+          });
 
-        child.material.needsUpdate = true;
+          child.material.needsUpdate = true;
+        }
+      });
+
+      if (this.hpSprite) {
+        this.#model.add(this.hpSprite);
+
+        this.hpSprite.position.set(0, 1.5, 0);
       }
+
+      this.mesh.add(this.#model);
     });
-
-    if (this.hpSprite) {
-      this.#model.add(this.hpSprite);
-
-      this.hpSprite.position.set(0, 1.5, 0);
-    }
-
-    this.mesh.add(this.#model);
 
     const canvas = document.createElement("canvas");
     canvas.width = 256;

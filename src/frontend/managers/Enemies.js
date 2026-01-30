@@ -1,10 +1,7 @@
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import NodeAStar from "../utilities/NodeAStar";
 import Boss from "../models/actors/Boss";
 import Enemy from "../models/actors/Enemy";
 import findBestPath from "../utilities/aStar";
-
-const loader = new GLTFLoader();
 
 export default class Enemies {
   #aStarGrid;
@@ -15,16 +12,9 @@ export default class Enemies {
   #bossModel;
   #fireBallModel;
 
-  constructor(
-    keyboardLayout,
-    enemyModel,
-    enemyTexture,
-    bossModel,
-    fireballModel,
-  ) {
+  constructor(keyboardLayout, enemyTexture, bossModel, fireballModel) {
     this.#aStarGrid = new Map();
     this.#container = [];
-    this.#enemyModel = enemyModel;
     this.#enemyTexture = enemyTexture;
     this.#bossModel = bossModel;
     this.#fireBallModel = fireballModel;
@@ -62,7 +52,7 @@ export default class Enemies {
 
   add(position) {
     console.error("here");
-    this.#container.push(new Enemy(position, 50, 50, this.#enemyModel));
+    this.#container.push(new Enemy(position, 50, 50));
     enemy_alive += 1;
   }
   clearDead() {
@@ -149,7 +139,6 @@ export default class Enemies {
       key.rawPosition,
       50,
       50,
-      this.#enemyModel.clone(),
       this.#enemyTexture.clone(),
     );
 
