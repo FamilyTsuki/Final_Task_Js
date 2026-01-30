@@ -65,9 +65,9 @@ export default class Enemy extends Actor {
       if (this.hpSprite) {
         this.model.add(this.hpSprite);
 
-        this.hpSprite.position.set(0, 1.5, 0);
+        this.hpSprite.position.set(0, 2, 0);
       }
-      this.model.position.y = 1.3;
+      this.model.position.y = 2;
       this.mesh.add(this.model);
     });
     const canvas = document.createElement("canvas");
@@ -226,6 +226,7 @@ export default class Enemy extends Actor {
     if (this.checkCollision(player)) {
       this.hp = -1;
       player.damage(50);
+      player.isJumping = false;
       this.die();
     }
   }

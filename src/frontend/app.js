@@ -344,11 +344,7 @@ const gameLoop = () => {
   });
   if (myGame && myGame.keyboard) {
     myGame.keyboard.keyboardLayout.forEach((tile) => {
-      const isPlayerOnTile =
-        Math.abs(myGame.player.position.x * 3.2 - tile.x) < 0.4 &&
-        Math.abs(myGame.player.position.y * 3.2 - tile.y) < 0.4;
-
-      tile.isPressed = isPlayerOnTile;
+      tile.isPressed = tile.key === myGame.player.actualKey;
     });
 
     myGame.keyboard.update();
