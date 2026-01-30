@@ -159,7 +159,7 @@ export default class Enemies {
     } else if (type == "speedy") {
       hp = 10;
     } else if (type == "tank") {
-      hp = 100;
+      hp = 150;
     }
 
     const enemy = new Enemy(
