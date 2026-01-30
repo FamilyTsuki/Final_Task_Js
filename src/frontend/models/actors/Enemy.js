@@ -83,7 +83,8 @@ export default class Enemy extends Actor {
 
     this.hpSprite.scale.set(2, 0.5, 1);
     this.hpSprite.position.y = 2.5;
-
+    this.jumpSound = new Audio("../../public/assets/sounds/jump.wav");
+    this.jumpSound.volume = 0.1;
     this.updateHpBar();
     // À la fin de ton constructeur Enemy.js
   }
@@ -131,6 +132,17 @@ export default class Enemy extends Actor {
       const dx = this.#targetedPosition.x - this.startJumpPos.x;
       const dy = this.#targetedPosition.y - this.startJumpPos.y;
       this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
+
+      // --- CORRECTION SON ---
+      if (this.jumpSound) {
+        // On remet à zéro pour que le "clic" soit audible à chaque saut
+        this.jumpSound.currentTime = 0;
+
+        // On baisse un peu le volume pour les ennemis (optionnel)
+        this.jumpSound.volume = 0.2;
+
+        this.jumpSound.play().catch((e) => console.log("Audio play blocked"));
+      }
     }
   }
   updateHpBar() {

@@ -92,12 +92,20 @@ export default class Player extends Actor {
    */
   move(newPos) {
     this.startJumpPos = { x: this.x, y: this.y };
-    this.targetPosition = newPos;
 
-    const dx = this.targetPosition.x - this.startJumpPos.x;
-    const dy = this.targetPosition.y - this.startJumpPos.y;
-    this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
-    this.jumpSound.play();
+    if (
+      this.targetPosition.x !== newPos.x ||
+      this.targetPosition.y !== newPos.y
+    ) {
+      this.jumpSound.currentTime = 0;
+      this.jumpSound.play();
+
+      this.targetPosition = newPos;
+
+      const dx = this.targetPosition.x - this.startJumpPos.x;
+      const dy = this.targetPosition.y - this.startJumpPos.y;
+      this.totalJumpDist = Math.sqrt(dx * dx + dy * dy);
+    }
   }
   update() {
     const dx = this.targetPosition.x - this.x;

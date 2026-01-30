@@ -25,7 +25,6 @@ let canvas, renderer;
 let score = 0,
   time = 0;
 let TLoop, SLoop;
-let spawnBosslopp;
 let music;
 let musicBoss;
 let rire;
@@ -76,7 +75,7 @@ const manageEnemiesLogic = (deltaTime) => {
   // 1. SPAWN DES ENNEMIS RÉGULIERS
   if (!bossIsPresent && gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
     // On récupère toutes les touches du clavier sauf celle du joueur
-    const difficulty = Math.min(gameTimer / 10000, 1);
+    const difficulty = Math.min(gameTimer / 50000, 1);
     const availableTiles = myGame.keyboard.keyboardLayout.filter((tile) => {
       // 1. Calcul de la distance avec le joueur
       const distSq =
@@ -107,7 +106,7 @@ const manageEnemiesLogic = (deltaTime) => {
       } else {
         type = "basic";
       }
-      myGame.enemies.spawnAt(randomTile, scene, "basic");
+      myGame.enemies.spawnAt(randomTile, scene, type);
     }
 
     lastSpawnTime = gameTimer;
@@ -390,9 +389,10 @@ const gameLoop = () => {
     music.pause();
     displayHistory();
     if (musicBoss) {
-      musicBoss.stop();
+      musicBoss.pause();
+      musicBoss.currentTime = 0;
     }
-    music.stop();
+
     const deathSound = new Audio("../public/assets/sounds/game_over.wav");
     deathSound.play();
     console.table(myStorage.getHistory());
