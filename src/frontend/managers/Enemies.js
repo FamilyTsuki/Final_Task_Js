@@ -132,7 +132,7 @@ export default class Enemies {
     return false;
   }
 
-  spawnAt(keyObject, scene) {
+  spawnAt(keyObject, scene, type = "basic") {
     if (!keyObject || !keyObject.rawPosition) {
       console.error(
         "Erreur: La touche fournie à spawnAt est invalide",
@@ -140,13 +140,21 @@ export default class Enemies {
       );
       return;
     }
-
+    let hp;
+    if (type == "basic") {
+      hp = 50;
+    } else if (type == "speedy") {
+      hp = 10;
+    } else if (type == "tank") {
+      hp = 200;
+    }
     const enemy = new Enemy(
+      type,
       keyObject.key,
       scene,
       keyObject.rawPosition,
-      50,
-      50,
+      hp,
+      hp,
       this.#enemyModel.clone(),
     );
 

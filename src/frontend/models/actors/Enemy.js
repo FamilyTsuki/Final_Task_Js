@@ -8,6 +8,7 @@ export default class Enemy extends Actor {
   #path; //? [Key, Key, ...]
 
   constructor(
+    type,
     actualKey,
     scene,
     position,
@@ -21,13 +22,24 @@ export default class Enemy extends Actor {
     this.#actualKey = actualKey;
     this.#path = [];
     this.#targetedPosition = { x: position.x, y: position.y };
-    this.speed = 0.05;
+
     this.startJumpPos = { x: position.x, y: position.y };
     this.totalJumpDist = 0;
-    this.speed = 0.05;
+
     this.mesh = new THREE.Group();
     this.scene = scene;
     this.isJumping = false;
+    if (type == "basic") {
+      this.color = 0x00ff00;
+      this.speed = 0.05;
+    } else if (type == "speedy") {
+      this.speed = 0.15;
+      this.color = 0x0000ff;
+    } else if (type == "tank") {
+      this.color = 0xff0000;
+      this.speed = 0.02;
+    }
+
     scene.add(this.mesh);
 
     const textureLoader = new THREE.TextureLoader();
@@ -43,7 +55,7 @@ export default class Enemy extends Actor {
       this.model.traverse((child) => {
         if (child.isMesh) {
           child.material = new THREE.MeshLambertMaterial({
-            color: 0x00ff00,
+            color: this.color,
           });
 
           child.material.needsUpdate = true;

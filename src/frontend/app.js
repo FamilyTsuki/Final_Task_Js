@@ -34,7 +34,7 @@ let isGameOver = false;
 let gameTimer = 0;
 let lastSpawnTime = 0;
 let bossIsPresent = false;
-let SPAWN_INTERVAL = 6000;
+let SPAWN_INTERVAL = 4000;
 const BOSS_SPAWN_DELAY = 45000;
 const loader = new GLTFLoader();
 const initialCameraPos = { x: 16, y: 15, z: 15 };
@@ -74,12 +74,20 @@ const manageEnemiesLogic = (deltaTime) => {
   // 1. SPAWN DES ENNEMIS RÉGULIERS
   if (!bossIsPresent && gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
     // On récupère toutes les touches du clavier sauf celle du joueur
+    const difficulty = Math.min(gameTimer / 10000, 1);
     const availableTiles = myGame.keyboard.keyboardLayout.filter((tile) => {
-      const distToPlayer = Math.sqrt(
-        (tile.x - myGame.player.x) ** 2 + (tile.y - myGame.player.y) ** 2,
-      );
-      // On ne spawn pas sur le joueur (distance > 1 case)
-      return distToPlayer > 1;
+      // 1. Calcul de la distance avec le joueur
+      const distSq =
+        (tile.x - myGame.player.x) ** 2 + (tile.y - myGame.player.y) ** 2;
+      const isFarFromPlayer = distSq > 1;
+
+      const isTileOccupied = myGame.enemies.container.some((enemy) => {
+        // On compare les positions logiques (x et y)
+        return enemy.x === tile.x && enemy.y === tile.y;
+      });
+
+      // On garde la touche seulement si elle est loin du joueur ET vide
+      return isFarFromPlayer && !isTileOccupied;
     });
 
     if (availableTiles.length > 0) {
@@ -87,9 +95,17 @@ const manageEnemiesLogic = (deltaTime) => {
       const randomTile =
         availableTiles[Math.floor(Math.random() * availableTiles.length)];
 
-      // IMPORTANT : On passe l'objet 'randomTile' entier,
-      // car Enemies.spawnAt a besoin de randomTile.rawPosition.x
-      myGame.enemies.spawnAt(randomTile, scene);
+      let type = "basic";
+      const roll = Math.random(); // Génère un nombre entre 0 et 1
+
+      if (roll < difficulty * 0.4) {
+        type = "tank";
+      } else if (roll < difficulty * 0.8) {
+        type = "speedy";
+      } else {
+        type = "basic";
+      }
+      myGame.enemies.spawnAt(randomTile, scene, "basic");
     }
 
     lastSpawnTime = gameTimer;
