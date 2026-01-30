@@ -9,7 +9,7 @@
 * **Système de Sorts par Mots-Clés** : Tapez des mots spécifiques (ex: `fire`, `heal`, `circle`) pour déclencher des pouvoirs magiques.
 * **Mouvements Dynamiques** : Le joueur et les ennemis sautent de touche en touche avec un effet de *Squash & Stretch* (déformation élastique) pour un rendu organique.
 * **Pathfinding A*** : Les ennemis utilisent l'algorithme A* pour calculer le chemin le plus court sur la grille de votre clavier afin de vous traquer.
-* **Boss Fight** : Un boss géant (Yameter) apparaît après 30 secondes avec une interface dédiée et une barre de vie stylisée en bois sombre et doré.
+* **Boss Fight** : Un boss géant (Yameter) apparaît après 80 secondes avec une barre de vie stylisée en bois.
 * **Feedback Visuel** : Secousses de caméra (*Screen Shake*), vignettes de dégâts rouges à l'écran et barres de vie dynamiques.
 
 ---
