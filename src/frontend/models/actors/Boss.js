@@ -41,7 +41,11 @@ export default class Boss extends Actor {
       });
 
       this.scene.add(this.mesh);
-      this.mesh.scale.set(this.size.width, this.size.height, this.size.width);
+      this.mesh.scale.set(
+        this.size.width * 2,
+        this.size.height * 2,
+        this.size.width * 2,
+      );
     }
     this.isEmerging = true;
     this.emergeProgress = 0;
@@ -91,7 +95,7 @@ export default class Boss extends Actor {
 
         const s_w = this.size.width * smoothProgress;
         const s_h = this.size.height * smoothProgress;
-        this.mesh.scale.set(s_w, s_h, s_w);
+        this.mesh.scale.set(s_w * 2, s_h * 2, s_w * 2);
 
         if (window.startShake) window.startShake(0.3);
 
@@ -100,7 +104,11 @@ export default class Boss extends Actor {
       } else {
         this.isEmerging = false;
         this.mesh.position.y = 0;
-        this.mesh.scale.set(this.size.width, this.size.height, this.size.width);
+        this.mesh.scale.set(
+          this.size.width * 2,
+          this.size.height * 2,
+          this.size.width * 2,
+        );
       }
     }
     const spacing = 3.2;

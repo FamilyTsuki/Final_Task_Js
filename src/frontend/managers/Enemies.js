@@ -146,7 +146,7 @@ export default class Enemies {
     } else if (type == "speedy") {
       hp = 10;
     } else if (type == "tank") {
-      hp = 200;
+      hp = 100;
     }
     const enemy = new Enemy(
       type,
@@ -179,7 +179,7 @@ export default class Enemies {
         y: bossRawPosition.y,
         z: bossRawPosition.z,
       },
-      { width: 2, height: 2 },
+      { width: 1, height: 1 },
       scene,
       this.#fireBallModel,
       bossModel,

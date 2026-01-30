@@ -31,6 +31,7 @@ export default class Player extends Actor {
       new Undefined(),
       new FireCircle("fire", 1, 2.3, 9000, scene, this, enemiesManager),
       new ProjectileLuncher("wasa", 25, 10000, fireballModel),
+      new ProjectileLuncher("pok", 2, 10000, fireballModel),
       new HealSpell("heal", 15),
     ];
 
