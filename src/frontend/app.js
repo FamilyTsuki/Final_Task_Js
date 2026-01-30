@@ -4,15 +4,6 @@ import { KEYBOARD_LAYOUT } from "../backend/KEYBOARD.js";
 import Storage from "./Storage.js";
 import * as THREE from "three";
 import Projectile from "./models/Projectile.js";
-import findBestPath from "./utilities/aStar.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-const CONFIG = {
-  projectile: {
-    imgSrc: "../public/assets/fireball.png",
-    size: { width: 0.4, height: 0.4 },
-    speed: 5,
-  },
-};
 
 let boss_alive = 1;
 let enemy_alive = 1;
@@ -36,7 +27,6 @@ let lastSpawnTime = 0;
 let bossIsPresent = false;
 const SPAWN_INTERVAL = 3000;
 const BOSS_SPAWN_DELAY = 45000;
-const loader = new GLTFLoader();
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -114,11 +104,11 @@ const updateCamera = () => {
   camera.updateProjectionMatrix();
   camera.lookAt(16, 2, 2);
 };
-const spawnBoss = async () => {
+const spawnBoss = () => {
   boss_alive += 1;
   if (myGame) {
     rire.play();
-    await myGame.spawnBoss();
+    myGame.spawnBoss();
     music.pause();
     music.currentTime = 0;
     quak.play();
@@ -200,8 +190,8 @@ const init = async () => {
       if (!bossIsPresent) {
         rire.play();
         bossIsPresent = true;
-        setTimeout(async () => {
-          await spawnBoss();
+        setTimeout(() => {
+          spawnBoss();
         }, 4000);
       }
     }, BOSS_SPAWN_DELAY);
@@ -278,9 +268,6 @@ const gameLoop = () => {
         } else {
           myGame.enemies.container.forEach((enemi) => {
             if (enemi.checkCollision(p)) {
-              console.log("ok");
-              console.log(myGame.projectiles);
-              console.log(enemi);
               enemi.takeDamage(p.damage);
               p.die();
             }
@@ -357,8 +344,8 @@ const gameLoop = () => {
       setTimeout(() => {
         rire.play();
         bossIsPresent = true;
-        setTimeout(async () => {
-          await spawnBoss();
+        setTimeout(() => {
+          spawnBoss();
         }, 4000);
       }, BOSS_SPAWN_DELAY);
     }

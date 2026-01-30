@@ -1,22 +1,35 @@
 import Actor from "../Actor.js";
 import Undefined from "../spells/Undefined.js";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import ProjectileLuncher from "../spells/ProjectileLuncher.js";
 import HealSpell from "../spells/HealSpells.js";
 import FireCircle from "../spells/FireCircle.js";
+
 export default class Player extends Actor {
   #wordSpells;
   #currentWord = "";
+  #playerModel;
+  #fireBallModel;
+
+  /**
+   *
+   * @param {String} playerName
+   * @param {Number} hp
+   * @param {Number} hpMax
+   * @param {Object} rawPosition = {x: Number, y: Number}
+   * @param {Object} size = {width: Number, height: Number}
+   * @param {Scene} scene
+   * @param {Enemies} enemies
+   */
   constructor(
-    playerName = "Unknow",
-    hp = 100,
-    hpMax = 100,
+    playerModel,
     rawPosition,
     size,
     scene,
-    fireballModel,
-    enemiesManager,
+    fireBallModel,
+    enemies,
+    playerName = "Undefined",
+    hp = 100,
+    hpMax = 100,
   ) {
     const spacing = 3.2;
     const position = {
@@ -27,22 +40,14 @@ export default class Player extends Actor {
 
     super(playerName, hp, hpMax, rawPosition, position, size);
 
-    this.#wordSpells = [
-      new Undefined(),
-      new FireCircle("fire", 10, 2, 3000, scene, this, enemiesManager),
-      new ProjectileLuncher("nuke", 10000, 10000, fireballModel), //! debug only
-      new HealSpell("heal", 30),
-    ];
-
     this.targetPosition = { x: position.x, y: position.y, z: position.z };
     this.speed = 0.1;
 
-    this.mesh = new THREE.Group();
     this.scene = scene;
     scene.add(this.mesh);
 
-    this.fireballModel = fireballModel;
-    this.playerModel = null;
+    this.#playerModel = playerModel;
+    this.#fireBallModel = fireBallModel;
     this.jumpTimer = 0;
     this.startJumpPos = { x: position.x, y: position.y };
     this.totalJumpDist = 0;
@@ -52,16 +57,19 @@ export default class Player extends Actor {
     this.damageSound = new Audio("../../public/assets/sounds/ouch.wav");
     this.damageSound.volume = 0.5;
 
-    const loader = new GLTFLoader();
-    loader.load("./assets/player.glb", (gltf) => {
-      this.playerModel = gltf.scene;
-      this.playerModel.scale.set(1.3, 1.3, 1.3);
+    this.#playerModel.scale.set(1.3, 1.3, 1.3);
+    this.#playerModel.position.y = 0.6;
+    this.mesh.add(this.#playerModel);
 
-      this.playerModel.position.y = 0.6;
-
-      this.mesh.add(this.playerModel);
-    });
     this.elVignette = document.getElementById("damage-vignette");
+
+    //* spells initialisation
+    this.#wordSpells = [
+      new Undefined(),
+      new FireCircle("fire", 10, 2, 3000, scene, this, enemies),
+      new ProjectileLuncher("nuke", 50, 100, this.#fireBallModel),
+      new HealSpell("heal", 30),
+    ];
   }
 
   get wordSpells() {
@@ -109,12 +117,10 @@ export default class Player extends Actor {
     this.y += dy * this.speed;
     this.#wordSpells.forEach((spell) => {
       if (spell.update) {
-        // On passe un deltaTime approximatif (16.6ms pour 60fps)
-        // Ou tu peux passer deltaTime en argument de la fonction update(dt)
-        spell.update(16.6);
+        spell.update(16.6); //? On passe un deltaTime approximatif (16.6ms pour 60fps)
       }
     });
-    if (this.mesh && this.playerModel) {
+    if (this.mesh && this.#playerModel) {
       this.mesh.position.set(this.x, 0, this.y);
 
       if (currentDist > 0.01) {
@@ -129,11 +135,11 @@ export default class Player extends Actor {
           this.totalJumpDist > 0 ? 1 - currentDist / this.totalJumpDist : 1;
 
         const jumpAmplitude = 2.0;
-        this.playerModel.position.y =
+        this.#playerModel.position.y =
           0.6 + Math.sin(progression * Math.PI) * jumpAmplitude;
       } else {
-        this.playerModel.position.y = 0.6;
-        this.playerModel.rotation.x = 0;
+        this.#playerModel.position.y = 0.6;
+        this.#playerModel.rotation.x = 0;
         this.x = this.targetPosition.x;
         this.y = this.targetPosition.y;
       }

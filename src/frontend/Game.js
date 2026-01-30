@@ -1,10 +1,8 @@
+import { TextureLoader } from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import Enemies from "./managers/Enemies";
 import Keyboard from "./managers/Keyboard";
 import Player from "./models/actors/Player";
-import Projectile from "./models/Projectile";
-
-const loader = new GLTFLoader();
 
 export default class Game {
   #canvas;
@@ -13,9 +11,15 @@ export default class Game {
   #enemies;
   #projectiles;
   #bonks;
-  #fireBallModel;
 
-  constructor(scene, player, enemies, keyboard, enemyModel, fireBallModel) {
+  /**
+   *
+   * @param {Scene} scene
+   * @param {Player} player
+   * @param {Enemies} enemies
+   * @param {Keyboard} keyboard
+   */
+  constructor(scene, player, enemies, keyboard) {
     this.#canvas = document.getElementById("game-canvas");
     this.scene = scene;
     if (!this.#canvas) {
@@ -27,7 +31,6 @@ export default class Game {
     this.#enemies = enemies;
     this.#projectiles = [];
     this.#bonks = [];
-    this.#fireBallModel = fireBallModel;
   }
 
   get keyboard() {
@@ -75,10 +78,14 @@ export default class Game {
     this.#enemies.move();
   }
 
-  async spawnBoss() {
-    await this.#enemies.spawnBoss(this.scene);
+  spawnBoss() {
+    this.#enemies.spawnBoss(this.scene);
   }
 
+  /**
+   *
+   * @param {Number} enemyNumber
+   */
   spawnWave(enemyNumber) {
     for (let x = 0; x < enemyNumber; x++) {
       this.#enemies.add(x, 3 + x);
@@ -93,38 +100,50 @@ export default class Game {
     return this.#enemies.spawnAt(this.#keyboard.find(key), this.scene);
   }
 
+  /**
+   *
+   * @param {Scene} scene
+   * @param {Array} keyboardLayout
+   * @returns {Game}
+   */
   static async init(scene, keyboardLayout) {
-    const keyboard = Keyboard.init(scene, keyboardLayout);
+    const models = await modelsLoad();
 
-    const enemyGltf = await loader.loadAsync("../../public/assets/bug.glb");
-    const fireballGltf = await loader.loadAsync(
-      "../../public/assets/fireball.glb",
-    );
+    const keyboard = Keyboard.init(scene, keyboardLayout, models.key.scene);
 
-    const enemiesManager = new Enemies(
+    const enemies = new Enemies(
       keyboard.keyboardLayout,
-      enemyGltf.scene,
-      fireballGltf.scene,
+      models.enemy.model.scene,
+      models.enemy.texture,
+      models.boss.scene,
+      models.fireBall.scene,
     );
 
     const player = new Player(
-      "Héros",
-      100,
-      100,
+      models.player.scene,
       { x: 0, y: 0, z: 5 },
       { width: 0.4, height: 0.4 },
       scene,
-      fireballGltf.scene,
-      enemiesManager,
+      models.fireBall.scene,
+      enemies,
     );
 
-    return new Game(
-      scene,
-      player,
-      enemiesManager,
-      keyboard,
-      enemyGltf.scene,
-      fireballGltf.scene,
-    );
+    return new Game(scene, player, enemies, keyboard);
   }
+}
+
+async function modelsLoad() {
+  const loader = new GLTFLoader();
+  const textureLoader = new TextureLoader();
+
+  return {
+    key: await loader.loadAsync("../../public/assets/models/key.glb"),
+    enemy: {
+      model: await loader.loadAsync("../../public/assets/models/fireball.glb"),
+      texture: await textureLoader.loadAsync("./assets/textures/bug.png"),
+    },
+    player: await loader.loadAsync("../../public/assets/models/player.glb"),
+    boss: await loader.loadAsync("../../public/assets/models/yameter.glb"),
+    fireBall: await loader.loadAsync("../../public/assets/models/fireball.glb"),
+  };
 }

@@ -11,12 +11,22 @@ export default class Enemies {
   #container;
   #boss;
   #enemyModel;
+  #enemyTexture;
+  #bossModel;
   #fireBallModel;
 
-  constructor(keyboardLayout, enemyModel, fireballModel) {
+  constructor(
+    keyboardLayout,
+    enemyModel,
+    enemyTexture,
+    bossModel,
+    fireballModel,
+  ) {
     this.#aStarGrid = new Map();
     this.#container = [];
     this.#enemyModel = enemyModel;
+    this.#enemyTexture = enemyTexture;
+    this.#bossModel = bossModel;
     this.#fireBallModel = fireballModel;
 
     for (const key of keyboardLayout) {
@@ -133,7 +143,6 @@ export default class Enemies {
   }
 
   spawnAt(key, scene) {
-    //TODO ajouter la mecanique de creation de l'enemi
     const enemy = new Enemy(
       key.key,
       scene,
@@ -141,6 +150,7 @@ export default class Enemies {
       50,
       50,
       this.#enemyModel.clone(),
+      this.#enemyTexture.clone(),
     );
 
     this.#container.push(enemy);
@@ -148,13 +158,8 @@ export default class Enemies {
     return enemy;
   }
 
-  async spawnBoss(scene) {
+  spawnBoss(scene) {
     const bossRawPosition = { x: 5, y: -2 };
-
-    const bossModel = await loader.loadAsync(
-      "../public/assets/yameter.glb",
-      (bossGltf) => bossGltf,
-    );
 
     this.#boss = new Boss(
       "Octopus",
@@ -168,7 +173,7 @@ export default class Enemies {
       { width: 2, height: 2 },
       scene,
       this.#fireBallModel,
-      bossModel,
+      this.#bossModel,
     );
     this.#container.push(this.#boss);
 
