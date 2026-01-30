@@ -271,7 +271,7 @@ const gameLoop = () => {
     document.getElementById("final-time").textContent = myGame.formatTime(
       myGame.time,
     );
-    document.getElementById("final-score").textContent = score;
+    document.getElementById("final-score").textContent = myGame.score;
     myGame.sounds.music.pause();
     displayHistory();
     myGame.sounds.bossMusic.stop();
