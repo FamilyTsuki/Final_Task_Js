@@ -7,6 +7,8 @@ import * as THREE from "three";
 let boss_alive = 1;
 let enemy_alive = 1;
 
+let SPAWN_INTERVAL = 4000;
+let lastSpawnTime = 0;
 let myGame;
 let myStorage;
 let canvas, renderer;
