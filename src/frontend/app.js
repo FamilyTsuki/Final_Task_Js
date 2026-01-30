@@ -55,7 +55,7 @@ const manageEnemiesLogic = (deltaTime) => {
   gameTimer += deltaTime;
 
   // 1. SPAWN DES ENNEMIS RÉGULIERS
-  if (!bossIsPresent && gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
+  if (!myGame.bossIsPresent && gameTimer - lastSpawnTime >= SPAWN_INTERVAL) {
     // On récupère toutes les touches du clavier sauf celle du joueur
     const difficulty = Math.min(gameTimer / 50000, 1);
     const availableTiles = myGame.keyboard.keyboardLayout.filter((tile) => {
