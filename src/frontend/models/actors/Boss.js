@@ -4,6 +4,10 @@ import Bonk from "../Bonk.js";
 import * as THREE from "three";
 
 export default class Boss extends Actor {
+  #scene;
+  #bossModel;
+  #fireBallModel;
+
   constructor(
     name,
     hp,
@@ -11,42 +15,41 @@ export default class Boss extends Actor {
     position,
     size,
     scene,
-    fireballModel,
+    fireBallModel,
     bossModel,
   ) {
     super(name, hp, hp, rawPosition, position, size);
     this.stateTimer = 0;
     this.attackInterval = 1400;
-    this.scene = scene;
-    this.fireballModel = fireballModel;
+    this.#scene = scene;
+    this.#bossModel = bossModel;
+    this.#fireBallModel = fireBallModel;
     this.totalTime = 0;
     this.container = new THREE.Group();
-    this.scene.add(this.container);
+    this.#scene.add(this.container);
     this.targetRotationX = 0;
     this.targetRotationY = 0;
     this.attackPhase = "idle";
     this.attackStartTime = 0;
     this.isAttacking = false;
 
-    if (bossModel) {
-      this.mesh = bossModel.scene.clone();
+    this.mesh = bossModel.clone();
 
-      this.mesh.traverse((child) => {
-        if (child.isMesh) {
-          child.visible = true;
-          if (child.isSkinnedMesh) {
-            child.frustumCulled = false;
-          }
+    this.mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.visible = true;
+        if (child.isSkinnedMesh) {
+          child.frustumCulled = false;
         }
-      });
+      }
+    });
 
-      this.scene.add(this.mesh);
-      this.mesh.scale.set(
-        this.size.width * 2,
-        this.size.height * 2,
-        this.size.width * 2,
-      );
-    }
+    this.scene.add(this.mesh);
+    this.mesh.scale.set(
+      this.size.width * 2,
+      this.size.height * 2,
+      this.size.width * 2,
+    );
     this.isEmerging = true;
     this.emergeProgress = 0;
 
@@ -187,10 +190,10 @@ export default class Boss extends Actor {
           { width: 0.4, height: 0.4 },
           10,
           velocity,
-          this.scene,
+          this.#scene,
           "boss",
           3.2,
-          this.fireballModel,
+          this.#fireBallModel,
         ),
       );
     }
@@ -205,7 +208,7 @@ export default class Boss extends Actor {
         { x: playerPos.x, y: playerPos.y },
         { width: 1, height: 4 },
         25,
-        this.scene,
+        this.#scene,
         3.2,
       ),
     );

@@ -1,12 +1,27 @@
 import Actor from "../Actor";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 export default class Enemy extends Actor {
   #damage;
   #actualKey; //? String
   #targetedPosition; //? { x: Number, y: Number }
   #path; //? [Key, Key, ...]
+  #scene;
+  #model;
+  #texture;
 
+  /**
+   *
+   * @param {String} actualKey
+   * @param {Scene} scene
+   * @param {Object} position = {x: Number, y: Number}
+   * @param {Number} hp
+   * @param {Number} hpMax
+   * @param {*} model
+   * @param {Object} size = {width: Number, height: Number}
+   * @param {Number | undefined} id
+   */
   constructor(
     type,
     actualKey,
@@ -14,11 +29,14 @@ export default class Enemy extends Actor {
     position,
     hp = 100,
     hpMax = 100,
-    model = undefined,
+    texture,
     size = { width: 1, height: 1 },
     id = crypto.randomUUID(),
   ) {
-    super(id, hp, hpMax, position, position, size, model);
+    super(id, hp, hpMax, position, position, size);
+
+    this.#scene = scene;
+    this.#texture = texture;
     this.#actualKey = actualKey;
     this.#path = [];
     this.#targetedPosition = { x: position.x, y: position.y };
@@ -27,7 +45,6 @@ export default class Enemy extends Actor {
     this.totalJumpDist = 0;
 
     this.mesh = new THREE.Group();
-    this.scene = scene;
     this.isJumping = false;
     if (type == "basic") {
       this.color = 0x00ff00;
@@ -40,19 +57,19 @@ export default class Enemy extends Actor {
       this.speed = 0.02;
     }
 
-    scene.add(this.mesh);
+    this.isJumping = false;
 
-    const textureLoader = new THREE.TextureLoader();
-    const bugTexture = textureLoader.load("./assets/bug.png");
-    bugTexture.flipY = false;
-    bugTexture.colorSpace = THREE.SRGBColorSpace;
+    this.#scene.add(this.mesh);
+
+    this.#texture.flipY = false;
+    this.#texture.colorSpace = THREE.SRGBColorSpace;
+
     const loader = new GLTFLoader();
-    loader.load("./assets/bug.glb", (gltf) => {
-      this.model = gltf.scene;
-      this.model.scale.set(1.3, 1.3, 1.3);
-
-      this.model.rotation.y = Math.PI / 2;
-      this.model.traverse((child) => {
+    loader.load("../../../../assets/models/bug.glb", (gltf) => {
+      this.#model = gltf.scene;
+      this.#model.scale.set(1.3, 1.3, 1.3);
+      this.#model.rotation.y = Math.PI / 2;
+      this.#model.traverse((child) => {
         if (child.isMesh) {
           child.material = new THREE.MeshLambertMaterial({
             color: this.color,
@@ -63,13 +80,15 @@ export default class Enemy extends Actor {
       });
 
       if (this.hpSprite) {
-        this.model.add(this.hpSprite);
+        this.#model.add(this.hpSprite);
 
         this.hpSprite.position.set(0, 1.5, 0);
       }
-      this.model.position.y = 1.3;
-      this.mesh.add(this.model);
+      this.#model.position.y = 1.3;
+
+      this.mesh.add(this.#model);
     });
+
     const canvas = document.createElement("canvas");
     canvas.width = 256;
     canvas.height = 64;
@@ -77,8 +96,8 @@ export default class Enemy extends Actor {
     this.hpCanvas = canvas;
     this.hpContext = context;
 
-    const texture = new THREE.CanvasTexture(canvas);
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const textureBis = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: textureBis });
     this.hpSprite = new THREE.Sprite(spriteMaterial);
 
     this.hpSprite.scale.set(2, 0.5, 1);
@@ -86,7 +105,28 @@ export default class Enemy extends Actor {
     this.jumpSound = new Audio("../../public/assets/sounds/jump.wav");
     this.jumpSound.volume = 0.1;
     this.updateHpBar();
-    // À la fin de ton constructeur Enemy.js
+    if (this.mesh) {
+      // On crée une boîte qui correspond à la taille de collision
+      // Note: width et height dans ton code correspondent souvent à X et Z en 3D
+      const hitBoxGeo = new THREE.BoxGeometry(
+        this.size.width * 0.1,
+        2,
+        this.size.height * 0.1,
+      );
+      const hitBoxMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.5,
+      });
+
+      this.debugBox = new THREE.Mesh(hitBoxGeo, hitBoxMat);
+      // On la place un peu au dessus du sol
+      this.debugBox.position.y = 1;
+
+      // On l'ajoute au mesh pour qu'elle suive l'ennemi
+      this.mesh.add(this.debugBox);
+    }
   }
 
   get isDead() {
@@ -111,6 +151,11 @@ export default class Enemy extends Actor {
 
     this.updateHpBar();
   }
+
+  /**
+   *
+   * @param {Player} player
+   */
   attack(player) {
     if (!player) {
       throw new Error("No player !");
@@ -145,6 +190,7 @@ export default class Enemy extends Actor {
       }
     }
   }
+
   updateHpBar() {
     const ctx = this.hpContext;
     const width = this.hpCanvas.width;
@@ -168,8 +214,14 @@ export default class Enemy extends Actor {
 
     this.hpSprite.material.map.needsUpdate = true;
   }
+
+  /**
+   *
+   * @param {Player} player
+   * @returns
+   */
   update(player) {
-    if (!this.#targetedPosition) return;
+    // if (!this.#targetedPosition) return;
 
     const dx = this.#targetedPosition.x - this.position.x;
     const dy = this.#targetedPosition.y - this.position.y;
@@ -199,22 +251,22 @@ export default class Enemy extends Actor {
 
         const jumpAmplitude = 1.5;
 
-        if (this.model) {
+        if (this.#model) {
           const sinePos = Math.sin(progression * Math.PI);
-          this.model.position.y = 1.6 + sinePos * jumpAmplitude;
+          this.#model.position.y = 1.6 + sinePos * jumpAmplitude;
 
           const stretchFactor = 0.3 * Math.sin(progression * Math.PI);
 
-          this.model.scale.y = 1.3 + stretchFactor;
-          this.model.scale.x = 1.3 - stretchFactor * 0.5;
-          this.model.scale.z = 1.3 - stretchFactor * 0.5;
+          this.#model.scale.y = 1.3 + stretchFactor;
+          this.#model.scale.x = 1.3 - stretchFactor * 0.5;
+          this.#model.scale.z = 1.3 - stretchFactor * 0.5;
         }
 
         if (currentDist < 0.05) {
           this.isJumping = false;
-          if (this.model) {
-            this.model.position.y = 1.6;
-            this.model.scale.set(1.3, 1.3, 1.3);
+          if (this.#model) {
+            this.#model.position.y = 1.6;
+            this.#model.scale.set(1.3, 1.3, 1.3);
           }
           this.position.x = this.#targetedPosition.x;
           this.position.y = this.#targetedPosition.y;
@@ -229,6 +281,7 @@ export default class Enemy extends Actor {
       this.die();
     }
   }
+
   die() {
     if (this.mesh && this.mesh.parent) {
       this.mesh.parent.remove(this.mesh);

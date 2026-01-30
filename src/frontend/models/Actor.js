@@ -1,27 +1,31 @@
 import GameObject from "./GameObject";
+import * as THREE from "three";
 
 export default class Actor extends GameObject {
   name;
   hp;
   hpMax;
-  size; //? {width: Number, height: Number}
+  size;
+  mesh; //? mesh 3d
   model; //? model 3d
 
-  constructor(name, hp, hpMax, rawPosition, position, size, model) {
+  /**
+   *
+   * @param {String} name
+   * @param {Number} hp
+   * @param {Number} hpMax
+   * @param {Object} rawPosition = {x: Number, y: Number}
+   * @param {Object} position = {x: Number, y: Number}
+   * @param {Object} size = {width: Number, height: Number}
+   */
+  constructor(name, hp, hpMax, rawPosition, position, size) {
     super(rawPosition, position);
 
     this.name = name;
     this.hp = hp;
     this.hpMax = hpMax;
     this.size = size;
-    this.model = model;
-  }
-
-  get name() {
-    return this.name;
-  }
-  get hp() {
-    return this.hp;
+    this.mesh = new THREE.Group();
   }
 
   isAlive() {
@@ -32,32 +36,8 @@ export default class Actor extends GameObject {
     console.log(`${this.name} attacking ${actor.name}`);
   }
 
-  draw(ctx) {
-    if (!ctx) throw new Error("No ctx on draw !");
-
-    if (
-      this.model instanceof HTMLImageElement &&
-      this.model.complete &&
-      this.model.naturalWidth !== 0
-    ) {
-      ctx.drawImage(
-        this.model,
-        this.position.x,
-        this.position.y,
-        this.size.width,
-        this.size.height,
-      );
-    } else {
-      ctx.fillStyle = typeof this.model === "string" ? this.model : "red";
-      ctx.fillRect(
-        this.position.x,
-        this.position.y,
-        this.size.width,
-        this.size.height,
-      );
-    }
-  }
   move() {}
+
   checkCollision(other) {
     const collision =
       this.position.x < other.position.x + other.size.width &&
